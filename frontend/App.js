@@ -1,16 +1,21 @@
 import * as React from 'react'
 import { NavigationContainer } from '@react-navigation/native'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import { createStackNavigator} from '@react-navigation/stack'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import HomeScreen from './src/screens/Home'
 import AuthScreen from './src/screens/Auth'
+import LoadingScreen from './src/screens/Loading'
 
 const Tab = createBottomTabNavigator()
-
+const Stack = createStackNavigator()
 export default function App() {
   return (
     <NavigationContainer>
-      <Tab.Navigator
+      <Stack.Navigator initialRouteName="Loading">
+        <Stack.Screen name="Loading" component={LoadingScreen} options={{ headerShown:false }} />
+      </Stack.Navigator>
+      {/* <Tab.Navigator
         initialRouteName='Home'
         screenOptions={({ route }) => ({
           tabBarIcon: ({ focused, color, size }) => {
@@ -37,7 +42,7 @@ export default function App() {
           name='Auth'
           component={AuthScreen}
         />
-      </Tab.Navigator>
+      </Tab.Navigator> */}
     </NavigationContainer>
   )
 }
