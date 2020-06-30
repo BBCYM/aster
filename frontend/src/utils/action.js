@@ -5,7 +5,7 @@ export function createAction(type, payload) {
     }
 }
 export const actionType = {
-    SET:{
-        idToken:'SET_idToken'
+    Auth: {
+        SIGNIN: 'SIGNIN'
     }
 }

@@ -7,7 +7,7 @@ import {authReducer} from './authReducer'
 /**
  * initial state
  */
-const initialState = { loading: true };
+const initialState = { isLoading: true };
 
 export function useAuth() {
     
@@ -15,13 +15,23 @@ export function useAuth() {
     
     const auth = React.useMemo(() => ({
         configure: () => {
-            GoogleSignin.configure({
+            console.log("configure")
+            console.log(await AsyncStorage.getAllKeys())
+            let config = {
                 scopes: ['https://www.googleapis.com/auth/photoslibrary'],
                 webClientId: web.client_id,
                 offlineAccess: true,
                 forceCodeForRefreshToken: true,
+            }
+            await AsyncStorage.getItem('name',(err, result)=>{
+                err ? (
+                    console.log(err)
+                ):(
+                    config.accountName = result
+                )
             })
-            console.log("configure")
+            GoogleSignin.configure(config)
+            
         },
         signIn: async (callback) => {
             try {
@@ -29,9 +39,11 @@ export function useAuth() {
                 await GoogleSignin.hasPlayServices()
                 // this will return userInfo
                 let userInfo = await GoogleSignin.signIn()
-                await AsyncStorage.setItem('idToken', userInfo.idToken)
-                dispatch(createAction(actionType.SET.idToken, userInfo.idToken))
-
+                await AsyncStorage.setItem([
+                    ['idToken', userInfo.idToken],
+                    ['name',userInfo.user.name]
+                ])
+                dispatch(createAction(actionType.Auth.SIGNIN, {idToken:userInfo.idToken, name:userInfo.user.name}))
                 callback(userInfo.idToken)
             } catch (e) {
                 if (e.code === statusCodes.SIGN_IN_CANCELLED) {
@@ -45,12 +57,36 @@ export function useAuth() {
                 }
             }
         },
-        signInSilently: () => {
+        signInSilently: async (callback) => {
             console.log("signInSilently")
+            try {
+                const userInfo = await GoogleSignin.signInSilently()
+                await AsyncStorage.setItem([
+                    ['idToken', userInfo.idToken],
+                    ['name',userInfo.user.name]
+                ])
+                dispatch(createAction(actionType.Auth.SIGNIN, {idToken:userInfo.idToken, name:userInfo.user.name}))
+                callback(userInfo.idToken)
+            }catch(e) {
+                if (e.code === statusCodes.SIGN_IN_REQUIRED) {
+                    callback(userInfo.idToken)
+                } else {
+                    console.log(e.code)
+                }
+            }
         },
         isSignedIn: () => {
             console.log("isSignedIn")
         },
+        clearStorage: ()=>{
+            await AsyncStorage.clear((err)=>{
+                if (err) {
+                    console.log(err)
+                }
+            })
+            console.log("Done clear")
+            console.log(await AsyncStorage.getAllKeys())
+        }
     }), [])
     return { auth, state }
 }
