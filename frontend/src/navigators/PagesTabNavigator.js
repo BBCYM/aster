@@ -7,6 +7,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons'
 import {useAuth} from '../hooks/useAuth'
 const PagesTab = createBottomTabNavigator()
 
+
 export function PagesTabNavigator() {
     return (
         <PagesTab.Navigator

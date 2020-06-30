@@ -11,7 +11,7 @@ const MainStack = createStackNavigator()
 export default function () {
   const { auth, state } = useAuth()
   return (
-    <AuthContext.Provider value={auth}>
+    <AuthContext.Provider value={{auth,state}} >
       <NavigationContainer>
         <MainStack.Navigator
           screenOptions={{

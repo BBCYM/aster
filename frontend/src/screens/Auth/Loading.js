@@ -2,10 +2,11 @@ import * as React from 'react'
 import { View, Text, ActivityIndicator } from 'react-native'
 import { AuthContext } from '../../contexts/AuthContext'
 export function LoadingScreen(props) {
-    const { configure } = React.useContext(AuthContext)
+    const {auth} = React.useContext(AuthContext)
     React.useEffect(() => {
+
         setTimeout(()=>{
-            configure()
+            auth.configure()
             props.navigation.replace('Signin')
         },500)
     })
