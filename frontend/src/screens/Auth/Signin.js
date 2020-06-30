@@ -3,11 +3,14 @@ import { Text, View } from 'react-native'
 import { AuthContext } from '../../contexts/AuthContext'
 import { GoogleSigninButton} from '@react-native-community/google-signin'
 export function SigninScreen(props) {
-    const { signIn } = React.useContext(AuthContext)
+    const { auth } = React.useContext(AuthContext)
     let _signIn = async ()=>{
-        let result = await signIn()
-        // console.log("Hello")
-        // props.navigation.replace('Pages')
+        await auth.signIn((token) =>{
+            if(token) {
+                console.log("Hello Token")
+                props.navigation.replace('Pages')
+            }
+        })
     }
     return (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>

@@ -3,26 +3,16 @@ import { GoogleSignin, statusCodes } from '@react-native-community/google-signin
 import { web } from '../../android/app/google-services.json'
 import AsyncStorage from '@react-native-community/async-storage'
 import { createAction, actionType } from '../utils/action'
-
+import {authReducer} from './authReducer'
 /**
  * initial state
  */
 const initialState = { loading: true };
 
 export function useAuth() {
-    const reducer = function (state, action){
-        console.log(action.type)
-        switch (action.type) {
-            case actionType.SET.idToken:
-                return {
-                    ...state,
-                    idToken: action.payload
-                };
-            default:
-                return state;
-        }
-    }
-    const [state, dispatch] = React.useReducer(reducer, initialState)
+    
+    const [state, dispatch] = React.useReducer(authReducer, initialState)
+    
     const auth = React.useMemo(() => ({
         configure: () => {
             GoogleSignin.configure({
@@ -33,7 +23,7 @@ export function useAuth() {
             })
             console.log("configure")
         },
-        signIn: async () => {
+        signIn: async (callback) => {
             try {
                 console.log("signIn")
                 await GoogleSignin.hasPlayServices()
@@ -41,9 +31,8 @@ export function useAuth() {
                 let userInfo = await GoogleSignin.signIn()
                 await AsyncStorage.setItem('idToken', userInfo.idToken)
                 dispatch(createAction(actionType.SET.idToken, userInfo.idToken))
-                return userInfo.idToken
-                // console.log(await AsyncStorage.getAllKeys())
-                // callback(userInfo.idToken)
+
+                callback(userInfo.idToken)
             } catch (e) {
                 if (e.code === statusCodes.SIGN_IN_CANCELLED) {
                     console.log("Cancel signin")
