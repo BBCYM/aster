@@ -61,6 +61,7 @@ const App: () => React$Node = () => {
             <View style={styles.sectionContainer}>
               <Text style={styles.sectionTitle}>Learn More</Text>
               <Text style={styles.sectionDescription}>
+                I am bobo
                 Read the docs to discover what to do next:
               </Text>
             </View>
