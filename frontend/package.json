@@ -10,8 +10,12 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@typescript-eslint/eslint-plugin": "^1.13.0",
     "react": "16.11.0",
-    "react-native": "0.62.2"
+    "react-native": "0.62.2",
+    "react-native-elements": "^2.0.4",
+    "react-native-gifted-chat": "^0.16.3",
+    "styled-components": "^5.1.1"
   },
   "devDependencies": {
     "@babel/core": "^7.6.2",
