@@ -11,14 +11,14 @@
   },
   "dependencies": {
     "react-native-gifted-chat": "^0.16.3",
-    "styled-components": "^5.1.1"
+    "styled-components": "^5.1.1",
     "@react-native-community/toolbar-android": "0.1.0-rc.2",
     "native-base": "^2.13.12",
     "react": "16.11.0",
     "react-native": "0.62.2",
     "react-native-elements": "^2.0.4",
     "react-native-image-carousel": "^0.4.6",
-    "react-native-photo-browser": "^0.7.0"
+    "react-native-photo-browser": "^0.7.0",
     "@react-native-community/async-storage": "^1.11.0",
     "@react-native-community/google-signin": "^4.0.3",
     "@react-native-community/masked-view": "^0.1.10",
