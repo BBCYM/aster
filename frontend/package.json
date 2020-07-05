@@ -10,7 +10,6 @@
     "lint": "eslint ."
   },
   "dependencies": {
-
     "react-native-gifted-chat": "^0.16.3",
     "styled-components": "^5.1.1",
     "@react-native-community/toolbar-android": "0.1.0-rc.2",

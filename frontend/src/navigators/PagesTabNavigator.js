@@ -1,8 +1,8 @@
 import * as React from 'react'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-import { ChatbotScreen } from '../screens/Chatbot/Chatbot'
+import ChatbotScreen from '../screens/Chatbot/Chatbot'
 import { HomeScreen } from '../screens/Home/Home'
-import { ProfileScreen } from '../screens/Profile/Profile'
+import ProfileScreen from '../screens/Profile/Profile'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import {useAuth} from '../hooks/useAuth'
 const PagesTab = createBottomTabNavigator()
