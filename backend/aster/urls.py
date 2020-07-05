@@ -18,7 +18,9 @@ from django.urls import path
 from auth.views import AuthView
 from bot.views import BotView
 
+from personal.views import personalView
 urlpatterns = [
-    path('', AuthView.as_view()),
+    path('', AuthView.as_view(), name='index'),
+    path('personal', personalView.as_view(), name='index'),
     path('bot/', BotView.as_view()),
 ]
