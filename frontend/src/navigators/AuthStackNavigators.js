@@ -17,8 +17,8 @@ export function AuthStackNavigator() {
                 state.isLoading ? (
                     <AuthStack.Screen name='Loading' component={LoadingScreen} />
                 ) : (
-                    <AuthStack.Screen name='Signin' component={SigninScreen} />
-                )
+                        <AuthStack.Screen name='Signin' component={SigninScreen} />
+                    )
             }
         </AuthStack.Navigator>
     )
