@@ -88,7 +88,7 @@ export default class personalScreen extends React.Component {
                 </View>
                 <View style={{ flex: 1, flexDirection: 'row' }} >
                     <View style={{ flex: 1 }} >
-                        <Image style={styles.accicon} source={require('./pic/accountpeople.png')} />
+                        <Image style={styles.accicon} source={require('../../pic/accountpeople.png')} />
                     </View>
                     <View style={{ flex: 2 }} >
                         <TouchableOpacity activeOpacity={0.2} focusedOpacity={0.5}>
@@ -100,7 +100,7 @@ export default class personalScreen extends React.Component {
                 </View>
                 <View style={{ flex: 1, flexDirection: 'row' }} >
                     <View style={{ flex: 1 }} >
-                        <Image style={styles.albumicon} source={require('./pic/camera.png')} />
+                        <Image style={styles.albumicon} source={require('../../pic/camera.png')} />
                     </View>
                     <View style={{ flex: 2 }} >
                         <TouchableOpacity activeOpacity={0.2} focusedOpacity={0.5}>

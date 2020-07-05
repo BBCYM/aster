@@ -15,13 +15,13 @@ export default class HomeScreen extends React.Component {
                 <TouchableOpacity  activeOpacity={0.2} focusedOpacity={0.5} style={{width:'50%'}}>
                     <View style={styles.photoBtn}>
                         <Image
-                            source={require('./pic/photo.png')} />
+                            source={require('../../pic/photo.png')} />
                     </View>
                 </TouchableOpacity>
                 <TouchableOpacity  activeOpacity={0.2} focusedOpacity={0.5} style={{width:'50%'}}>
                     <View style={styles.personBtn}>
                         <Image
-                            source={require('./pic/person.png')} />
+                            source={require('../../pic/person.png')} />
                     </View>
                 </TouchableOpacity>
             </View>
@@ -41,7 +41,7 @@ export default class HomeScreen extends React.Component {
                         <TouchableOpacity  onPress={this.send} activeOpacity={0.2} focusedOpacity={0.5}>
                             <View style={styles.sendBtn}>
                                 <Image
-                                source={require('./pic/send.png')} />
+                                source={require('../../pic/send.png')} />
                             </View>
                         </TouchableOpacity>
                     </View>
