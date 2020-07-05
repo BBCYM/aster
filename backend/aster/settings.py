@@ -39,7 +39,9 @@ INSTALLED_APPS = [
     # 'django.contrib.staticfiles',
     'rest_framework',
     'auth',
+    'personal',
     'bot',
+
 ]
 
 MIDDLEWARE = [
@@ -122,11 +124,11 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-REST_FRAMEWORK={
+REST_FRAMEWORK = {
     # Don't use default user
-    'UNAUTHENTICATED_USER':None,
+    'UNAUTHENTICATED_USER': None,
     # only render json
-    'DEFAULT_RENDERER_CLASSES':[
+    'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
     ]
 }

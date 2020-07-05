@@ -10,6 +10,7 @@ django = "*"
 djangorestframework = "*"
 django-filter = "*"
 autopep8 = "*"
+protobuf = "*"
 
 [requires]
 python_version = "3.7"
