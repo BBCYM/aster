@@ -7,6 +7,14 @@ export default class CardShowcaseExample extends Component {
             <Container>
                 <Header />
                 <Content>
+                    <PhotoView
+                        source={{ uri: 'https://facebook.github.io/react/img/logo_og.png' }}
+                        minimumZoomScale={0.5}
+                        maximumZoomScale={3}
+                        androidScaleType="center"
+                        onLoad={() => console.log("Image loaded!")}
+                        style={{ width: 300, height: 300 }}
+                    />
                     <Card style={{ flex: 0 }}>
                         <CardItem>
                             <Left>
