@@ -4,11 +4,10 @@ import { AuthContext } from '../../contexts/AuthContext'
 
 
 export function HomeScreen() {
-    const {state} = React.useContext(AuthContext)
+    // const {state} = React.useContext(AuthContext)
     return (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
             <Text>Home Screen</Text>
-            {console.log(state)}
         </View>
     )
 }
