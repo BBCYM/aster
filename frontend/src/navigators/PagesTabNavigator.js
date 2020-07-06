@@ -3,6 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import ChatbotScreen from '../screens/Chatbot/Chatbot'
 import { HomeScreen } from '../screens/Home/Home'
 import ProfileScreen from '../screens/Profile/Profile'
+import gallery from '../utils/galary'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import {useAuth} from '../hooks/useAuth'
 const PagesTab = createBottomTabNavigator()
@@ -23,9 +24,9 @@ export function PagesTabNavigator() {
                 options={{
                     tabBarLabel:'Albums',
                     // focused: boolean; color: string; size: number;
-                    tabBarIcon: (props) => {
-                        return <Ionicons name='md-images' color={props.color} size={props.size} />
-                    }
+                    // tabBarIcon: (props) => {
+                    //     return <Ionicons name='ios-images' color={props.color} size={props.size} />
+                    // }
                 }}
             />
             <PagesTab.Screen
@@ -33,9 +34,9 @@ export function PagesTabNavigator() {
                 component={ChatbotScreen}
                 options={{
                     tabBarLabel:'Search',
-                    tabBarIcon: (props) => {
-                        return <Ionicons name='md-chatboxes' color={props.color} size={props.size} />
-                    }
+                    // tabBarIcon: (props) => {
+                    //     return <Ionicons name='md-chatboxes' color={props.color} size={props.size} />
+                    // }
                 }}
             />
             <PagesTab.Screen 
@@ -43,9 +44,19 @@ export function PagesTabNavigator() {
                 component={ProfileScreen}
                 options={{
                     tabBarLabel:'Profile',
-                    tabBarIcon: (props) => {
-                        return <Ionicons name='md-person' color={props.color} size={props.size} />
-                    }
+                    // tabBarIcon: (props) => {
+                    //     return <Ionicons name='ios-person' color={props.color} size={props.size} />
+                    // }
+                }}    
+            />
+            <PagesTab.Screen 
+                name='Gallary'
+                component={gallery}
+                options={{
+                    tabBarLabel:'Gallary',
+                    // tabBarIcon: (props) => {
+                    //     return <Ionicons name='ios-person' color={props.color} size={props.size} />
+                    // }
                 }}    
             />
         </PagesTab.Navigator>
