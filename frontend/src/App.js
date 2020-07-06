@@ -12,31 +12,31 @@ const MainStack = createStackNavigator()
 export default function () {
   const { auth, state } = useAuth()
 
+
   return (
     <AuthContext.Provider value={{ auth, state }} >
       <NavigationContainer>
         <MainStack.Navigator
           screenOptions={{
             headerShown: false,
+            animationEnabled: false
           }}
         >
-          {console.log(state.user)}
-
-          {/* {
-            state.isLoading ? (
+          {
+            state.splash ? (
               <MainStack.Screen name='Splash' component={SplashScreen} />
             ) : (
               state.user ? (
+                console.log("hello user"),
                 <MainStack.Screen name='Pages' component={PagesTabNavigator} />
               ) : (
+                console.log('need auth'),
                 <MainStack.Screen name='Auth' component={AuthStackNavigator} />
               )
             )
-          } */}
-          <MainStack.Screen name='Pages' component={PagesTabNavigator} />
+          }
         </MainStack.Navigator>
       </NavigationContainer>
-
     </AuthContext.Provider>
   )
 }

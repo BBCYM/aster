@@ -10,6 +10,7 @@ export const actionType = {
     },
     SET:{
         CLEAR:'set_Clear',
-        isLoading:'set_isLoading'
+        isLoading:'set_isLoading',
+        SPLASH:'set_splash'
     }
 }
