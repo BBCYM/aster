@@ -54,9 +54,9 @@ export function PagesTabNavigator() {
                 component={gallery}
                 options={{
                     tabBarLabel:'Gallary',
-                    // tabBarIcon: (props) => {
-                    //     return <Ionicons name='ios-person' color={props.color} size={props.size} />
-                    // }
+                    tabBarIcon: (props) => {
+                        return <Ionicons name='ios-person' color={props.color} size={props.size} />
+                    }
                 }}    
             />
         </PagesTab.Navigator>
