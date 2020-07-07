@@ -2,7 +2,7 @@ import * as React from 'react'
 import { GoogleSignin, statusCodes } from '@react-native-community/google-signin'
 import { web } from '../../android/app/google-services.json'
 import AsyncStorage from '@react-native-community/async-storage'
-import { createAction, actionType } from '../utils/action'
+import { action, actionType } from '../utils/action'
 import { authReducer } from './authReducer'
 /**
  * initial state
@@ -48,12 +48,12 @@ export function useAuth() {
                         throw err
                     } else if (result && result == userInfo.user.email) {
                         console.log('is login')
-                        dispatch([createAction(actionType.Auth.SIGNIN, userInfo.user),createAction(actionType.SET.SPLASH, false)])
-                        
+                        dispatch([action(actionType.SET.USER, userInfo.user), action(actionType.SET.SPLASH, false)])
+
                     }
                 })
             } else {
-                dispatch(createAction(actionType.SET.SPLASH, false))
+                dispatch(action(actionType.SET.SPLASH, false))
             }
         },
         signIn: async () => {
@@ -66,60 +66,20 @@ export function useAuth() {
                     ['idToken', userInfo.idToken],
                     ['email', userInfo.user.email]
                 ])
-                dispatch(createAction(actionType.Auth.SIGNIN, { user: userInfo.user }))
+                dispatch(action(actionType.Auth.SIGNIN, userInfo.user))
             } catch (e) {
                 if (e.code === statusCodes.SIGN_IN_CANCELLED) {
                     console.log("Cancel signin")
+                    dispatch([action(actionType.SET.SPLASH, true), action(actionType.SET.USER, null)])
+
                 } else if (e.code === statusCodes.IN_PROGRESS) {
                     console.log("Is in progress already")
                 } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
                     console.log("Play service is not available")
                 } else {
-                    console.log(e.code)
-                }
-            }
-        },
-        signInSilently: async (callback) => {
-            console.log("signInSilently")
-            let userInfo = null
-            try {
-                userInfo = await GoogleSignin.signInSilently()
-                await AsyncStorage.setItem([
-                    ['idToken', userInfo.idToken],
-                    ['email', userInfo.user.email]
-                ])
-                dispatch(createAction(actionType.Auth.SIGNIN, { user: userInfo.user }))
-                callback(userInfo)
-            } catch (e) {
-                if (e.code === statusCodes.SIGN_IN_REQUIRED) {
-                    console.log("Not signed in")
-                    callback(userInfo)
-                } else {
-                    console.log('error')
                     console.log(e)
                 }
             }
-        },
-        isSignedIn: async (callback) => {
-            console.log("isSignedIn")
-            let _isSigned = await GoogleSignin.isSignedIn()
-            console.log(_isSigned)
-            if (_isSigned) {
-                let userInfo = await GoogleSignin.getCurrentUser()
-                // set state
-                AsyncStorage.getItem('email', (err, result) => {
-                    if (err) {
-                        console.log(err)
-                        _isSigned = false
-                    } else if (result) {
-                        if (userInfo.user.email == result) {
-                            console.log('Result good')
-                            dispatch(createAction(actionType.Auth.SIGNIN, { user: userInfo.user }))
-                        }
-                    }
-                })
-            }
-            dispatch(createAction(actionType.SET.isLoading, false))
         },
         clearStorage: async () => {
             await AsyncStorage.clear((err) => {
@@ -133,11 +93,12 @@ export function useAuth() {
         signOut: async () => {
             await GoogleSignin.revokeAccess()
             await GoogleSignin.signOut()
-            await AsyncStorage.clear((err) => {
+            await AsyncStorage.multiRemove(['idToken','email'],(err)=>{
                 if (err) {
-                    console.log(err)
+                    throw err
+                } else {
+                    dispatch([action(actionType.SET.USER,null),action(actionType.SET.SPLASH,true)])
                 }
-                dispatch(createAction(actionType.SET.CLEAR, null))
             })
         }
     }), [])
