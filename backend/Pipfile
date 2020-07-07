@@ -11,6 +11,8 @@ djangorestframework = "*"
 django-filter = "*"
 autopep8 = "*"
 protobuf = "*"
+dialogflow = "*"
+authlib = "*"
 
 [requires]
 python_version = "3.7"

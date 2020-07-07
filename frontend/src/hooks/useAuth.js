@@ -1,9 +1,11 @@
 import * as React from 'react'
+import { NetworkInfo } from 'react-native-network-info'
 import { GoogleSignin, statusCodes } from '@react-native-community/google-signin'
 import { web } from '../../android/app/google-services.json'
 import AsyncStorage from '@react-native-community/async-storage'
 import { action, actionType } from '../utils/action'
 import { authReducer } from './authReducer'
+import axios from 'axios'
 /**
  * initial state
  */
@@ -38,10 +40,18 @@ export function useAuth() {
             GoogleSignin.configure(config)
             callback()
         },
-        checkUser: async () => {
+        checkUser: async (callback) => {
             console.log("check")
             if (await GoogleSignin.isSignedIn()) {
                 let userInfo = await GoogleSignin.getCurrentUser()
+                if(!userInfo.serverAuthCode) {
+                    try{
+                        userInfo = await GoogleSignin.signInSilently()
+                    } catch(e){
+                        console.log(e)
+                        userInfo = await GoogleSignin.signIn()
+                    }
+                }
                 await AsyncStorage.getItem('email', (err, result) => {
                     console.log(result)
                     if (err) {
@@ -49,7 +59,7 @@ export function useAuth() {
                     } else if (result && result == userInfo.user.email) {
                         console.log('is login')
                         dispatch([action(actionType.SET.USER, userInfo.user), action(actionType.SET.SPLASH, false)])
-
+                        callback(userInfo)
                     }
                 })
             } else {
@@ -71,7 +81,6 @@ export function useAuth() {
                 if (e.code === statusCodes.SIGN_IN_CANCELLED) {
                     console.log("Cancel signin")
                     dispatch([action(actionType.SET.SPLASH, true), action(actionType.SET.USER, null)])
-
                 } else if (e.code === statusCodes.IN_PROGRESS) {
                     console.log("Is in progress already")
                 } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
@@ -93,11 +102,45 @@ export function useAuth() {
         signOut: async () => {
             await GoogleSignin.revokeAccess()
             await GoogleSignin.signOut()
-            await AsyncStorage.multiRemove(['idToken','email'],(err)=>{
+            await AsyncStorage.multiRemove(['idToken', 'email'], (err) => {
                 if (err) {
                     throw err
                 } else {
-                    dispatch([action(actionType.SET.USER,null),action(actionType.SET.SPLASH,true)])
+                    dispatch([action(actionType.SET.USER, null), action(actionType.SET.SPLASH, true)])
+                }
+            })
+        },
+        connectBackend: async (user) => {
+            console.log(user)
+            NetworkInfo.getIPV4Address().then((ipv4) => {
+                ipv4 = "192.168.1.106"
+                if (ipv4) {
+                    console.log(ipv4)
+                    var url = `http://${ipv4}:3000/`
+                    axios.post(url,{
+                        scopes:user.scopes,
+                        idToken:user.idToken,
+                        serverAuthCode:user.serverAuthCode
+                    },{
+                        headers:{
+                            'X-Requested-With':'com.aster'
+                        }
+                    }).then((res)=>{
+                        console.log(res.data)
+
+                    }).catch((err)=>{
+                        console.log(err)
+                    })
+                    // axios.get(url,
+                    //     // {
+                    //     //     headers: {
+                    //     //         'X-Requested-With': 'com.aster'
+                    //     //     }
+                    //     // }
+                    // ).then((res) => {
+                    //     console.log(res.data)
+
+                    // })
                 }
             })
         }
