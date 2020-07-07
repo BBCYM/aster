@@ -9,7 +9,7 @@ export function AuthStackNavigator() {
             initialRouteName='Signin'
             screenOptions={{
                 headerShown: false,
-                animationEnabled: false
+                animationEnabled: true
             }}
         >
             <AuthStack.Screen name='Signin' component={SigninScreen} />
