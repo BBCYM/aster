@@ -10,7 +10,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@progress/kendo-react-dialogs": "^3.14.0",
+    "@progress/kendo-react-dialogs": "^3.15.0",
     "@react-native-community/async-storage": "^1.11.0",
     "@react-native-community/cli": "^4.10.1",
     "@react-native-community/google-signin": "^4.0.3",
@@ -39,8 +39,8 @@
     "styled-components": "^5.1.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.6.2",
-    "@babel/runtime": "^7.6.2",
+    "@babel/core": "^7.10.4",
+    "@babel/runtime": "^7.10.4",
     "@react-native-community/eslint-config": "^0.0.5",
     "babel-jest": "^24.9.0",
     "eslint": "^6.5.1",
