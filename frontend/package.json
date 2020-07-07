@@ -29,6 +29,7 @@
     "react-native-gesture-handler": "^1.6.1",
     "react-native-gifted-chat": "^0.16.3",
     "react-native-image-carousel": "^0.4.6",
+    "react-native-network-info": "^5.2.1",
     "react-native-paper": "^3.10.1",
     "react-native-photo-browser": "^0.7.0",
     "react-native-ping": "^1.2.3",
@@ -46,7 +47,6 @@
     "eslint": "^6.5.1",
     "jest": "^24.9.0",
     "metro-react-native-babel-preset": "^0.58.0",
-    "react-devtools": "^4.7.0",
     "react-test-renderer": "16.11.0"
   },
   "jest": {
