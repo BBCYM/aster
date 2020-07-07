@@ -2,7 +2,7 @@ import { actionType } from '../utils/action'
 function execSwitch(state, action){
     console.log(`Action: ${action.type}`)
     switch (action.type) {
-        case actionType.Auth.SIGNIN:
+        case actionType.SET.USER:
             return {
                 ...state,
                 user: action.payload
