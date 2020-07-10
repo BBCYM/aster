@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import ImageCarousel from 'react-native-image-carousel';
 import React, { Component } from 'react';
-
+import GalleryDetail from './GalleryDetail'
 const urls = [
     'https://www.teepr.com/wp-content/uploads/2019/06/15533156982868.jpg',
     'https://i.imgur.com/UZx3tUf.jpeg',
@@ -20,6 +20,7 @@ const urls = [
 
 class App extends Component {
     imageCarousel: React$Element<*>;
+
 
     componentDidMount() {
         StatusBar.setBarStyle('dark-content');
@@ -31,7 +32,12 @@ class App extends Component {
 
     handleHeaderPress = () => (this.imageCarousel: $FlowFixMe).close();
 
-    renderHeader = (): React$Element<*> => (
+    ToGalleryDetail = () => {
+        const { navigation } = this.props;
+        navigation.navigate('GalleryDetail')
+    }
+
+    renderHeader = () => (
         <View style={styles.header}>
 
             <TouchableWithoutFeedback onPress={this.handleHeaderPress}>
@@ -51,9 +57,17 @@ class App extends Component {
         </View>
 
     );
+    renderEdit = () => (
+        <View style={{ zIndex: 5 }}>
+            <View style={{ width: '100%', height: '40%', backgroundColor: 'transparent' }} />
+            <View style={{ width: '100%', height: '10%', backgroundColor: 'orange' }} />
+            <View style={{ width: '100%', height: '50%', backgroundColor: 'red' }} />
+            <Text>i am bobo</Text>
+        </View>
+    );
+    renderFooter = () => (
 
-    renderFooter = (): React$Element<*> => (
-        <View style={styles.footer}>
+        < View style={styles.footer} >
             <TouchableOpacity activeOpacity={0.2} focusedOpacity={0.5}>
                 <View >
                     <Text style={styles.dltBtn}>delete</Text>
@@ -64,7 +78,10 @@ class App extends Component {
                     <Text style={styles.likeBtn}>like</Text>
                 </View>
             </TouchableOpacity>
-            <TouchableOpacity activeOpacity={0.2} focusedOpacity={0.5}>
+            <TouchableOpacity
+                activeOpacity={0.2}
+                focusedOpacity={0.5}
+                onPress={this.renderEdit}>
                 <View >
                     <Text style={styles.detailBtn}>detail</Text>
                 </View>
@@ -80,6 +97,8 @@ class App extends Component {
         />
 
     );
+
+
 
     render() {
         return (
@@ -102,8 +121,17 @@ class App extends Component {
                             />
                         ))}
                     </ImageCarousel>
-                </View>
 
+                </View>
+                <TouchableOpacity
+                    style={{ fontsize: 30, padding: 30 }}
+                    activeOpacity={0.2}
+                    focusedOpacity={0.5}
+                    onPress={this.ToGalleryDetail}>
+                    <View >
+                        <Text >test</Text>
+                    </View>
+                </TouchableOpacity>
             </View>
         );
     }
