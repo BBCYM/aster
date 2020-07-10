@@ -13,7 +13,7 @@ const HeaderBackArrow = ({ isOpenAnimation, gestureHandler }) => {
     return (
         <TapGestureHandler {...gestureHandler}>
             <Animated.View style={{ ...styles.backArrow, opacity }}>
-                <Text>TapGestureHandler</Text>
+                <Text>back</Text>
 
             </Animated.View>
         </TapGestureHandler>
@@ -25,7 +25,7 @@ const styles = StyleSheet.create({
     backArrow: {
         position: "absolute",
         height: 60,
-        width: 60,
+        width: '100%',
         top: 60,
         left: 25,
         zIndex: 100,

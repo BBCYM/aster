@@ -8,6 +8,7 @@ import { SplashScreen } from './screens/Auth/Splash'
 import { useAuth } from './hooks/useAuth'
 import Uber from './utils/uber'
 import GalleryDetail from './utils/GalleryDetail'
+import SlideUpPanel from './utils/SlidingUpPanel'
 
 const MainStack = createStackNavigator()
 
@@ -38,6 +39,7 @@ export default function () {
           <MainStack.Screen name='Pages' component={PagesTabNavigator} />
           <MainStack.Screen name='uber' component={Uber} />
           <MainStack.Screen name='GalleryDetail' component={GalleryDetail} />
+          <MainStack.Screen name='SlideUpPanel' component={SlideUpPanel} />
         </MainStack.Navigator>
       </NavigationContainer>
 

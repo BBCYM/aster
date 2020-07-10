@@ -93,7 +93,7 @@ export default function App() {
                     transform: [{ translateY: outerLoginY }],
                 }}
             >
-                <OverlayBg isOpenAnimation={isOpenAnimation} />
+                {/* <OverlayBg isOpenAnimation={isOpenAnimation} /> */}
                 <Animated.View>
                     <Animated.View
                         style={{
@@ -107,7 +107,7 @@ export default function App() {
                         <Animated.View
                             style={{ ...styles.heading, opacity: headingOpacity }}
                         >
-                            <Text style={{ fontSize: 24 }}>Get moving with Uber</Text>
+                            <Text style={{ fontSize: 24 }}></Text>
                         </Animated.View>
 
                         <TapGestureHandler {...gestureHandler}>
@@ -121,12 +121,12 @@ export default function App() {
                                         source={require("./components/image.jpg")}
                                         style={{ ...styles.image }}
                                     />
-                                    <Text style={{ ...styles.prefix }}>+91</Text>
-                                    <TextInput
+                                    <Text style={{ ...styles.prefix }}>i am bobo</Text>
+                                    {/* <TextInput
                                         keyboardType="phone-pad"
                                         style={{ ...styles.textInput }}
                                         placeholder="Enter your mobile number"
-                                    />
+                                    /> */}
                                 </Animated.View>
                             </Animated.View>
                         </TapGestureHandler>

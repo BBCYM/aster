@@ -31,7 +31,7 @@ const AnimatedPlaceholder = ({ isOpenAnimation }) => {
                 opacity,
             }}
         >
-            Enter your mobile Number
+
         </Animated.Text>
     );
 };

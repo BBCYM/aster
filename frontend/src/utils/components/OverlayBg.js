@@ -21,7 +21,7 @@ const OverlayBg = ({ isOpenAnimation }) => {
         alignItems: "center",
         justifyContent: "center",
         backgroundColor,
-        // backgroundColor: "grey",
+        backgroundColor: "red",
         position: "absolute",
         top: 0,
         left: 0,
