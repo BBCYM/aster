@@ -3,19 +3,19 @@ import { GoogleSignin, statusCodes } from '@react-native-community/google-signin
 import { web } from '../../android/app/google-services.json'
 import AsyncStorage from '@react-native-community/async-storage'
 import { createAction, actionType } from '../utils/action'
-import {authReducer} from './authReducer'
+import { authReducer } from './authReducer'
 /**
  * initial state
  */
 const initialState = {
-    isLoading:true,
-    user:null
+    isLoading: true,
+    user: null
 };
 
 export function useAuth() {
-    
+
     const [state, dispatch] = React.useReducer(authReducer, initialState)
-    
+
     const auth = React.useMemo(() => ({
         configure: async (callback) => {
             console.log("configure")
@@ -26,10 +26,10 @@ export function useAuth() {
                 offlineAccess: true,
                 forceCodeForRefreshToken: true,
             }
-            await AsyncStorage.getItem('email',(err, result)=>{
+            await AsyncStorage.getItem('email', (err, result) => {
                 if (err) {
                     console.log(err)
-                } else if (result){
+                } else if (result) {
                     console.log(result)
                     config.accountName = result
                 }
@@ -37,13 +37,13 @@ export function useAuth() {
             GoogleSignin.configure(config)
             callback()
         },
-        checkUser : async ()=>{
+        checkUser: async () => {
             console.log("check")
-            AsyncStorage.getItem('email',(err,result)=>{
+            AsyncStorage.getItem('email', (err, result) => {
                 if (err) {
                     console.log(err)
                 } else if (result) {
-                    
+
                 }
             })
         },
@@ -55,9 +55,9 @@ export function useAuth() {
                 let userInfo = await GoogleSignin.signIn()
                 await AsyncStorage.multiSet([
                     ['idToken', userInfo.idToken],
-                    ['email',userInfo.user.email]
+                    ['email', userInfo.user.email]
                 ])
-                dispatch(createAction(actionType.Auth.SIGNIN, {user:userInfo.user}))
+                dispatch(createAction(actionType.Auth.SIGNIN, { user: userInfo.user }))
             } catch (e) {
                 if (e.code === statusCodes.SIGN_IN_CANCELLED) {
                     console.log("Cancel signin")
@@ -77,11 +77,11 @@ export function useAuth() {
                 userInfo = await GoogleSignin.signInSilently()
                 await AsyncStorage.setItem([
                     ['idToken', userInfo.idToken],
-                    ['email',userInfo.user.email]
+                    ['email', userInfo.user.email]
                 ])
-                dispatch(createAction(actionType.Auth.SIGNIN, {user:userInfo.user}))
+                dispatch(createAction(actionType.Auth.SIGNIN, { user: userInfo.user }))
                 callback(userInfo)
-            }catch(e) {
+            } catch (e) {
                 if (e.code === statusCodes.SIGN_IN_REQUIRED) {
                     console.log("Not signed in")
                     callback(userInfo)
@@ -98,22 +98,22 @@ export function useAuth() {
             if (_isSigned) {
                 let userInfo = await GoogleSignin.getCurrentUser()
                 // set state
-                AsyncStorage.getItem('email',(err, result)=>{
+                AsyncStorage.getItem('email', (err, result) => {
                     if (err) {
                         console.log(err)
                         _isSigned = false
                     } else if (result) {
-                        if(userInfo.user.email == result) {
+                        if (userInfo.user.email == result) {
                             console.log('Result good')
-                            dispatch(createAction(actionType.Auth.SIGNIN, {user:userInfo.user}))
+                            dispatch(createAction(actionType.Auth.SIGNIN, { user: userInfo.user }))
                         }
                     }
                 })
             }
-            dispatch(createAction(actionType.SET.isLoading,false))
+            dispatch(createAction(actionType.SET.isLoading, false))
         },
-        clearStorage: async ()=>{
-            await AsyncStorage.clear((err)=>{
+        clearStorage: async () => {
+            await AsyncStorage.clear((err) => {
                 if (err) {
                     console.log(err)
                 }
@@ -121,14 +121,14 @@ export function useAuth() {
             console.log("Done clear")
             console.log(await AsyncStorage.getAllKeys())
         },
-        signOut: async ()=>{
+        signOut: async () => {
             await GoogleSignin.revokeAccess()
             await GoogleSignin.signOut()
-            await AsyncStorage.clear((err)=>{
-                if(err) {
+            await AsyncStorage.clear((err) => {
+                if (err) {
                     console.log(err)
                 }
-                dispatch(createAction(actionType.SET.CLEAR,null))
+                dispatch(createAction(actionType.SET.CLEAR, null))
             })
         }
     }), [])
