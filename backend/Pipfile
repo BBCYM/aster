@@ -10,10 +10,8 @@ autopep8 = "*"
 protobuf = "*"
 dialogflow = "*"
 authlib = "*"
-django = {git = "https://github.com/django-nonrel/django",ref = "nonrel-1.5"}
-djangotoolbox = {git = "https://github.com/django-nonrel/djangotoolbox"}
-mongodb-engine = {git = "https://github.com/django-nonrel/mongodb-engine"}
 djangorestframework = "*"
+djongo = "*"
 
 [requires]
 python_version = "3.7"
