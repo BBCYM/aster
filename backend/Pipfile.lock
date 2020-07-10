@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "34537221688b6f438e4abcbacb86f6c09d53dd10309d042890db875bae670332"
+            "sha256": "53dce85725eca0f60e2ac8d4c8d9d259fa5e848d2110ec15692ad993b9eca01c"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -125,20 +125,8 @@
             "version": "==1.0.0"
         },
         "django": {
-            "hashes": [
-                "sha256:31a5fbbea5fc71c99e288ec0b2f00302a0a92c44b13ede80b73a6a4d6d205582",
-                "sha256:5457fc953ec560c5521b41fad9e6734a4668b7ba205832191bbdff40ec61073c"
-            ],
-            "index": "pypi",
-            "version": "==3.0.8"
-        },
-        "django-filter": {
-            "hashes": [
-                "sha256:11e63dd759835d9ba7a763926ffb2662cf8a6dcb4c7971a95064de34dbc7e5af",
-                "sha256:616848eab6fc50193a1b3730140c49b60c57a3eda1f7fc57fa8505ac156c6c75"
-            ],
-            "index": "pypi",
-            "version": "==2.3.0"
+            "git": "https://github.com/django-nonrel/django",
+            "ref": "36089805701ad6175641b90fcb91423c88d9e002"
         },
         "djangorestframework": {
             "hashes": [
@@ -147,6 +135,10 @@
             ],
             "index": "pypi",
             "version": "==3.11.0"
+        },
+        "djangotoolbox": {
+            "git": "https://github.com/django-nonrel/djangotoolbox",
+            "ref": "7e2c47e2ab5ee98d0c0f47c5ccce08e75feda48a"
         },
         "google-api-core": {
             "extras": [
@@ -214,6 +206,10 @@
                 "sha256:b97d804b1e9b523befed77c48dacec60e6dcb0b5391d57af6a65a312a90648c0"
             ],
             "version": "==2.10"
+        },
+        "mongodb-engine": {
+            "git": "https://github.com/django-nonrel/mongodb-engine",
+            "ref": "1314786975d3d17fb1a2e870dfba004158a5e431"
         },
         "protobuf": {
             "hashes": [
