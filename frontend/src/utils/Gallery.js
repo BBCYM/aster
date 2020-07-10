@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 import ImageCarousel from 'react-native-image-carousel';
 import React, { Component } from 'react';
-import GalleryDetail from './GalleryDetail'
 const urls = [
     'https://www.teepr.com/wp-content/uploads/2019/06/15533156982868.jpg',
     'https://i.imgur.com/UZx3tUf.jpeg',
@@ -37,6 +36,15 @@ class App extends Component {
         navigation.navigate('GalleryDetail')
     }
 
+    ToSlideUpPanel = () => {
+        const { navigation } = this.props;
+        navigation.navigate('SlideUpPanel')
+    }
+
+    ToUber = () => {
+        const { navigation } = this.props;
+        navigation.navigate('uber')
+    }
     renderHeader = () => (
         <View style={styles.header}>
 
@@ -129,7 +137,23 @@ class App extends Component {
                     focusedOpacity={0.5}
                     onPress={this.ToGalleryDetail}>
                     <View >
-                        <Text >test</Text>
+                        <Text >change form </Text>
+                    </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={{ fontsize: 30, padding: 30 }}
+                    activeOpacity={0.2}
+                    focusedOpacity={0.5}
+                    onPress={this.ToSlideUpPanel}>
+                    <View >
+                        <Text >sliding window</Text>
+                    </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={{ fontsize: 30, padding: 30 }} activeOpacity={0.2} focusedOpacity={0.5} onPress={this.ToUber}>
+                    <View >
+                        <Text >to uber box</Text>
                     </View>
                 </TouchableOpacity>
             </View>
