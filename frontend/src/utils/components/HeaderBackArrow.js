@@ -24,10 +24,10 @@ export default HeaderBackArrow;
 const styles = StyleSheet.create({
     backArrow: {
         position: "absolute",
-        height: 60,
+        height: '10%',
         width: '100%',
-        top: 60,
-        left: 25,
+        top: 0,
+        // left: 25,
         zIndex: 100,
     },
 });

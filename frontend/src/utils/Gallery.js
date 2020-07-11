@@ -18,8 +18,6 @@ const urls = [
 ];
 
 class App extends Component {
-    imageCarousel: React$Element<*>;
-
 
     componentDidMount() {
         StatusBar.setBarStyle('dark-content');
@@ -36,15 +34,26 @@ class App extends Component {
         navigation.navigate('GalleryDetail')
     }
 
-    ToSlideUpPanel = () => {
+    ToNormalPanel = () => {
         const { navigation } = this.props;
-        navigation.navigate('SlideUpPanel')
+        navigation.navigate('NormalPanel')
+    }
+
+    ToScrollPanel = () => {
+        const { navigation } = this.props;
+        navigation.navigate('ScrollPanel')
+    }
+
+    ToBottomPanel = () => {
+        const { navigation } = this.props;
+        navigation.navigate('BottomPanel')
     }
 
     ToUber = () => {
         const { navigation } = this.props;
         navigation.navigate('uber')
     }
+
     renderHeader = () => (
         <View style={styles.header}>
 
@@ -63,8 +72,8 @@ class App extends Component {
             </TouchableWithoutFeedback>
 
         </View>
-
     );
+
     renderEdit = () => (
         <View style={{ zIndex: 5 }}>
             <View style={{ width: '100%', height: '40%', backgroundColor: 'transparent' }} />
@@ -73,8 +82,8 @@ class App extends Component {
             <Text>i am bobo</Text>
         </View>
     );
-    renderFooter = () => (
 
+    renderFooter = () => (
         < View style={styles.footer} >
             <TouchableOpacity activeOpacity={0.2} focusedOpacity={0.5}>
                 <View >
@@ -118,6 +127,7 @@ class App extends Component {
                         renderContent={this.renderImage}
                         renderHeader={this.renderHeader}
                         renderFooter={this.renderFooter}
+                        zoomEnabled={true}
                     >
                         {urls.map(url => (
                             <Image
@@ -145,9 +155,29 @@ class App extends Component {
                     style={{ fontsize: 30, padding: 30 }}
                     activeOpacity={0.2}
                     focusedOpacity={0.5}
-                    onPress={this.ToSlideUpPanel}>
+                    onPress={this.ToNormalPanel}>
                     <View >
-                        <Text >sliding window</Text>
+                        <Text >sliding window - normal</Text>
+                    </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={{ fontsize: 30, padding: 30 }}
+                    activeOpacity={0.2}
+                    focusedOpacity={0.5}
+                    onPress={this.ToScrollPanel}>
+                    <View >
+                        <Text >sliding window - scroll</Text>
+                    </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={{ fontsize: 30, padding: 30 }}
+                    activeOpacity={0.2}
+                    focusedOpacity={0.5}
+                    onPress={this.ToBottomPanel}>
+                    <View >
+                        <Text >sliding window - bottom</Text>
                     </View>
                 </TouchableOpacity>
 

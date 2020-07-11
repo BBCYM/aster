@@ -31,7 +31,7 @@ const AnimatedPlaceholder = ({ isOpenAnimation }) => {
                 opacity,
             }}
         >
-
+            lulu
         </Animated.Text>
     );
 };
