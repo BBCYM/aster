@@ -14,22 +14,39 @@ export default class Album extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {
-      data: [
-        {id:1, title: "Product 1",  count:4, image:"https://lorempixel.com/400/200/nature/6/"},
-        {id:2, title: "Product 2",  count:4, image:"https://lorempixel.com/400/200/nature/5/"} ,
-        {id:3, title: "Product 3",  count:4, image:"https://lorempixel.com/400/200/nature/4/"}, 
-        {id:4, title: "Product 4",  count:4, image:"https://lorempixel.com/400/200/nature/6/"}, 
-        {id:5, title: "Product 5",  count:4, image:"https://lorempixel.com/400/200/sports/1/"}, 
-        {id:6, title: "Product 6",  count:4, image:"https://lorempixel.com/400/200/nature/8/"}, 
-        {id:7, title: "Product 7",  count:4, image:"https://lorempixel.com/400/200/nature/1/"}, 
-        {id:8, title: "Product 8",  count:4, image:"https://lorempixel.com/400/200/nature/3/"},
-        {id:9, title: "Product 9",  count:4, image:"https://lorempixel.com/400/200/nature/4/"},
-        {id:9, title: "Product 10", count:4, image:"https://lorempixel.com/400/200/nature/5/"},
-       // {id:9, title: "Product 10", count:4, image:""},
-        //{id:9, title: "Product 10", count:4, image:""},
+      this.state={
+        data:[{id:'',title:'',count:'',image:''},
+        
       ]
-    };
+      }
+  }
+
+  _ping = async () => {
+    // await 必須寫在async函式裡，await makes JavaScript wait until that promise settles and returns its result.
+    // 這邊用法是等fetch的伺服器回應我們後才讓結果等於response
+    // 可以把fetch看成是ajax，真的很像
+    const response = await fetch("http://192.168.43.95:3000/cai", {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': "com.rnexparea"
+        },
+        
+
+    })
+    // dj back to rn，用到response，一樣先await
+    var data = await response.json()
+    //var data = JSON.parse(data)
+    //var name = JSON.parse(data)
+
+    console.log(data)
+    console.log(data.title)
+
+
+    this.setState({ title: data.title })
+    this.setState({ count: data.count })
+    this.setState({ image: data.image })
+
   }
 
   addProductToCart = () => {
@@ -39,6 +56,14 @@ export default class Album extends Component {
   render() {
     return ( 
         <View style={styles.container}>
+          <View style={{ flex: 2 }} >
+
+            <TouchableOpacity onPress={this._ping} activeOpacity={0.2} focusedOpacity={0.5}>
+              <View >
+                <Text style={styles.button}>    press        </Text>
+              </View>
+            </TouchableOpacity>
+          </View>
           <FlatList style={styles.list}
             contentContainerStyle={styles.listContainer}
             data={this.state.data}
@@ -53,25 +78,29 @@ export default class Album extends Component {
               )
             }}
             renderItem={(post) => {
-              const item = post.item;
-              return (
+              const item = post.data;
+             return (
                 <View style={styles.card}>
                   <View style={styles.imageContainer}>
-                    <Image style={styles.cardImage} source={{uri:item.image}}/>
+                    <Image style={styles.cardImage} source={{uri:this.state.image}}/>
                   </View>
                   <View style={styles.cardContent}>
-                    <Text style={styles.title}>{item.title}</Text>
-                    <Text style={styles.count}>{item.count}</Text>
+                    <Text style={styles.title}>{this.state.title}</Text>
+                    <Text style={styles.count}>{this.state.count}</Text>
+                    
                   
                   </View>
+                  
                 </View>
               )
 
             }}/>
         </View>
-      );
+        
+   );  
     
     }
+    
   }
 
 const styles = StyleSheet.create({
