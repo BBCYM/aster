@@ -81,6 +81,8 @@ export default function App() {
             {/* <View style={{ ...styles.logoContainer }}>
                 <Logo scale={scaleAnimation} />
             </View> */}
+
+
             <HeaderBackArrow
                 isOpenAnimation={isOpenAnimation}
                 gestureHandler={{ ...backArrowGestureHandler }}
@@ -88,7 +90,7 @@ export default function App() {
 
             <Animated.View
                 style={{
-                    backgroundColor: "white",
+                    backgroundColor: "blue",
                     ...StyleSheet.absoluteFill,
                     transform: [{ translateY: outerLoginY }],
                 }}
@@ -98,23 +100,22 @@ export default function App() {
                     <Animated.View
                         style={{
                             height: LOGIN_VIEW_HEIGHT,
-
-                            backgroundColor: "white",
-
+                            backgroundColor: "green",
                             transform: [{ translateY: innerLoginY }],
                         }}
                     >
                         <Animated.View
                             style={{ ...styles.heading, opacity: headingOpacity }}
+                            style={{ backgroundColor: "red" }}
                         >
                             <Text style={{ fontSize: 24 }}></Text>
                         </Animated.View>
 
                         <TapGestureHandler {...gestureHandler}>
-                            <Animated.View>
+                            <Animated.View style={{ backgroundColor: "orange" }}>
                                 <Animated.View
                                     pointerEvents="none"
-                                    style={{ ...styles.textInputContainer }}
+                                    style={{ ...styles.textInputContainer, backgroundColor: "yellow" }}
                                 >
                                     <AnimatedPlaceholder isOpenAnimation={isOpenAnimation} />
                                     <Image
@@ -140,7 +141,7 @@ export default function App() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#2289d6",
+        backgroundColor: "transparent",
     },
     logoContainer: {
         flex: 1,
