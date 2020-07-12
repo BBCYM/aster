@@ -55,7 +55,9 @@ class App extends Component {
 
     ToImageView = () => {
         const { navigation } = this.props;
-        navigation.navigate('ImageView')
+        navigation.navigate('Gallary', {
+            screen: 'ImageView',
+        })
     }
 
     ToImageViewing = () => {
