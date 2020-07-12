@@ -17,10 +17,12 @@ from django.contrib import admin
 from django.urls import path
 from auth.views import AuthView
 from bot.views import BotView
+from home.views import HomeView
 
 from personal.views import personalView
 urlpatterns = [
     path('', AuthView.as_view(), name='index'),
     path('personal', personalView.as_view(), name='index'),
     path('bot/', BotView.as_view()),
+    path('home',HomeView.as_view()),
 ]

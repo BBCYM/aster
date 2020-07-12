@@ -1,7 +1,7 @@
 from rest_framework import views, response, status
 from google.oauth2 import service_account
 from operator import itemgetter
-#import dialogflow_v2 as dialogflow
+import dialogflow_v2 as dialogflow
 import json
 from google.api_core.exceptions import InvalidArgument
 from google.protobuf.json_format import MessageToJson
