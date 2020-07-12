@@ -1,9 +1,10 @@
 import * as React from 'react'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import ChatbotScreen from '../screens/Chatbot/Chatbot'
-import { HomeScreen } from '../screens/Home/Home'
+import HomeScreen from '../screens/Home/Home'
 import ProfileScreen from '../screens/Profile/Profile'
 import gallery from '../utils/galary'
+import AllPhoto from '../screens/Home/Allphoto'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import {useAuth} from '../hooks/useAuth'
 const PagesTab = createBottomTabNavigator()
@@ -57,6 +58,16 @@ export function PagesTabNavigator() {
                     tabBarIcon: (props) => {
                         return <Ionicons name='ios-person' color={props.color} size={props.size} />
                     }
+                }}    
+            />
+            <PagesTab.Screen 
+                name='AllPhoto'
+                component={AllPhoto}
+                options={{
+                    tabBarLabel:'AllPhoto',
+                    // tabBarIcon: (props) => {
+                    //     return <Ionicons name='ios-person' color={props.color} size={props.size} />
+                    // }
                 }}    
             />
         </PagesTab.Navigator>
