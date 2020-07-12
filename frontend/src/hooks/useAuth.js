@@ -14,7 +14,7 @@ const initialState = {
     user: null,
     splash: true
 };
-const ipv4 = '192.168.1.106'
+const ipv4 = 'change to your ip'
 export function useAuth() {
 
     const [state, dispatch] = React.useReducer(authReducer, initialState)
