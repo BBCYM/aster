@@ -19,7 +19,7 @@ export default class App extends Component {
       imageuri: '',
       ModalVisibleStatus: false,
       selectedIndex: 2,
-      data:[{name:'',image:''}]
+      data:[{image:''}]
     };
     this.updateIndex = this.updateIndex.bind(this)
   }
@@ -37,10 +37,11 @@ export default class App extends Component {
   updateIndex (selectedIndex) {
     this.setState({selectedIndex})
   }
+  
   componentDidMount() {
     var that = this;
     let items = Array.apply(null, Array(120)).map((v, i) => {
-      return { id: i, src: 'https://unsplash.it/400/400?image=' + (i + 1) };
+      return { id: i, image: '' + (i + 1) };
     });
     that.setState({
       dataSource: items,
@@ -63,7 +64,7 @@ export default class App extends Component {
           <View style={styles.modelStyle}>
             <FastImage
               style={styles.fullImageStyle}
-              source={{ uri: this.state.imageuri }}
+              source={{ uri: this.state.image }}
               resizeMode={FastImage.resizeMode.contain}
             />
              {/* 單張照片的叉叉按鈕 */}
@@ -102,12 +103,12 @@ export default class App extends Component {
                   key={item.id}
                   style={{ flex: 1 }}
                   onPress={() => {
-                    this.ShowModalFunction(true, item.src);
+                    this.ShowModalFunction(true, item.image);
                   }}>
                   <FastImage
                     style={styles.image}
                     source={{
-                      uri: item.src,
+                      uri: this.state.image,
                     }}
                   />
                 </TouchableOpacity>
@@ -126,10 +127,6 @@ export default class App extends Component {
                 buttonContainerStyle={{opacity:0.5}}
                 style={styles.buttongroup}
               />
-              <Text>{this.state.name}</Text>
-            <View>
-              <Image source={{uri:this.state.image}}></Image>
-            </View>
             </View>    
         </View>
       );
@@ -196,6 +193,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
   container1: {
+    
     
   }
 });
