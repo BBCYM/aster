@@ -13,7 +13,7 @@ export function GalleryScreen() {
     return (
         <GalleryStack.Navigator>
             <GalleryStack.Screen name='Gallery' component={Gallery} />
-            <GalleryStack.Screen name='uber' component={Uber} />
+            {/* <GalleryStack.Screen name='uber' component={Uber} /> */}
             <GalleryStack.Screen name='GalleryDetail' component={GalleryDetail} />
             <GalleryStack.Screen name='NormalPanel' component={NormalPanel} />
             <GalleryStack.Screen name='ScrollPanel' component={ScrollPanel} />
