@@ -30,8 +30,9 @@ class App extends Component {
     handleHeaderPress = () => (this.imageCarousel).close();
 
     ToGalleryDetail = () => {
-        const { navigation } = this.props;
-        navigation.navigate('GalleryDetail')
+
+        const navigate = this.props.navigate('GalleryDetail')
+        return (navigate)
     }
 
     ToNormalPanel = () => {
@@ -155,9 +156,9 @@ class App extends Component {
                     style={{ fontsize: 30, padding: 30 }}
                     activeOpacity={0.2}
                     focusedOpacity={0.5}
-                    onPress={this.ToGalleryDetail}>
+                    onPress={this.props.navigation.navigate('GalleryDetail')}>
                     <View >
-                        <Text >change form </Text>
+                        <Text >change form to GalleryDetail </Text>
                     </View>
                 </TouchableOpacity>
 

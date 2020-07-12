@@ -1,8 +1,9 @@
 import * as React from 'react'
-import { createBottomTabNavigator} from '@react-navigation/bottom-tabs'
-import {createStackNavigator, CardStyleInterpolators} from '@react-navigation/stack'
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/stack'
 import ChatbotScreen from '../screens/Chatbot/Chatbot'
 import { HomeScreen } from '../navigators/HomeStackNavigators'
+import { GalleryScreen } from '../navigators/GalleryStackNavigators'
 import ProfileScreen from '../screens/Profile/Profile'
 import Gallery from '../utils/Gallery'
 import Ionicons from 'react-native-vector-icons/Ionicons'
@@ -62,7 +63,7 @@ export function PagesTabNavigator(props) {
                 />
                 <PagesTab.Screen
                     name='Gallary'
-                    component={Gallery}
+                    component={GalleryScreen}
                     options={{
                         tabBarLabel: 'Gallary',
                         tabBarIcon: (props) => {
