@@ -14,7 +14,7 @@ const initialState = {
     user: null,
     splash: true
 };
-
+const ipv4 = '192.168.1.106'
 export function useAuth() {
 
     const [state, dispatch] = React.useReducer(authReducer, initialState)
@@ -44,6 +44,17 @@ export function useAuth() {
             console.log("check")
             if (await GoogleSignin.isSignedIn()) {
                 let userInfo = await GoogleSignin.getCurrentUser()
+                // axios.get(`http://${ipv4}:3000/?userid=${userInfo.user.id}`,{
+                //     headers:{
+                //         'X-Requested-With':'com.aster'
+                //     }
+                // }).then((res)=>{
+                //     data = JSON.parse(res.data)
+                //     if (data.message){
+                //     }
+                // }).catch((err)=>{
+                //     console.log(err.response)
+                // })
                 if(!userInfo.serverAuthCode) {
                     try{
                         userInfo = await GoogleSignin.signInSilently()
@@ -113,7 +124,6 @@ export function useAuth() {
         connectBackend: async (user) => {
             console.log(user)
             NetworkInfo.getIPV4Address().then((ipv4) => {
-                ipv4 = "192.168.1.106"
                 if (ipv4) {
                     console.log(ipv4)
                     var url = `http://${ipv4}:3000/`
@@ -131,16 +141,6 @@ export function useAuth() {
                     }).catch((err)=>{
                         console.log(err)
                     })
-                    // axios.get(url,
-                    //     // {
-                    //     //     headers: {
-                    //     //         'X-Requested-With': 'com.aster'
-                    //     //     }
-                    //     // }
-                    // ).then((res) => {
-                    //     console.log(res.data)
-
-                    // })
                 }
             })
         }
