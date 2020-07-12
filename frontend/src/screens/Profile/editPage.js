@@ -5,13 +5,7 @@ import { StyleSheet, Text, View, TextInput, Button, Image, TouchableOpacity } fr
 export default class EditAccountScreen extends React.Component {
     render() {
         return (
-            // <View style={styles.container}>
 
-            //     <View style={styles.header}>
-            //         <Text style={styles.title}>{'E D I T    A C C O U N T'}</Text>
-            //     </View>
-
-            // </View>
 
             <View style={{ flex: 1 }}>
                 <View style={styles.header}>
