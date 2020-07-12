@@ -8,9 +8,6 @@ export function SigninScreen(props) {
     let _signIn = async ()=>{
         await auth.signIn()
     }
-    // let _clear = ()=>{
-    //     auth.clearStorage()
-    // }
     return (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
             <Text>Signin Screen</Text>
@@ -19,8 +16,6 @@ export function SigninScreen(props) {
                 color={GoogleSigninButton.Color.Dark}
                 onPress={()=>{_signIn()}}
             />
-            {/* <Button title='Clear storage' raised={true} type='outline' onPress={()=>{_clear()}}/> */}
-
         </View>
     )
 }
