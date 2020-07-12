@@ -23,11 +23,11 @@ class App extends Component {
         StatusBar.setBarStyle('dark-content');
     }
 
-    captureImageCarousel = (imageCarousel: React$Element<*>) => {
+    captureImageCarousel = (imageCarousel) => {
         this.imageCarousel = imageCarousel;
     };
 
-    handleHeaderPress = () => (this.imageCarousel: $FlowFixMe).close();
+    handleHeaderPress = () => (this.imageCarousel).close();
 
     ToGalleryDetail = () => {
         const { navigation } = this.props;
@@ -52,6 +52,16 @@ class App extends Component {
     ToUber = () => {
         const { navigation } = this.props;
         navigation.navigate('uber')
+    }
+
+    ToImageView = () => {
+        const { navigation } = this.props;
+        navigation.navigate('ImageView')
+    }
+
+    ToImageViewing = () => {
+        const { navigation } = this.props;
+        navigation.navigate('ImageViewing')
     }
 
     renderHeader = () => (
@@ -106,7 +116,7 @@ class App extends Component {
         </View >
     );
 
-    renderImage = (idx: number) => (
+    renderImage = (idx) => (
         <Image
             style={StyleSheet.absoluteFill}
             resizeMode={'contain'}
@@ -184,6 +194,18 @@ class App extends Component {
                 <TouchableOpacity style={{ fontsize: 30, padding: 30 }} activeOpacity={0.2} focusedOpacity={0.5} onPress={this.ToUber}>
                     <View >
                         <Text >to uber box</Text>
+                    </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={{ fontsize: 30, padding: 30 }} activeOpacity={0.2} focusedOpacity={0.5} onPress={this.ToImageView}>
+                    <View >
+                        <Text >to image view</Text>
+                    </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={{ fontsize: 30, padding: 30 }} activeOpacity={0.2} focusedOpacity={0.5} onPress={this.ToImageViewing}>
+                    <View >
+                        <Text >to image viewing</Text>
                     </View>
                 </TouchableOpacity>
             </View>

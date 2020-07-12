@@ -83,38 +83,19 @@ export default function App() {
             </View> */}
 
 
-            {/* <HeaderBackArrow
+            <HeaderBackArrow
                 isOpenAnimation={isOpenAnimation}
                 gestureHandler={{ ...backArrowGestureHandler }}
-            /> */}
-            <TapGestureHandler {...gestureHandler}>
-                <Animated.View style={{ backgroundColor: "orange" }}>
-                    <Animated.View
-                        pointerEvents="none"
-                        style={{ ...styles.textInputContainer, backgroundColor: "yellow" }}
-                    >
-                        {/* <AnimatedPlaceholder isOpenAnimation={isOpenAnimation} /> */}
-                        {/*<Image
-                            source={require("./components/image.jpg")}
-                            style={{ ...styles.image }}
-                        />
-                        <Text style={{ ...styles.prefix }}>i am bobo</Text>
-                         <TextInput
-                                        keyboardType="phone-pad"
-                                        style={{ ...styles.textInput }}
-                                        placeholder="Enter your mobile number"
-                                    /> */}
-                    </Animated.View>
-                </Animated.View>
-            </TapGestureHandler>
+            />
+
             <Animated.View
                 style={{
                     backgroundColor: "blue",
-                    //...StyleSheet.absoluteFill,
+                    ...StyleSheet.absoluteFill,
                     transform: [{ translateY: outerLoginY }],
                 }}
             >
-                <OverlayBg isOpenAnimation={isOpenAnimation} />
+                {/* <OverlayBg isOpenAnimation={isOpenAnimation} /> */}
                 <Animated.View>
                     <Animated.View
                         style={{
@@ -130,7 +111,26 @@ export default function App() {
                             <Text style={{ fontSize: 24 }}></Text>
                         </Animated.View>
 
-
+                        <TapGestureHandler {...gestureHandler}>
+                            <Animated.View style={{ backgroundColor: "orange" }}>
+                                <Animated.View
+                                    pointerEvents="none"
+                                    style={{ ...styles.textInputContainer, backgroundColor: "yellow" }}
+                                >
+                                    <AnimatedPlaceholder isOpenAnimation={isOpenAnimation} />
+                                    <Image
+                                        source={require("./components/image.jpg")}
+                                        style={{ ...styles.image }}
+                                    />
+                                    <Text style={{ ...styles.prefix }}>i am bobo</Text>
+                                    {/* <TextInput
+                                        keyboardType="phone-pad"
+                                        style={{ ...styles.textInput }}
+                                        placeholder="Enter your mobile number"
+                                    /> */}
+                                </Animated.View>
+                            </Animated.View>
+                        </TapGestureHandler>
                     </Animated.View>
                 </Animated.View>
             </Animated.View>
