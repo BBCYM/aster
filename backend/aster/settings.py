@@ -25,7 +25,7 @@ SECRET_KEY = '38y656m+708c3h@j#amj#)h7+d*&ib^6hrt5&zyu))g&v6qjp$'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -110,7 +110,7 @@ DATABASES = {
 
 LANGUAGE_CODE = 'zh-TW'
 
-TIME_ZONE = 'Asia/Taipei'
+TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
