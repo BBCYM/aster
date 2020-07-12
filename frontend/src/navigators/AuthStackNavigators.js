@@ -12,7 +12,14 @@ export function AuthStackNavigator() {
                 animationEnabled: true
             }}
         >
-            <AuthStack.Screen name='Signin' component={SigninScreen} />
+            {
+                // initial true
+                state.isLoading ? (
+                    <AuthStack.Screen name='Loading' component={LoadingScreen} />
+                ) : (
+                        <AuthStack.Screen name='Signin' component={SigninScreen} />
+                    )
+            }
         </AuthStack.Navigator>
     )
 }
