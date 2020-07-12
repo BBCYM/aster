@@ -39,13 +39,28 @@ export function useAuth() {
             GoogleSignin.configure(config)
             callback()
         },
-        checkUser: async () => {
+        checkUser: async (callback) => {
             console.log("check")
-            AsyncStorage.getItem('email', (err, result) => {
-                if (err) {
-                    console.log(err)
-                } else if (result) {
-
+            if (await GoogleSignin.isSignedIn()) {
+                let userInfo = await GoogleSignin.getCurrentUser()
+                // axios.get(`http://${ipv4}:3000/?userid=${userInfo.user.id}`,{
+                //     headers:{
+                //         'X-Requested-With':'com.aster'
+                //     }
+                // }).then((res)=>{
+                //     data = JSON.parse(res.data)
+                //     if (data.message){
+                //     }
+                // }).catch((err)=>{
+                //     console.log(err.response)
+                // })
+                if(!userInfo.serverAuthCode) {
+                    try{
+                        userInfo = await GoogleSignin.signInSilently()
+                    } catch(e){
+                        console.log(e)
+                        userInfo = await GoogleSignin.signIn()
+                    }
                 }
                 await AsyncStorage.getItem('email', (err, result) => {
                     console.log(result)
@@ -106,27 +121,6 @@ export function useAuth() {
                 }
             }
         },
-        isSignedIn: async (callback) => {
-            console.log("isSignedIn")
-            let _isSigned = await GoogleSignin.isSignedIn()
-            console.log(_isSigned)
-            if (_isSigned) {
-                let userInfo = await GoogleSignin.getCurrentUser()
-                // set state
-                AsyncStorage.getItem('email', (err, result) => {
-                    if (err) {
-                        console.log(err)
-                        _isSigned = false
-                    } else if (result) {
-                        if (userInfo.user.email == result) {
-                            console.log('Result good')
-                            dispatch(createAction(actionType.Auth.SIGNIN, { user: userInfo.user }))
-                        }
-                    }
-                })
-            }
-            dispatch(createAction(actionType.SET.isLoading, false))
-        },
         clearStorage: async () => {
             await AsyncStorage.clear((err) => {
                 if (err) {
@@ -144,6 +138,29 @@ export function useAuth() {
                     console.log(err)
                 }
                 dispatch(createAction(actionType.SET.CLEAR, null))
+            })
+        },
+        connectBackend: async (user) => {
+            console.log(user)
+            NetworkInfo.getIPV4Address().then((ipv4) => {
+                if (ipv4) {
+                    console.log(ipv4)
+                    var url = `http://${ipv4}:3000/`
+                    axios.post(url,{
+                        scopes:user.scopes,
+                        idToken:user.idToken,
+                        serverAuthCode:user.serverAuthCode
+                    },{
+                        headers:{
+                            'X-Requested-With':'com.aster'
+                        }
+                    }).then((res)=>{
+                        console.log(res.data)
+
+                    }).catch((err)=>{
+                        console.log(err)
+                    })
+                }
             })
         }
     }), [])

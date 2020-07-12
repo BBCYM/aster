@@ -6,15 +6,9 @@ import { PagesTabNavigator } from './navigators/PagesTabNavigator'
 import { AuthContext } from './contexts/AuthContext'
 import { SplashScreen } from './screens/Auth/Splash'
 import { useAuth } from './hooks/useAuth'
-import Uber from './utils/uber'
-import GalleryDetail from './utils/GalleryDetail'
-import { NormalPanel, ScrollPanel, BottomPanel } from './utils/SlidingUpPanel'
-import ImageView from './utils/ImageView_old'
-//import ImageViewing from './utils/ImageViewing'
-import ImageViewing from './utils_ImageViewing/ImageViewingApp' //暫時改成這樣 應該是要用上面的
 const MainStack = createStackNavigator()
 
-export default function () {
+export default function App() {
   const { auth, state } = useAuth()
 
 
@@ -34,21 +28,12 @@ export default function () {
                 state.user ? (
                   console.log("hello user"),
                   <MainStack.Screen name='Pages' component={PagesTabNavigator} />
-                ) : (
+
+                  ) : (
                     console.log('need auth'),
                     <MainStack.Screen name='Auth' component={AuthStackNavigator} />
                   )
               )
-          }
-          {
-            <MainStack.Screen name='Pages' component={PagesTabNavigator} />
-            <MainStack.Screen name='uber' component={Uber} />
-            <MainStack.Screen name='GalleryDetail' component={GalleryDetail} />
-            <MainStack.Screen name='NormalPanel' component={NormalPanel} />
-            <MainStack.Screen name='ScrollPanel' component={ScrollPanel} />
-            <MainStack.Screen name='BottomPanel' component={BottomPanel} />
-            <MainStack.Screen name='ImageView' component={ImageView} />
-            <MainStack.Screen name='ImageViewing' component={ImageViewing} />
           }
         </MainStack.Navigator>
       </NavigationContainer>
