@@ -49,10 +49,8 @@ class personalView(views.APIView):
         print("Fulfillment_messages:",
               res.query_result.fulfillment_messages[1].text.text[0])
 
-        #print("String value:", res.query_result.parameters.fields['value'])
-
-        #print("測試candy_string_value:", res.query_result.parameters.fields['value'].string_value)
-        #print("Category.original_string_value:", res.query_result.parameters.fields['Category.original'].string_value)
+        nt("Category.original_string_value:",
+           res.query_result.parameters.fields['Category.original'].string_value)
         print("測試用:", res.query_result)
 
         #print("測試用Fulfillment message:", res.query_result.fulfillment_messages.text['text'].text)
@@ -67,18 +65,8 @@ class personalView(views.APIView):
 
         data = {'name': 'Michelle',
                 'text': 'i am 18 years old.'}
+
         print(data)
         #re = MessageToJson(data)
 
         return response.Response(data)
-
-
-'''
-    def post(self,request):
-        
-        data = request.data
-        print(data)
-
-        print('response.data',request.data)
-        return response.Response("ok")
-'''
