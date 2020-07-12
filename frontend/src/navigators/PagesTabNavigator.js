@@ -62,6 +62,16 @@ export function PagesTabNavigator() {
                     // }
                 }}
             />
+            <PagesTab.Screen 
+                name='AllPhoto'
+                component={AllPhoto}
+                options={{
+                    tabBarLabel:'AllPhoto',
+                    // tabBarIcon: (props) => {
+                    //     return <Ionicons name='ios-person' color={props.color} size={props.size} />
+                    // }
+                }}    
+            />
         </PagesTab.Navigator>
     );
 
