@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   FlatList,
   Modal,
+  Image
 } from 'react-native';
 import FastImage from 'react-native-fast-image';
 
@@ -17,7 +18,10 @@ export default class App extends Component {
     this.state = {
       imageuri: '',
       ModalVisibleStatus: false,
+      selectedIndex: 2,
+      data:[{image:''}]
     };
+    this.updateIndex = this.updateIndex.bind(this)
   }
 
   ShowModalFunction(visible, imageURL) {
@@ -26,20 +30,28 @@ export default class App extends Component {
     this.setState({
       ModalVisibleStatus: visible,
       imageuri: imageURL,
+    
     });
   }
 
+  updateIndex (selectedIndex) {
+    this.setState({selectedIndex})
+  }
+  
   componentDidMount() {
     var that = this;
     let items = Array.apply(null, Array(120)).map((v, i) => {
-      return { id: i, src: 'https://unsplash.it/400/400?image=' + (i + 1) };
+      return { id: i, image: '' + (i + 1) };
     });
     that.setState({
       dataSource: items,
     });
-  }
+}
 
   render() {
+    const buttons = ['Album', 'Photo']
+    const { selectedIndex } = this.state
+    
     if (this.state.ModalVisibleStatus) {
       return (
         <Modal
@@ -52,7 +64,7 @@ export default class App extends Component {
           <View style={styles.modelStyle}>
             <FastImage
               style={styles.fullImageStyle}
-              source={{ uri: this.state.imageuri }}
+              source={{ uri: this.state.image }}
               resizeMode={FastImage.resizeMode.contain}
             />
              {/* 單張照片的叉叉按鈕 */}
@@ -82,6 +94,7 @@ export default class App extends Component {
               fontSize: 20,             
             }}>           
           </Text>
+        
           <FlatList
             data={this.state.dataSource}
             renderItem={({ item }) => (
@@ -90,12 +103,12 @@ export default class App extends Component {
                   key={item.id}
                   style={{ flex: 1 }}
                   onPress={() => {
-                    this.ShowModalFunction(true, item.src);
+                    this.ShowModalFunction(true, item.image);
                   }}>
                   <FastImage
                     style={styles.image}
                     source={{
-                      uri: item.src,
+                      uri: this.state.image,
                     }}
                   />
                 </TouchableOpacity>
@@ -105,9 +118,48 @@ export default class App extends Component {
             numColumns={3}
             keyExtractor={(item, index) => index.toString()}
           />
+            <View style={styles.container1}>
+              <ButtonGroup
+                onPress={this._ping}
+                selectedIndex={selectedIndex}
+                buttons={buttons}
+                containerStyle={{height: 40,borderRadius:50,marginLeft:70,marginRight:70}}
+                buttonContainerStyle={{opacity:0.5}}
+                style={styles.buttongroup}
+              />
+            </View>    
         </View>
       );
     }
+  
+  }
+  _ping = async () => {
+    // await 必須寫在async函式裡，await makes JavaScript wait until that promise settles and returns its result.
+    // 這邊用法是等fetch的伺服器回應我們後才讓結果等於response
+    // 可以把fetch看成是ajax，真的很像
+    const response = await fetch("http://192.168.43.95:3000/cai", {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': "com.rnexparea"
+        },
+        
+        
+
+    })
+    // dj back to rn，用到response，一樣先await
+    var data = await response.json()
+    //var data = JSON.parse(data)
+    //var name = JSON.parse(data)
+
+    console.log(data)
+   
+
+
+    this.setState({ name: data.name })
+    this.setState({ image: data.image})
+    
+
   }
 }
 
@@ -140,39 +192,13 @@ const styles = StyleSheet.create({
     right: 9,
     position: 'absolute',
   },
+  container1: {
+    
+    
+  }
 });
 
 
-export class HomeScreen extends React.Component {
-  constructor () {
-    super()
-    this.state = {
-      selectedIndex: 2
-    }
-    this.updateIndex = this.updateIndex.bind(this)
-  }
-  
-  updateIndex (selectedIndex) {
-    this.setState({selectedIndex})
-  }
-  
-  render () {
-    const buttons = ['Album', 'Photo']
-    const { selectedIndex } = this.state
-  
-    return (
-      <ButtonGroup
-        onPress={this.updateIndex}
-        selectedIndex={selectedIndex}
-        buttons={buttons}
-        containerStyle={{height: 50,borderRadius:50,opacity:0.8,marginLeft:60,marginRight:60,marginTop:500}}
-        style={styles.buttongroup}
-        
-        
-      />
-    )
-  }
-  
-  }
+
   
   

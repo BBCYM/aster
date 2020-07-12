@@ -23,7 +23,9 @@ export default class personalScreen extends React.Component {
         // await 必須寫在async函式裡，await makes JavaScript wait until that promise settles and returns its result.
         // 這邊用法是等fetch的伺服器回應我們後才讓結果等於response
         // 可以把fetch看成是ajax，真的很像
-        const response = await fetch("http://192.168.1.102:3000/personal", {
+
+        const response = await fetch("http://192.168.43.95:3000/personal", {
+
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
