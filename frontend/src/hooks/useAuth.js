@@ -1,17 +1,30 @@
 import * as React from 'react'
+import { NetworkInfo } from 'react-native-network-info'
 import { GoogleSignin, statusCodes } from '@react-native-community/google-signin'
 import { web } from '../../android/app/google-services.json'
 import AsyncStorage from '@react-native-community/async-storage'
+<<<<<<< HEAD
 import { createAction, actionType } from '../utils/action'
 import { authReducer } from './authReducer'
+=======
+import { action, actionType } from '../utils/action'
+import { authReducer } from './authReducer'
+import axios from 'axios'
+>>>>>>> master
 /**
  * initial state
  */
 const initialState = {
+<<<<<<< HEAD
     isLoading: true,
     user: null
+=======
+    // isLoading:true,
+    user: null,
+    splash: true
+>>>>>>> master
 };
-
+const ipv4 = '192.168.1.106'
 export function useAuth() {
 
     const [state, dispatch] = React.useReducer(authReducer, initialState)
@@ -19,7 +32,6 @@ export function useAuth() {
     const auth = React.useMemo(() => ({
         configure: async (callback) => {
             console.log("configure")
-            console.log(await AsyncStorage.getAllKeys())
             let config = {
                 scopes: ['https://www.googleapis.com/auth/photoslibrary'],
                 webClientId: web.client_id,
@@ -45,7 +57,19 @@ export function useAuth() {
                 } else if (result) {
 
                 }
-            })
+                await AsyncStorage.getItem('email', (err, result) => {
+                    console.log(result)
+                    if (err) {
+                        throw err
+                    } else if (result && result == userInfo.user.email) {
+                        console.log('is login')
+                        dispatch([action(actionType.SET.USER, userInfo.user), action(actionType.SET.SPLASH, false)])
+                        callback(userInfo)
+                    }
+                })
+            } else {
+                dispatch(action(actionType.SET.SPLASH, false))
+            }
         },
         signIn: async () => {
             try {
@@ -61,6 +85,7 @@ export function useAuth() {
             } catch (e) {
                 if (e.code === statusCodes.SIGN_IN_CANCELLED) {
                     console.log("Cancel signin")
+                    dispatch([action(actionType.SET.SPLASH, true), action(actionType.SET.USER, null)])
                 } else if (e.code === statusCodes.IN_PROGRESS) {
                     console.log("Is in progress already")
                 } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
@@ -132,5 +157,6 @@ export function useAuth() {
             })
         }
     }), [])
+
     return { auth, state }
 }
