@@ -17,11 +17,8 @@ from django.contrib import admin
 from django.urls import path
 from auth.views import AuthView
 from bot.views import BotView
-<<<<<<< HEAD
-=======
 from home.views import HomeView
 
->>>>>>> 7d63bd982017c519acf28693d7639c60adf170a0
 from personal.views import personalView
 urlpatterns = [
     path('', AuthView.as_view()),
