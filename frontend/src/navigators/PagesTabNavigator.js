@@ -13,7 +13,6 @@ import { View, TouchableOpacity, StyleSheet, Image, Text } from 'react-native'
 const PagesTab = createBottomTabNavigator()
 const PagesStack = createStackNavigator()
 
-
 export function PagesTabNavigator(props) {
     function index() {
         return (

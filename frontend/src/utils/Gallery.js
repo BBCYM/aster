@@ -1,4 +1,3 @@
-/* @flow */
 import {
     Image,
     StatusBar,
@@ -126,8 +125,6 @@ class App extends Component {
 
     );
 
-
-
     render() {
         return (
             <View style={styles.container}>
@@ -156,7 +153,8 @@ class App extends Component {
                     style={{ fontsize: 30, padding: 30 }}
                     activeOpacity={0.2}
                     focusedOpacity={0.5}
-                    onPress={this.props.navigation.navigate('GalleryDetail')}>
+                // onPress={this.props.navigation.navigate('GalleryDetail')}
+                >
                     <View >
                         <Text >change form to GalleryDetail </Text>
                     </View>
