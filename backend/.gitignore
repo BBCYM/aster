@@ -126,4 +126,5 @@ dmypy.json
 # Ignore all local history of files
 .history
 dfcredentials.json
+client_secret.json
 # End of https://www.gitignore.io/api/django,visualstudiocode

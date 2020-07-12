@@ -6,11 +6,12 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-django = "*"
-djangorestframework = "*"
-django-filter = "*"
 autopep8 = "*"
 protobuf = "*"
+dialogflow = "*"
+authlib = "*"
+djangorestframework = "*"
+djongo = "*"
 
 [requires]
 python_version = "3.7"
