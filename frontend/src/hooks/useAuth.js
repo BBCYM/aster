@@ -3,26 +3,16 @@ import { NetworkInfo } from 'react-native-network-info'
 import { GoogleSignin, statusCodes } from '@react-native-community/google-signin'
 import { web } from '../../android/app/google-services.json'
 import AsyncStorage from '@react-native-community/async-storage'
-<<<<<<< HEAD
-import { createAction, actionType } from '../utils/action'
-import { authReducer } from './authReducer'
-=======
 import { action, actionType } from '../utils/action'
 import { authReducer } from './authReducer'
 import axios from 'axios'
->>>>>>> master
 /**
  * initial state
  */
 const initialState = {
-<<<<<<< HEAD
-    isLoading: true,
-    user: null
-=======
     // isLoading:true,
     user: null,
     splash: true
->>>>>>> master
 };
 const ipv4 = 'change to your ip'
 export function useAuth() {
