@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 import ImageCarousel from 'react-native-image-carousel';
 import React, { Component } from 'react';
-
 const urls = [
     'https://www.teepr.com/wp-content/uploads/2019/06/15533156982868.jpg',
     'https://i.imgur.com/UZx3tUf.jpeg',
@@ -19,19 +18,53 @@ const urls = [
 ];
 
 class App extends Component {
-    imageCarousel: React$Element<*>;
 
     componentDidMount() {
         StatusBar.setBarStyle('dark-content');
     }
 
-    captureImageCarousel = (imageCarousel: React$Element<*>) => {
+    captureImageCarousel = (imageCarousel) => {
         this.imageCarousel = imageCarousel;
     };
 
-    handleHeaderPress = () => (this.imageCarousel: $FlowFixMe).close();
+    handleHeaderPress = () => (this.imageCarousel).close();
 
-    renderHeader = (): React$Element<*> => (
+    ToGalleryDetail = () => {
+        const { navigation } = this.props;
+        navigation.navigate('GalleryDetail')
+    }
+
+    ToNormalPanel = () => {
+        const { navigation } = this.props;
+        navigation.navigate('NormalPanel')
+    }
+
+    ToScrollPanel = () => {
+        const { navigation } = this.props;
+        navigation.navigate('ScrollPanel')
+    }
+
+    ToBottomPanel = () => {
+        const { navigation } = this.props;
+        navigation.navigate('BottomPanel')
+    }
+
+    ToUber = () => {
+        const { navigation } = this.props;
+        navigation.navigate('uber')
+    }
+
+    ToImageView = () => {
+        const { navigation } = this.props;
+        navigation.navigate('ImageView')
+    }
+
+    ToImageViewing = () => {
+        const { navigation } = this.props;
+        navigation.navigate('ImageViewing')
+    }
+
+    renderHeader = () => (
         <View style={styles.header}>
 
             <TouchableWithoutFeedback onPress={this.handleHeaderPress}>
@@ -49,11 +82,19 @@ class App extends Component {
             </TouchableWithoutFeedback>
 
         </View>
-
     );
 
-    renderFooter = (): React$Element<*> => (
-        <View style={styles.footer}>
+    renderEdit = () => (
+        <View style={{ zIndex: 5 }}>
+            <View style={{ width: '100%', height: '40%', backgroundColor: 'transparent' }} />
+            <View style={{ width: '100%', height: '10%', backgroundColor: 'orange' }} />
+            <View style={{ width: '100%', height: '50%', backgroundColor: 'red' }} />
+            <Text>i am bobo</Text>
+        </View>
+    );
+
+    renderFooter = () => (
+        < View style={styles.footer} >
             <TouchableOpacity activeOpacity={0.2} focusedOpacity={0.5}>
                 <View >
                     <Text style={styles.dltBtn}>delete</Text>
@@ -64,7 +105,10 @@ class App extends Component {
                     <Text style={styles.likeBtn}>like</Text>
                 </View>
             </TouchableOpacity>
-            <TouchableOpacity activeOpacity={0.2} focusedOpacity={0.5}>
+            <TouchableOpacity
+                activeOpacity={0.2}
+                focusedOpacity={0.5}
+                onPress={this.renderEdit}>
                 <View >
                     <Text style={styles.detailBtn}>detail</Text>
                 </View>
@@ -72,7 +116,7 @@ class App extends Component {
         </View >
     );
 
-    renderImage = (idx: number) => (
+    renderImage = (idx) => (
         <Image
             style={StyleSheet.absoluteFill}
             resizeMode={'contain'}
@@ -80,6 +124,8 @@ class App extends Component {
         />
 
     );
+
+
 
     render() {
         return (
@@ -91,6 +137,7 @@ class App extends Component {
                         renderContent={this.renderImage}
                         renderHeader={this.renderHeader}
                         renderFooter={this.renderFooter}
+                        zoomEnabled={true}
                     >
                         {urls.map(url => (
                             <Image
@@ -102,8 +149,65 @@ class App extends Component {
                             />
                         ))}
                     </ImageCarousel>
-                </View>
 
+                </View>
+                <TouchableOpacity
+                    style={{ fontsize: 30, padding: 30 }}
+                    activeOpacity={0.2}
+                    focusedOpacity={0.5}
+                    onPress={this.ToGalleryDetail}>
+                    <View >
+                        <Text >change form </Text>
+                    </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={{ fontsize: 30, padding: 30 }}
+                    activeOpacity={0.2}
+                    focusedOpacity={0.5}
+                    onPress={this.ToNormalPanel}>
+                    <View >
+                        <Text >sliding window - normal</Text>
+                    </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={{ fontsize: 30, padding: 30 }}
+                    activeOpacity={0.2}
+                    focusedOpacity={0.5}
+                    onPress={this.ToScrollPanel}>
+                    <View >
+                        <Text >sliding window - scroll</Text>
+                    </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={{ fontsize: 30, padding: 30 }}
+                    activeOpacity={0.2}
+                    focusedOpacity={0.5}
+                    onPress={this.ToBottomPanel}>
+                    <View >
+                        <Text >sliding window - bottom</Text>
+                    </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={{ fontsize: 30, padding: 30 }} activeOpacity={0.2} focusedOpacity={0.5} onPress={this.ToUber}>
+                    <View >
+                        <Text >to uber box</Text>
+                    </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={{ fontsize: 30, padding: 30 }} activeOpacity={0.2} focusedOpacity={0.5} onPress={this.ToImageView}>
+                    <View >
+                        <Text >to image view</Text>
+                    </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={{ fontsize: 30, padding: 30 }} activeOpacity={0.2} focusedOpacity={0.5} onPress={this.ToImageViewing}>
+                    <View >
+                        <Text >to image viewing</Text>
+                    </View>
+                </TouchableOpacity>
             </View>
         );
     }

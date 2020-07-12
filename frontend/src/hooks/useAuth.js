@@ -3,16 +3,26 @@ import { NetworkInfo } from 'react-native-network-info'
 import { GoogleSignin, statusCodes } from '@react-native-community/google-signin'
 import { web } from '../../android/app/google-services.json'
 import AsyncStorage from '@react-native-community/async-storage'
+<<<<<<< HEAD
+import { createAction, actionType } from '../utils/action'
+import { authReducer } from './authReducer'
+=======
 import { action, actionType } from '../utils/action'
 import { authReducer } from './authReducer'
 import axios from 'axios'
+>>>>>>> master
 /**
  * initial state
  */
 const initialState = {
+<<<<<<< HEAD
+    isLoading: true,
+    user: null
+=======
     // isLoading:true,
     user: null,
     splash: true
+>>>>>>> master
 };
 const ipv4 = '192.168.1.106'
 export function useAuth() {
@@ -32,7 +42,6 @@ export function useAuth() {
                 if (err) {
                     console.log(err)
                 } else if (result) {
-                    console.log('get name')
                     console.log(result)
                     config.accountName = result
                 }
@@ -40,28 +49,13 @@ export function useAuth() {
             GoogleSignin.configure(config)
             callback()
         },
-        checkUser: async (callback) => {
+        checkUser: async () => {
             console.log("check")
-            if (await GoogleSignin.isSignedIn()) {
-                let userInfo = await GoogleSignin.getCurrentUser()
-                // axios.get(`http://${ipv4}:3000/?userid=${userInfo.user.id}`,{
-                //     headers:{
-                //         'X-Requested-With':'com.aster'
-                //     }
-                // }).then((res)=>{
-                //     data = JSON.parse(res.data)
-                //     if (data.message){
-                //     }
-                // }).catch((err)=>{
-                //     console.log(err.response)
-                // })
-                if(!userInfo.serverAuthCode) {
-                    try{
-                        userInfo = await GoogleSignin.signInSilently()
-                    } catch(e){
-                        console.log(e)
-                        userInfo = await GoogleSignin.signIn()
-                    }
+            AsyncStorage.getItem('email', (err, result) => {
+                if (err) {
+                    console.log(err)
+                } else if (result) {
+
                 }
                 await AsyncStorage.getItem('email', (err, result) => {
                     console.log(result)
@@ -87,7 +81,7 @@ export function useAuth() {
                     ['idToken', userInfo.idToken],
                     ['email', userInfo.user.email]
                 ])
-                dispatch(action(actionType.Auth.SIGNIN, userInfo.user))
+                dispatch(createAction(actionType.Auth.SIGNIN, { user: userInfo.user }))
             } catch (e) {
                 if (e.code === statusCodes.SIGN_IN_CANCELLED) {
                     console.log("Cancel signin")
@@ -97,9 +91,51 @@ export function useAuth() {
                 } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
                     console.log("Play service is not available")
                 } else {
+                    console.log(e.code)
+                }
+            }
+        },
+        signInSilently: async (callback) => {
+            console.log("signInSilently")
+            let userInfo = null
+            try {
+                userInfo = await GoogleSignin.signInSilently()
+                await AsyncStorage.setItem([
+                    ['idToken', userInfo.idToken],
+                    ['email', userInfo.user.email]
+                ])
+                dispatch(createAction(actionType.Auth.SIGNIN, { user: userInfo.user }))
+                callback(userInfo)
+            } catch (e) {
+                if (e.code === statusCodes.SIGN_IN_REQUIRED) {
+                    console.log("Not signed in")
+                    callback(userInfo)
+                } else {
+                    console.log('error')
                     console.log(e)
                 }
             }
+        },
+        isSignedIn: async (callback) => {
+            console.log("isSignedIn")
+            let _isSigned = await GoogleSignin.isSignedIn()
+            console.log(_isSigned)
+            if (_isSigned) {
+                let userInfo = await GoogleSignin.getCurrentUser()
+                // set state
+                AsyncStorage.getItem('email', (err, result) => {
+                    if (err) {
+                        console.log(err)
+                        _isSigned = false
+                    } else if (result) {
+                        if (userInfo.user.email == result) {
+                            console.log('Result good')
+                            dispatch(createAction(actionType.Auth.SIGNIN, { user: userInfo.user }))
+                        }
+                    }
+                })
+            }
+            dispatch(createAction(actionType.SET.isLoading, false))
         },
         clearStorage: async () => {
             await AsyncStorage.clear((err) => {
@@ -113,35 +149,11 @@ export function useAuth() {
         signOut: async () => {
             await GoogleSignin.revokeAccess()
             await GoogleSignin.signOut()
-            await AsyncStorage.multiRemove(['idToken', 'email'], (err) => {
+            await AsyncStorage.clear((err) => {
                 if (err) {
-                    throw err
-                } else {
-                    dispatch([action(actionType.SET.USER, null), action(actionType.SET.SPLASH, true)])
+                    console.log(err)
                 }
-            })
-        },
-        connectBackend: async (user) => {
-            console.log(user)
-            NetworkInfo.getIPV4Address().then((ipv4) => {
-                if (ipv4) {
-                    console.log(ipv4)
-                    var url = `http://${ipv4}:3000/`
-                    axios.post(url,{
-                        scopes:user.scopes,
-                        idToken:user.idToken,
-                        serverAuthCode:user.serverAuthCode
-                    },{
-                        headers:{
-                            'X-Requested-With':'com.aster'
-                        }
-                    }).then((res)=>{
-                        console.log(res.data)
-
-                    }).catch((err)=>{
-                        console.log(err)
-                    })
-                }
+                dispatch(createAction(actionType.SET.CLEAR, null))
             })
         }
     }), [])
