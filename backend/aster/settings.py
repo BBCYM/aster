@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'auth',
     'personal',
     'bot',
+    'home'
 
 ]
 
