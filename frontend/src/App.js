@@ -9,7 +9,9 @@ import { useAuth } from './hooks/useAuth'
 import Uber from './utils/uber'
 import GalleryDetail from './utils/GalleryDetail'
 import { NormalPanel, ScrollPanel, BottomPanel } from './utils/SlidingUpPanel'
-
+import ImageView from './utils/ImageView_old'
+//import ImageViewing from './utils/ImageViewing'
+import ImageViewing from './utils_ImageViewing/ImageViewingApp' //暫時改成這樣 應該是要用上面的
 const MainStack = createStackNavigator()
 
 export default function () {
@@ -42,6 +44,8 @@ export default function () {
           <MainStack.Screen name='NormalPanel' component={NormalPanel} />
           <MainStack.Screen name='ScrollPanel' component={ScrollPanel} />
           <MainStack.Screen name='BottomPanel' component={BottomPanel} />
+          <MainStack.Screen name='ImageView' component={ImageView} />
+          <MainStack.Screen name='ImageViewing' component={ImageViewing} />
 
         </MainStack.Navigator>
       </NavigationContainer>
