@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { ButtonGroup  } from 'react-native-elements';
 import {
   StyleSheet,
   Text,
@@ -16,9 +17,18 @@ export default class Album extends Component {
     super(props);
       this.state={
         data:[{id:'',title:'',count:'',image:''},
-        
-      ]
-      }
+        {id:'',title:'',count:'',image:''},
+        ],
+
+        selectedIndex: 2
+      };
+  
+      
+    this.updateIndex = this.updateIndex.bind(this)
+  }
+
+  updateIndex (selectedIndex) {
+    this.setState({selectedIndex})
   }
 
   _ping = async () => {
@@ -54,6 +64,9 @@ export default class Album extends Component {
   }
 
   render() {
+    const buttons = ['Album', 'Photo']
+    const { selectedIndex } = this.state
+    
     return ( 
         <View style={styles.container}>
           <View style={{ flex: 2 }} >
@@ -87,14 +100,21 @@ export default class Album extends Component {
                   <View style={styles.cardContent}>
                     <Text style={styles.title}>{this.state.title}</Text>
                     <Text style={styles.count}>{this.state.count}</Text>
-                    
-                  
                   </View>
-                  
                 </View>
               )
-
-            }}/>
+             }}/>
+        <View style={styles.container1}>
+          <ButtonGroup
+            onPress={this._ping}
+            selectedIndex={selectedIndex}
+            buttons={buttons}
+            containerStyle={{height: 40,borderRadius:50,marginLeft:70,marginRight:70}}
+            buttonContainerStyle={{opacity:0.5}}
+            style={styles.buttongroup}
+            />
+        </View>  
+             
         </View>
         
    );  
@@ -106,7 +126,7 @@ export default class Album extends Component {
 const styles = StyleSheet.create({
   container:{
     flex:1,
-    marginTop:20,
+    marginTop:30,
   },
   list: {
     paddingHorizontal: 10,
@@ -157,4 +177,5 @@ const styles = StyleSheet.create({
     flex:1,
     color:"#B0C4DE"
   },
+  
 });  
