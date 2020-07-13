@@ -91,16 +91,16 @@ export function PagesTabNavigator(props) {
             <PagesStack.Screen name='Chatbot' component={ChatbotScreen} options={{
                 headerShown: true,
                 headerTitle: null,
-                headerRight: () => (
-                    <View style={styles.block}>
-                        <TouchableOpacity onPress={() => { props.navigation.navigate('Home') }}>
-                            <Image style={styles.photo} source={require('../pic/photo.png')} />
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => { props.navigation.navigate('Profile') }}>
-                            <Image style={styles.person} source={require('../pic/person.png')} />
-                        </TouchableOpacity>
-                    </View>
-                ),
+                // headerRight: () => (
+                //     <View style={styles.block}>
+                //         <TouchableOpacity onPress={() => { props.navigation.navigate('Home') }}>
+                //             <Image style={styles.photo} source={require('../pic/photo.png')} />
+                //         </TouchableOpacity>
+                //         <TouchableOpacity onPress={() => { props.navigation.navigate('Profile') }}>
+                //             <Image style={styles.person} source={require('../pic/person.png')} />
+                //         </TouchableOpacity>
+                //     </View>
+                // ),
             }} />
         </PagesStack.Navigator>
     )
