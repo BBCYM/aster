@@ -62,16 +62,17 @@ export function useAuth() {
                         userInfo = await GoogleSignin.signIn()
                     }
                 }
-                await AsyncStorage.getItem('email', (err, result) => {
-                    console.log(result)
-                    if (err) {
-                        throw err
-                    } else if (result && result == userInfo.user.email) {
-                        console.log('is login')
-                        dispatch([action(actionType.SET.USER, userInfo.user), action(actionType.SET.SPLASH, false)])
+                dispatch([action(actionType.SET.USER, userInfo.user), action(actionType.SET.SPLASH, false)])
                         callback(userInfo)
-                    }
-                })
+                // await AsyncStorage.getItem('email', (err, result) => {
+                //     console.log(result)
+                //     if (err) {
+                //         throw err
+                //     } else if (result && result == userInfo.user.email) {
+                //         console.log('is login')
+                        
+                //     }
+                // })
             } else {
                 dispatch(action(actionType.SET.SPLASH, false))
             }
