@@ -1,6 +1,6 @@
 import * as React from 'react'
-import { createBottomTabNavigator} from '@react-navigation/bottom-tabs'
-import {createStackNavigator, CardStyleInterpolators} from '@react-navigation/stack'
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/stack'
 import ChatbotScreen from '../screens/Chatbot/Chatbot'
 import { HomeScreen } from '../navigators/HomeStackNavigators'
 import ProfileScreen from '../screens/Profile/Profile'

@@ -104,6 +104,7 @@ const styles = StyleSheet.create({
         borderColor: 'gray',
         borderRadius: 50
     },
+
     intro: {
         lineHeight: 50,
         textAlign: 'center',
