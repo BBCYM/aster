@@ -3,15 +3,15 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/stack'
 import ChatbotScreen from '../screens/Chatbot/Chatbot'
 import { HomeScreen } from '../navigators/HomeStackNavigators'
+import { GalleryScreen } from '../navigators/GalleryStackNavigators'
 import ProfileScreen from '../screens/Profile/Profile'
 import Gallery from '../utils/Gallery'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import { useAuth } from '../hooks/useAuth'
 import { View, TouchableOpacity, StyleSheet, Image, Text } from 'react-native'
-
+import Uber from '../utils/uber'
 const PagesTab = createBottomTabNavigator()
 const PagesStack = createStackNavigator()
-
 
 export function PagesTabNavigator(props) {
     function index() {
@@ -62,7 +62,7 @@ export function PagesTabNavigator(props) {
                 />
                 <PagesTab.Screen
                     name='Gallary'
-                    component={Gallery}
+                    component={GalleryScreen}
                     options={{
                         tabBarLabel: 'Gallary',
                         tabBarIcon: (props) => {
@@ -91,17 +91,18 @@ export function PagesTabNavigator(props) {
             <PagesStack.Screen name='Chatbot' component={ChatbotScreen} options={{
                 headerShown: true,
                 headerTitle: null,
-                headerRight: () => (
-                    <View style={styles.block}>
-                        <TouchableOpacity onPress={() => { props.navigation.navigate('Home') }}>
-                            <Image style={styles.photo} source={require('../pic/photo.png')} />
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => { props.navigation.navigate('Profile') }}>
-                            <Image style={styles.person} source={require('../pic/person.png')} />
-                        </TouchableOpacity>
-                    </View>
-                ),
+                // headerRight: () => (
+                //     <View style={styles.block}>
+                //         <TouchableOpacity onPress={() => { props.navigation.navigate('Home') }}>
+                //             <Image style={styles.photo} source={require('../pic/photo.png')} />
+                //         </TouchableOpacity>
+                //         <TouchableOpacity onPress={() => { props.navigation.navigate('Profile') }}>
+                //             <Image style={styles.person} source={require('../pic/person.png')} />
+                //         </TouchableOpacity>
+                //     </View>
+                // ),
             }} />
+            <PagesStack.Screen name='uber' component={Uber} />
         </PagesStack.Navigator>
     )
 }
