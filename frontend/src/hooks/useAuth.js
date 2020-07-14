@@ -14,6 +14,7 @@ const initialState = {
     user: null,
     splash: true
 };
+const dev = false
 const ipv4 = '192.168.169.14'
 export function useAuth() {
 
@@ -43,18 +44,22 @@ export function useAuth() {
             console.log("check")
             let userInfo = await GoogleSignin.getCurrentUser()
             if (await GoogleSignin.isSignedIn()) {
-                var _isIndb = await axios.get(`http://${ipv4}:3000/?userid=${userInfo.user.id}`, {
-                    headers: {
-                        'X-Requested-With': 'com.aster'
+                if (dev) {
+                    var _isIndb = await axios.get(`http://${ipv4}:3000/?userid=${userInfo.user.id}`, {
+                        headers: {
+                            'X-Requested-With': 'com.aster'
+                        }
+                    })
+                    _isIndb = JSON.parse(_isIndb.data)
+                    if (!_isIndb.message) {
+                        dispatch(action(actionType.SET.SPLASH, false))
+                    } else {
+                        console.log(userInfo.idToken === await (await GoogleSignin.getTokens()).idToken)
+                        dispatch([action(actionType.SET.USER, userInfo.user), action(actionType.SET.SPLASH, false)])
+                        callback(userInfo)
                     }
-                })
-                _isIndb = JSON.parse(_isIndb.data)
-                if (!_isIndb.message) {
-                    dispatch(action(actionType.SET.SPLASH, false))
                 } else {
-                    console.log(userInfo.idToken === await (await GoogleSignin.getTokens()).idToken)
                     dispatch([action(actionType.SET.USER, userInfo.user), action(actionType.SET.SPLASH, false)])
-                    callback(userInfo)
                 }
             } else {
                 dispatch(action(actionType.SET.SPLASH, false))
