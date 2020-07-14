@@ -96,4 +96,4 @@ def checkUserToSession(data, req):
         except RefreshError as e:
             return Response(e, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     print('auth done')
-    return AuthorizedSession(credent), userData['userId']
+    return AuthorizedSession(credent), userData

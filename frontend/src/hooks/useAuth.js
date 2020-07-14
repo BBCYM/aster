@@ -52,7 +52,7 @@ export function useAuth() {
                 if (!_isIndb.message) {
                     dispatch(action(actionType.SET.SPLASH, false))
                 } else {
-                    console.log(userInfo.idToken===await (await GoogleSignin.getTokens()).idToken)
+                    console.log(userInfo.idToken === await (await GoogleSignin.getTokens()).idToken)
                     dispatch([action(actionType.SET.USER, userInfo.user), action(actionType.SET.SPLASH, false)])
                     callback(userInfo)
                 }
@@ -119,6 +119,9 @@ export function useAuth() {
             }).catch((err) => {
                 console.log(err)
             })
+        },
+        getAccessToken: async () => {
+            return (await GoogleSignin.getTokens()).accessToken
         }
     }), [])
 
