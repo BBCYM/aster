@@ -1,4 +1,3 @@
-/* @flow */
 import {
     Image,
     StatusBar,
@@ -56,7 +55,9 @@ class App extends Component {
 
     ToImageView = () => {
         const { navigation } = this.props;
-        navigation.navigate('ImageView')
+        navigation.navigate('Gallary', {
+            screen: 'ImageView',
+        })
     }
 
     ToImageViewing = () => {
@@ -125,8 +126,6 @@ class App extends Component {
 
     );
 
-
-
     render() {
         return (
             <View style={styles.container}>
@@ -155,9 +154,10 @@ class App extends Component {
                     style={{ fontsize: 30, padding: 30 }}
                     activeOpacity={0.2}
                     focusedOpacity={0.5}
-                    onPress={this.ToGalleryDetail}>
+                    onPress={this.ToGalleryDetail}
+                >
                     <View >
-                        <Text >change form </Text>
+                        <Text >change form to GalleryDetail </Text>
                     </View>
                 </TouchableOpacity>
 

@@ -9,55 +9,45 @@ from google.oauth2 import id_token, credentials
 from google.auth.transport.requests import Request, AuthorizedSession
 from authlib.integrations.requests_client import OAuth2Session
 import datetime
-from google.auth.exceptions import RefreshError
+from google.auth.exceptions import RefreshError, GoogleAuthError
 from django.utils.timezone import make_aware
-from threading import Thread
+import os
+# import time
 
 
-    
-
-
-def downloadImage(session,userId, mediaItem):
+def downloadImage(session, userId, mediaItem):
     # get item type
-    mimeType = mediaItem.mimeType.split('/')
-    fileType = ''
+    mimeType = mediaItem['mimeType'].split('/')
+    if not os.path.isdir(f'./{userId}'):
+        try:
+            os.mkdir(userId)
+        except OSError:
+            print("Creation of the directory failed")
     # only download images 
     if mimeType[0]=='image':
         # get the image data
-        res = session.get(mediaItem.baseUrl+'=d').content
-        filename = mediaItem.filename
-        if mimeType[1]=='jpeg':
-            fileType='jpg'
-        elif mimeType[1]=='png':
-            fileType = 'png'
-        with open(f'{userId}/{filename}.{fileType}',mode='wb') as handler:
+        filename = mediaItem['filename']
+        res = session.get(mediaItem['baseUrl']+'=d').content
+        print(f'{filename} downloaded')
+        with open(f'{userId}/{filename}',mode='wb') as handler:
             handler.write(res)
+                    
 
 def checkUserToSession(data, req):
+
     if not req.headers.get('X-Requested-With') and req.headers.get('X-Requested') != 'com.aster':
         print('X-R-not-pass')
         return Response('CSRF', status=status.HTTP_403_FORBIDDEN)
     with open('client_secret.json', 'r', encoding='utf-8') as f:
         appSecret = json.load(f).get('web')
-        print(appSecret)
     CLIENT_ID, CLIENT_SECRET, TOKEN_URI = itemgetter(
         'client_id',
         'client_secret',
         'token_uri'
     )(appSecret)
-    try:
-        idInfo = id_token.verify_oauth2_token(
-            data['idToken'],
-            Request(),
-            CLIENT_ID
-        )
-        if idInfo['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:
-            raise ValueError('Wrong Issuer')
-    except ValueError as e:
-        return Response(e, status=status.HTTP_403_FORBIDDEN)
-    print('Step 1 auth check pass')
+    print('Hello')
 
-    user = User.objects.filter(userId=idInfo['sub'])
+    user = User.objects.filter(userId=data['sub'])
 
     access_token = ''
     if not user.exists():
@@ -76,14 +66,14 @@ def checkUserToSession(data, req):
         print(token)
         access_token = token['access_token']
         newUser = UserSerializer(data={
-            'userId': idInfo['sub'],
+            'userId': data['sub'],
             'expiresAt': datetime.datetime.utcnow() + datetime.timedelta(0,token['expires_in']),
             'refreshToken': token['refresh_token']
         })
         if newUser.is_valid():
             newUser.save()
             print('new user created')
-        user = User.objects.filter(userId=idInfo['sub'])
+        user = User.objects.filter(userId=data['sub'])
         print('create new user')
     userData = user.values()[0]
     credent = credentials.Credentials(
@@ -105,4 +95,5 @@ def checkUserToSession(data, req):
                         refreshToken=credent.refresh_token)
         except RefreshError as e:
             return Response(e, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    return AuthorizedSession(credent)
+    print('auth done')
+    return AuthorizedSession(credent), userData

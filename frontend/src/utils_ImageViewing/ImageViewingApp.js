@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import {
   Alert,
@@ -7,6 +8,7 @@ import {
   StyleSheet,
   Text,
   View,
+  TouchableOpacity
 } from "react-native";
 import get from "lodash/get";
 import memoize from "lodash/memoize";
@@ -14,8 +16,8 @@ import memoize from "lodash/memoize";
 //import ImageViewing from "../src/ImageViewing";
 import ImageViewing from "react-native-image-viewing";
 import ImageList from "./components/ImageList";
-import { ImageHeader, renderDetail } from "./components/ImageHeader";
-import ImageFooter from "./components/ImageFooter";
+import { ImageHeader } from "./components/ImageHeader";
+// import ImageFooter from "./components/ImageFooter";
 
 import { architecture } from "./data/architecture";
 import { travel } from "./data/travel";
@@ -58,7 +60,41 @@ export default function App() {
   const onLongPress = (image) => {
     Alert.alert("Long Pressed", image.uri);
   };
+  const renderEdit = () => {
+    <View style={{ zIndex: 5 }}>
+      <View style={{ width: '100%', height: '40%', backgroundColor: 'transparent' }} />
+      <View style={{ width: '100%', height: '10%', backgroundColor: 'orange' }} />
+      <View style={{ width: '100%', height: '50%', backgroundColor: 'red' }} />
+      <Text>i am bobo</Text>
+    </View>
+  };
+  const ImageFooter = () => {
+    return (
+      <View style={styles.footerRoot} >
+        {/* <Text style={styles.text}>{`${imageIndex + 1} / ${imagesCount}`}</Text> */}
+        < TouchableOpacity activeOpacity={0.2} focusedOpacity={0.5} >
+          <View >
+            <Text style={styles.footerText}>delete</Text>
+          </View>
+        </TouchableOpacity >
+        <TouchableOpacity activeOpacity={0.2} focusedOpacity={0.5}>
+          <View >
+            <Text style={styles.footerText}>like</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          activeOpacity={0.2}
+          focusedOpacity={0.5}
+          onPress={renderEdit}>
+          <View >
+            <Text style={styles.footerText}>detail</Text>
+          </View>
+        </TouchableOpacity>
+      </View >
 
+    )
+
+  }
   return (
     <SafeAreaView style={styles.root}>
       <ImageList
@@ -93,9 +129,10 @@ export default function App() {
             }
             : undefined
         }
-        FooterComponent={({ imageIndex }) => (
-          <ImageFooter imageIndex={imageIndex} imagesCount={images.length} />
-        )}
+        // FooterComponent={({ imageIndex }) => (
+        //   <ImageFooter imageIndex={imageIndex} imagesCount={images.length} />
+        // )}
+        FooterComponent={{ ImageFooter }}
       />
       <ImageList
         images={food.map((image) => image.thumbnail)}
@@ -132,4 +169,14 @@ const styles = StyleSheet.create({
     fontWeight: "200",
     color: "#FFFFFFEE",
   },
+  footerRoot: {
+    backgroundColor: '#63CCC8',
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  footerText: {
+    fontSize: 17,
+    color: "#FFF"
+  }
 });
+
