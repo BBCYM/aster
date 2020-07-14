@@ -8,3 +8,5 @@ class User(models.Model):
     expiresAt = models.DateTimeField(blank=True)
     refreshToken=models.CharField(max_length=512,blank=False)
     lastUpdateTime=models.DateTimeField(auto_now=True)
+    lastSync=models.DateTimeField(blank=True)
+    isSync=models.BooleanField(default=False)
