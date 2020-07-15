@@ -78,7 +78,7 @@ export function useAuth() {
                 // this will return userInfo
                 let userInfo = await GoogleSignin.signIn()
                 await AsyncStorage.setItem('user', JSON.stringify(userInfo.user))
-                dispatch(createAction(actionType.Auth.SIGNIN, { user: userInfo.user }))
+                dispatch(action(actionType.Auth.SIGNIN, { user: userInfo.user }))
             } catch (e) {
                 console.log(e.code)
                 dispatch([action(actionType.SET.SPLASH, true)])
