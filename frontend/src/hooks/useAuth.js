@@ -90,7 +90,7 @@ export function useAuth() {
                 if (err) {
                     console.log(err)
                 }
-                dispatch(createAction(actionType.SET.CLEAR, null))
+                dispatch(action(actionType.SET.CLEAR, null))
             })
         },
         connectBackend: async (user) => {
