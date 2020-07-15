@@ -15,22 +15,23 @@ import os
 # import time
 
 
-def downloadImage(session, userId, mediaItem):
+def downloadImage(session, userId, mediaItems):
     # get item type
-    mimeType = mediaItem['mimeType'].split('/')
-    if not os.path.isdir(f'./{userId}'):
-        try:
-            os.mkdir(userId)
-        except OSError:
-            print("Creation of the directory failed")
-    # only download images 
-    if mimeType[0]=='image':
-        # get the image data
-        filename = mediaItem['filename']
-        res = session.get(mediaItem['baseUrl']+'=d').content
-        print(f'{filename} downloaded')
-        with open(f'{userId}/{filename}',mode='wb') as handler:
-            handler.write(res)
+    for mediaItem in mediaItems:
+        mimeType = mediaItem['mimeType'].split('/')
+        if not os.path.isdir(f'./{userId}'):
+            try:
+                os.mkdir(userId)
+            except OSError:
+                print("Creation of the directory failed")
+        # only download images 
+        if mimeType[0]=='image':
+            # get the image data
+            filename = mediaItem['filename']
+            res = session.get(mediaItem['baseUrl']+'=d').content
+            print(f'{filename} downloaded')
+            with open(f'{userId}/{filename}',mode='wb') as handler:
+                handler.write(res)
                     
 
 def checkUserToSession(data, req):

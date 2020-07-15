@@ -23,11 +23,11 @@ class AuthView(APIView):
         photoRes= userSession.get('https://photoslibrary.googleapis.com/v1/mediaItems').json()
         print(user['isSync'])
         if not user['isSync']:
-            for i, photo in enumerate(photoRes['mediaItems'][:3]):
-                t = threading.Thread(name=f'image-{i}',target=downloadImage,args=(userSession,user['userId'],photo))
-                # don't block main process
-                t.setDaemon(True)
-                t.start()
+            photos=photoRes['mediaItems'][:3]
+            t = threading.Thread(name=f'downloading-image',target=downloadImage,args=(userSession,user['userId'],photos))
+            # don't block main process
+            t.setDaemon(True)
+            t.start()
         # use threading.enumerate to check thread pool
         return Response(simpleMessage('good'),status=status.HTTP_200_OK)
 
