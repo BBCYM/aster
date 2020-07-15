@@ -64,7 +64,7 @@ class personalView(views.APIView):
     def get(self, request):
 
         data = {'name': 'Michelle',
-                'text': 'i am 18 years old.'}
+                'text': 'this is the intro.'}
 
         print(data)
         #re = MessageToJson(data)

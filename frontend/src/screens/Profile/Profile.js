@@ -1,8 +1,7 @@
-
-import * as React from 'react'
 import * as React from 'react'
 import { AuthContext } from '../../contexts/AuthContext'
 import { StyleSheet, Text, View, TextInput, Button, Image, TouchableOpacity } from 'react-native';
+import Images from '../../../index';
 
 
 export default function personalScreen(props) {
@@ -19,6 +18,7 @@ export default function personalScreen(props) {
 
     React.useEffect(() => {
         console.log(state.user)
+        _ping()
         // {
         //     email: string,
         //     id: string,
@@ -56,147 +56,147 @@ export default function personalScreen(props) {
         // this.setState({ name: data.name })
         // this.setState({ text: data.text })
 
+
     }
 
     return (
+        <View style={styles.container}>
+            <View style={styles.header}></View>
+            <Image style={styles.avatar} source={{ uri: `${state.user.photo}` }} />
+            {/* https://lh3.googleusercontent.com/a-/AOh14GixVww8PP-TJc7CrmOa9z5zPM8bsbPbh08A6Fq-Og=s96-c */}
+            {/* <Image source={{ uri: state.user.photo }} /> */}
+            {/* <Image source={{ uri: `https://lh3.googleusercontent.com/a-/AOh14GixVww8PP-TJc7CrmOa9z5zPM8bsbPbh08A6Fq-Og=s96-c` }} /> */}
+            {/* <Image source={Images.pic.camera} /> */}
+            <View style={styles.body}>
+                <View style={styles.bodyContent}>
+                    <Text style={styles.name}>{state.user.email}</Text>
+                    <Text style={styles.description}>Lorem ipsum dolor sit amet, saepe sapientem eu nam. Qui ne assum electram expetendis, omittam deseruisse consequuntur ius an,</Text>
+                    <View style={styles.Btncontainer}>
+                        <TouchableOpacity style={styles.Btn}>
+                            <Text>REFRESH</Text>
+                        </TouchableOpacity>
 
-        <View style={{ flex: 1 }}>
-
-            <View style={{ flex: 3 }} >
-                <Image source={{ uri: 'photo' }}
-                    style={styles.img} />
-            </View>
-            <View style={{ flex: 1 }} >
-                <Text style={styles.name}>{this.state.name}</Text>
-            </View>
-            <View style={{ flex: 1 }} >
-                <Text style={styles.introduce}>{this.state.text}</Text>
-            </View>
-            <View style={{ flex: 1, flexDirection: 'row' }} >
-                <View style={{ flex: 1 }} >
-                    <Image style={styles.accicon} source={require('../../pic/accountpeople.png')} />
-                </View>
-                <View style={{ flex: 2 }} >
-                    <TouchableOpacity activeOpacity={0.2} focusedOpacity={0.5}>
-                        <View >
-                            <Text style={styles.accBtn}>    EDIT ACCOUNT   </Text>
-                        </View>
-                    </TouchableOpacity>
-                </View>
-            </View>
-            <View style={{ flex: 1, flexDirection: 'row' }} >
-                <View style={{ flex: 1 }} >
-                    <Image style={styles.albumicon} source={require('../../pic/camera.png')} />
-                </View>
-                <View style={{ flex: 2 }} >
-                    <TouchableOpacity activeOpacity={0.2} focusedOpacity={0.5}>
-                        <View >
-                            <Text style={styles.albumBtn}>    EDIT ALBUM        </Text>
-                        </View>
-                    </TouchableOpacity>
-                </View>
-            </View>
-
-            <View style={{ flex: 2 }} >
-                <TouchableOpacity activeOpacity={0.2} focusedOpacity={0.5}>
-                    <View >
-                        <Text style={styles.albumBtn}>                        LOG OUT        </Text>
+                        <TouchableOpacity style={styles.Btn}>
+                            <Text>LOG OUT</Text>
+                        </TouchableOpacity>
                     </View>
-                </TouchableOpacity>
-
-                {/* <TouchableOpacity activeOpacity={0.2} focusedOpacity={0.5}>
-                        <View >
-                            <Text style={styles.button}>         LOG OUT        </Text>
-                        </View>
-                    </TouchableOpacity> */}
+                </View>
             </View>
         </View>
+
+
+
+        // <View style={{ flex: 1 }}>
+
+        //     <View style={{ flex: 3 }} >
+        //         <Image source={{ uri: 'photo' }}
+        //             style={styles.img} />
+        //     </View>
+        //     <View style={{ flex: 1 }} >
+        //         <Text style={styles.name}>{state.user.name}</Text>
+        //     </View>
+        //     <View style={{ flex: 1 }} >
+        //         <Text style={styles.introduce}></Text>
+        //     </View>
+        //     <View style={{ flex: 1, flexDirection: 'row' }} >
+        //         <View style={{ flex: 1 }} >
+        //             <Image style={styles.accicon} source={require('../../pic/accountpeople.png')} />
+        //         </View>
+        //         <View style={{ flex: 2 }} >
+        //             <TouchableOpacity activeOpacity={0.2} focusedOpacity={0.5}>
+        //                 <View >
+        //                     <Text style={styles.accBtn}>    EDIT ACCOUNT   </Text>
+        //                 </View>
+        //             </TouchableOpacity>
+        //         </View>
+        //     </View>
+        //     <View style={{ flex: 1, flexDirection: 'row' }} >
+        //         <View style={{ flex: 1 }} >
+        //             <Image style={styles.albumicon} source={require('../../pic/camera.png')} />
+        //         </View>
+        //         <View style={{ flex: 2 }} >
+        //             <TouchableOpacity activeOpacity={0.2} focusedOpacity={0.5}>
+        //                 <View >
+        //                     <Text style={styles.albumBtn}>    EDIT ALBUM        </Text>
+        //                 </View>
+        //             </TouchableOpacity>
+        //         </View>
+        //     </View>
+
+        //     <View style={{ flex: 2 }} >
+        //         <TouchableOpacity activeOpacity={0.2} focusedOpacity={0.5}>
+        //             <View >
+        //                 <Text style={styles.albumBtn}>                        LOG OUT        </Text>
+        //             </View>
+        //         </TouchableOpacity>
+
+        //         {/* <TouchableOpacity activeOpacity={0.2} focusedOpacity={0.5}>
+        //                 <View >
+        //                     <Text style={styles.button}>         LOG OUT        </Text>
+        //                 </View>
+        //             </TouchableOpacity> */}
+        //     </View>
+        // </View>
     );
 
 }
 
-
 const styles = StyleSheet.create({
-
-    img: {
+    header: {
+        height: 120,
+    },
+    avatar: {
+        width: 130,
+        height: 130,
+        borderRadius: 63,
+        borderWidth: 4,
+        borderColor: "white",
+        marginBottom: 10,
+        alignSelf: 'center',
         position: 'absolute',
-        top: 70,
-        left: 125,
-        width: 140,
-        height: 140,
-        // justifyContent: 'center',
-        // alignItems: 'center',
-        borderRadius: 80
+        marginTop: 40
+    },
+
+    body: {
+        //marginTop: 30,
+        marginVertical: 60,
+        //paddingVertical: 60,
+
+    },
+    bodyContent: {
+        flex: 1,
+        alignItems: 'center',
+        paddingVertical: 20,
+        paddingHorizontal: 50
+
     },
     name: {
-        lineHeight: 50,
-        textAlign: 'center',
         fontSize: 30,
-        color: 'black',
+        color: "#696969",
+        fontWeight: "600"
     },
 
-    introduce: {
-        lineHeight: 50,
-        textAlign: 'center',
-        fontSize: 20,
-        color: 'gray',
+    description: {
+        fontSize: 16,
+        color: "#696969",
+        marginTop: 20,
+        textAlign: 'center'
+
     },
 
-    accicon: {
-        position: 'absolute',
-        top: 10,
-        left: 85,
-        width: 40,
-        height: 51,
-    },
-
-    albumicon: {
-        position: 'absolute',
-        top: 15,
-        left: 80,
-        width: '40%',
-        height: '53%',
-    },
-
-    accBtn: {
-        fontSize: 25,
-        lineHeight: 70,
-        textAlign: 'left',
-        color: '#585858',
-        //textDecorationLine: 'underline'
-    },
-
-    albumBtn: {
-        fontSize: 25,
-        lineHeight: 70,
-        textAlign: 'left',
-        color: '#585858',
-
-        //textDecorationLine: 'underline'
+    Btncontainer: {
+        marginVertical: 30,
     },
     Btn: {
-        // position: 'absolute',
-        top: 30,
-        left: 140,
-        lineHeight: 42,
-        textAlign: 'center',
-        color: '#585858',
-        fontSize: 20,
-    },
-
-
-    button: {
-        // position: 'absolute',
-        top: 40,
-        left: 110,
-        lineHeight: 42,
-        textAlign: 'center',
-        width: 175,
-        height: 40,
-        backgroundColor: 'white',
-        color: 'black',
-        fontSize: 15,
+        //marginTop: 10,
+        height: 35,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 30,
+        width: 180,
         borderRadius: 30,
+        backgroundColor: "white",
         shadowColor: "#000",
         shadowOffset: {
             width: 0,
@@ -204,6 +204,99 @@ const styles = StyleSheet.create({
         },
         shadowRadius: 5.46,
         elevation: 7,
+
     },
+
 });
+
+// const styles = StyleSheet.create({
+
+//     img: {
+//         position: 'absolute',
+//         top: 70,
+//         left: 125,
+//         width: 140,
+//         height: 140,
+//         // justifyContent: 'center',
+//         // alignItems: 'center',
+//         borderRadius: 80
+//     },
+//     name: {
+//         lineHeight: 50,
+//         textAlign: 'center',
+//         fontSize: 30,
+//         color: 'black',
+//     },
+
+//     introduce: {
+//         lineHeight: 50,
+//         textAlign: 'center',
+//         fontSize: 20,
+//         color: 'gray',
+//     },
+
+//     accicon: {
+//         position: 'absolute',
+//         top: 10,
+//         left: 85,
+//         width: 40,
+//         height: 51,
+//     },
+
+//     albumicon: {
+//         position: 'absolute',
+//         top: 15,
+//         left: 80,
+//         width: '40%',
+//         height: '53%',
+//     },
+
+//     accBtn: {
+//         fontSize: 25,
+//         lineHeight: 70,
+//         textAlign: 'left',
+//         color: '#585858',
+//         //textDecorationLine: 'underline'
+//     },
+
+//     albumBtn: {
+//         fontSize: 25,
+//         lineHeight: 70,
+//         textAlign: 'left',
+//         color: '#585858',
+
+//         //textDecorationLine: 'underline'
+//     },
+//     Btn: {
+//         // position: 'absolute',
+//         top: 30,
+//         left: 140,
+//         lineHeight: 42,
+//         textAlign: 'center',
+//         color: '#585858',
+//         fontSize: 20,
+//     },
+
+
+//     button: {
+//         // position: 'absolute',
+//         top: 40,
+//         left: 110,
+//         lineHeight: 42,
+//         textAlign: 'center',
+//         width: 175,
+//         height: 40,
+//         backgroundColor: 'white',
+//         color: 'black',
+//         fontSize: 15,
+//         borderRadius: 30,
+//         shadowColor: "#000",
+//         shadowOffset: {
+//             width: 0,
+//             height: 0,
+//         },
+//         shadowRadius: 5.46,
+//         elevation: 7,
+//     },
+// });
 
