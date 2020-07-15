@@ -13,7 +13,7 @@ export default function personalScreen(props) {
 
     // }
 
-    const { state } = React.useContext(AuthContext)
+    const { auth, state } = React.useContext(AuthContext)
 
 
     React.useEffect(() => {
@@ -45,17 +45,6 @@ export default function personalScreen(props) {
             },
 
         })
-        // dj back to rn，用到response，一樣先await
-        var data = await response.json()
-        //var fullfillment = JSON.parse(data)
-        //var name = JSON.parse(data)
-
-        console.log(data)
-        console.log(data.name)
-
-        // this.setState({ name: data.name })
-        // this.setState({ text: data.text })
-
 
     }
 
@@ -76,7 +65,7 @@ export default function personalScreen(props) {
                             <Text>REFRESH</Text>
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={styles.Btn}>
+                        <TouchableOpacity style={styles.Btn} onPress={() => { auth.signOut() }}>
                             <Text>LOG OUT</Text>
                         </TouchableOpacity>
                     </View>
@@ -84,59 +73,6 @@ export default function personalScreen(props) {
             </View>
         </View>
 
-
-
-        // <View style={{ flex: 1 }}>
-
-        //     <View style={{ flex: 3 }} >
-        //         <Image source={{ uri: 'photo' }}
-        //             style={styles.img} />
-        //     </View>
-        //     <View style={{ flex: 1 }} >
-        //         <Text style={styles.name}>{state.user.name}</Text>
-        //     </View>
-        //     <View style={{ flex: 1 }} >
-        //         <Text style={styles.introduce}></Text>
-        //     </View>
-        //     <View style={{ flex: 1, flexDirection: 'row' }} >
-        //         <View style={{ flex: 1 }} >
-        //             <Image style={styles.accicon} source={require('../../pic/accountpeople.png')} />
-        //         </View>
-        //         <View style={{ flex: 2 }} >
-        //             <TouchableOpacity activeOpacity={0.2} focusedOpacity={0.5}>
-        //                 <View >
-        //                     <Text style={styles.accBtn}>    EDIT ACCOUNT   </Text>
-        //                 </View>
-        //             </TouchableOpacity>
-        //         </View>
-        //     </View>
-        //     <View style={{ flex: 1, flexDirection: 'row' }} >
-        //         <View style={{ flex: 1 }} >
-        //             <Image style={styles.albumicon} source={require('../../pic/camera.png')} />
-        //         </View>
-        //         <View style={{ flex: 2 }} >
-        //             <TouchableOpacity activeOpacity={0.2} focusedOpacity={0.5}>
-        //                 <View >
-        //                     <Text style={styles.albumBtn}>    EDIT ALBUM        </Text>
-        //                 </View>
-        //             </TouchableOpacity>
-        //         </View>
-        //     </View>
-
-        //     <View style={{ flex: 2 }} >
-        //         <TouchableOpacity activeOpacity={0.2} focusedOpacity={0.5}>
-        //             <View >
-        //                 <Text style={styles.albumBtn}>                        LOG OUT        </Text>
-        //             </View>
-        //         </TouchableOpacity>
-
-        //         {/* <TouchableOpacity activeOpacity={0.2} focusedOpacity={0.5}>
-        //                 <View >
-        //                     <Text style={styles.button}>         LOG OUT        </Text>
-        //                 </View>
-        //             </TouchableOpacity> */}
-        //     </View>
-        // </View>
     );
 
 }
@@ -208,95 +144,3 @@ const styles = StyleSheet.create({
     },
 
 });
-
-// const styles = StyleSheet.create({
-
-//     img: {
-//         position: 'absolute',
-//         top: 70,
-//         left: 125,
-//         width: 140,
-//         height: 140,
-//         // justifyContent: 'center',
-//         // alignItems: 'center',
-//         borderRadius: 80
-//     },
-//     name: {
-//         lineHeight: 50,
-//         textAlign: 'center',
-//         fontSize: 30,
-//         color: 'black',
-//     },
-
-//     introduce: {
-//         lineHeight: 50,
-//         textAlign: 'center',
-//         fontSize: 20,
-//         color: 'gray',
-//     },
-
-//     accicon: {
-//         position: 'absolute',
-//         top: 10,
-//         left: 85,
-//         width: 40,
-//         height: 51,
-//     },
-
-//     albumicon: {
-//         position: 'absolute',
-//         top: 15,
-//         left: 80,
-//         width: '40%',
-//         height: '53%',
-//     },
-
-//     accBtn: {
-//         fontSize: 25,
-//         lineHeight: 70,
-//         textAlign: 'left',
-//         color: '#585858',
-//         //textDecorationLine: 'underline'
-//     },
-
-//     albumBtn: {
-//         fontSize: 25,
-//         lineHeight: 70,
-//         textAlign: 'left',
-//         color: '#585858',
-
-//         //textDecorationLine: 'underline'
-//     },
-//     Btn: {
-//         // position: 'absolute',
-//         top: 30,
-//         left: 140,
-//         lineHeight: 42,
-//         textAlign: 'center',
-//         color: '#585858',
-//         fontSize: 20,
-//     },
-
-
-//     button: {
-//         // position: 'absolute',
-//         top: 40,
-//         left: 110,
-//         lineHeight: 42,
-//         textAlign: 'center',
-//         width: 175,
-//         height: 40,
-//         backgroundColor: 'white',
-//         color: 'black',
-//         fontSize: 15,
-//         borderRadius: 30,
-//         shadowColor: "#000",
-//         shadowOffset: {
-//             width: 0,
-//             height: 0,
-//         },
-//         shadowRadius: 5.46,
-//         elevation: 7,
-//     },
-// });
-
