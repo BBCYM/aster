@@ -29,12 +29,13 @@ export function useAuth() {
                 offlineAccess: true,
                 forceCodeForRefreshToken: true,
             }
-            await AsyncStorage.getItem('email', (err, result) => {
+            await AsyncStorage.getItem('user', (err, result) => {
                 if (err) {
                     console.log(err)
                 } else if (result) {
                     console.log(result)
-                    config.accountName = result
+                    var user = JSON.parse(result)
+                    config.accountName = user.email
                 }
             })
             GoogleSignin.configure(config)
@@ -54,9 +55,14 @@ export function useAuth() {
                     if (!_isIndb.message) {
                         dispatch(action(actionType.SET.SPLASH, false))
                     } else {
-                        console.log(userInfo.idToken === await (await GoogleSignin.getTokens()).idToken)
-                        dispatch([action(actionType.SET.USER, userInfo.user), action(actionType.SET.SPLASH, false)])
-                        callback(userInfo)
+                        await AsyncStorage.getItem('user', (err, result) => {
+                            if (err) {
+                                throw err
+                            } else {
+                                dispatch([action(actionType.SET.USER, JSON.parse(result)), action(actionType.SET.SPLASH, false)])
+                                callback(userInfo)
+                            }
+                        })
                     }
                 } else {
                     dispatch([action(actionType.SET.USER, userInfo.user), action(actionType.SET.SPLASH, false)])
@@ -71,35 +77,14 @@ export function useAuth() {
                 await GoogleSignin.hasPlayServices()
                 // this will return userInfo
                 let userInfo = await GoogleSignin.signIn()
-                await AsyncStorage.multiSet([
-                    ['idToken', userInfo.idToken],
-                    ['email', userInfo.user.email]
-                ])
+                await AsyncStorage.setItem('user', JSON.stringify(userInfo.user))
                 dispatch(createAction(actionType.Auth.SIGNIN, { user: userInfo.user }))
             } catch (e) {
-                if (e.code === statusCodes.SIGN_IN_CANCELLED) {
-                    console.log("Cancel signin")
-                    dispatch([action(actionType.SET.SPLASH, true), action(actionType.SET.USER, null)])
-                } else if (e.code === statusCodes.IN_PROGRESS) {
-                    console.log("Is in progress already")
-                } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-                    console.log("Play service is not available")
-                } else {
-                    console.log(e.code)
-                }
+                console.log(e.code)
+                dispatch([action(actionType.SET.SPLASH, true)])
             }
         },
-        clearStorage: async () => {
-            await AsyncStorage.clear((err) => {
-                if (err) {
-                    console.log(err)
-                }
-            })
-            console.log("Done clear")
-            console.log(await AsyncStorage.getAllKeys())
-        },
         signOut: async () => {
-            await GoogleSignin.revokeAccess()
             await GoogleSignin.signOut()
             await AsyncStorage.clear((err) => {
                 if (err) {
