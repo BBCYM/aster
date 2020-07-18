@@ -75,7 +75,10 @@ export default class personalScreen extends React.Component {
     //     this.setState({ message1: message.fulfillmentMessages[1].text.text[0] })
 
     // }
-
+    ToEditPage = () => {
+        const { navigation } = this.props;
+        navigation.navigate('EditPage')
+    }
 
     render() {
 
@@ -98,7 +101,7 @@ export default class personalScreen extends React.Component {
                         <Image style={styles.accicon} source={require('../../pic/accountpeople.png')} />
                     </View>
                     <View style={{ flex: 2 }} >
-                        <TouchableOpacity activeOpacity={0.2} focusedOpacity={0.5}>
+                        <TouchableOpacity activeOpacity={0.2} focusedOpacity={0.5} onPress={this.ToEditPage}>
                             <View >
                                 <Text style={styles.accBtn}>    EDIT ACCOUNT   </Text>
                             </View>
@@ -110,7 +113,7 @@ export default class personalScreen extends React.Component {
                         <Image style={styles.albumicon} source={require('../../pic/camera.png')} />
                     </View>
                     <View style={{ flex: 2 }} >
-                        <TouchableOpacity activeOpacity={0.2} focusedOpacity={0.5}>
+                        <TouchableOpacity activeOpacity={0.2} focusedOpacity={0.5} onPress={this.ToEditPage}>
                             <View >
                                 <Text style={styles.albumBtn}>    EDIT ALBUM        </Text>
                             </View>
