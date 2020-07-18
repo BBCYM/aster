@@ -1,5 +1,5 @@
 from rest_framework import views, response, status
-from google.oauth2 import service_account
+#from google.oauth2 import service_account
 from operator import itemgetter
 import dialogflow_v2 as dialogflow
 import json
@@ -64,7 +64,7 @@ class personalView(views.APIView):
     def get(self, request):
 
         data = {'name': 'Michelle',
-                'text': 'i am 18 years old.'}
+                'text': 'this is the intro.'}
 
         print(data)
         #re = MessageToJson(data)
