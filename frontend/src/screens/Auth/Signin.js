@@ -10,7 +10,6 @@ export function SigninScreen(props) {
     }
     return (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            <Text>Signin Screen</Text>
             <GoogleSigninButton style={{ width: 240, height: 68 }}
                 size={GoogleSigninButton.Size.Wide}
                 color={GoogleSigninButton.Color.Dark}
