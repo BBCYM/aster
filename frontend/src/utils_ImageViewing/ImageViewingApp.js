@@ -8,6 +8,8 @@ import {
   StyleSheet,
   Text,
   View,
+  ScrollView,
+  Dimensions,
   TouchableOpacity
 } from "react-native";
 import get from "lodash/get";
@@ -15,6 +17,8 @@ import memoize from "lodash/memoize";
 
 //import ImageViewing from "../src/ImageViewing";
 import ImageViewing from "react-native-image-viewing";
+import SlidingUpPanel from 'rn-sliding-up-panel';
+
 import ImageList from "./components/ImageList";
 import { ImageHeader } from "./components/ImageHeader";
 // import ImageFooter from "./components/ImageFooter";
@@ -31,6 +35,7 @@ export default function App() {
   const [images, setImages] = useState(architecture);
   //const [setImages] = useState(architecture);
   const [isVisible, setIsVisible] = useState(false);
+  const [isToggled, setToggle] = useState(true)
 
   const onSelect = (images, index) => {
     setImageIndex(index);
@@ -46,28 +51,87 @@ export default function App() {
         : { uri: image.original }
     )
   );
-  // const images = [
-  //   {
-  //     uri: "https://images.unsplash.com/photo-1571501679680-de32f1e7aad4",
-  //   },
-  //   {
-  //     uri: "https://images.unsplash.com/photo-1573273787173-0eb81a833b34",
-  //   },
-  //   {
-  //     uri: "https://images.unsplash.com/photo-1569569970363-df7b6160d111",
-  //   },
-  // ];
   const onLongPress = (image) => {
     Alert.alert("Long Pressed", image.uri);
   };
-  const renderEdit = () => {
-    <View style={{ zIndex: 5 }}>
-      <View style={{ width: '100%', height: '40%', backgroundColor: 'transparent' }} />
-      <View style={{ width: '100%', height: '10%', backgroundColor: 'orange' }} />
-      <View style={{ width: '100%', height: '50%', backgroundColor: 'red' }} />
-      <Text>i am bobo</Text>
-    </View>
+  const handleFooterToggle = () => {
+    setToggle(!isToggled);
+  }
+  const FooterToggle = () => {
+    return isToggled ? (<ImageFooter />) : (<RenderEdit />)
+  }
+  //修改畫面
+  const RenderEdit = () => {
+    const { height } = Dimensions.get('window')
+    return (
+      // <View ref={() => _panel.show()}>
+      <View >
+        < TouchableOpacity activeOpacity={0.2} focusedOpacity={0.5} >
+          <View >
+            <Text styles={{ color: "red", zIndex: 20 }} >button</Text>
+          </View>
+        </TouchableOpacity >
+        <SlidingUpPanel
+          ref={c => (_panel = c)}
+          draggableRange={{ top: height / 1.75, bottom: 120 }}
+          showBackdrop={true}
+        >
+          <View style={styles.panel}>
+
+            <View style={styles.panelHeader}>
+              <Text style={{ color: '#FFF' }}>Tag</Text>
+            </View>
+            <View style={styles.container}>
+              <Text>Bottom</Text>
+              < TouchableOpacity activeOpacity={0.2} focusedOpacity={0.5} >
+                <View >
+                  <Text >button</Text>
+                </View>
+              </TouchableOpacity >
+            </View>
+
+            <View style={styles.panelHeader}>
+              <Text style={{ color: '#FFF' }}>Description</Text>
+            </View>
+            <View style={styles.container}>
+              < TouchableOpacity activeOpacity={0.2} focusedOpacity={0.5} >
+                <View >
+                  <Text >button</Text>
+                </View>
+              </TouchableOpacity >
+              <Text>Bottom</Text>
+            </View>
+          </View>
+
+        </SlidingUpPanel>
+
+
+        <View style={styles.footerEdit} >
+          {/* <Text style={styles.text}>{`${imageIndex + 1} / ${imagesCount}`}</Text> */}
+          < TouchableOpacity activeOpacity={0.2} focusedOpacity={0.5} >
+            <View >
+              <Text style={styles.footerText}>delete</Text>
+            </View>
+          </TouchableOpacity >
+          <TouchableOpacity activeOpacity={0.2} focusedOpacity={0.5}>
+            <View >
+              <Text style={styles.footerText}>like</Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            activeOpacity={0.2}
+            focusedOpacity={0.5}
+            onPress={handleFooterToggle}
+          >
+            <View >
+              <Text style={styles.footerText}>detail</Text>
+            </View>
+          </TouchableOpacity>
+        </View >
+      </View >
+    )
   };
+  //原本的footer，只有三個按鈕
   const ImageFooter = () => {
     return (
       <View style={styles.footerRoot} >
@@ -85,15 +149,14 @@ export default function App() {
         <TouchableOpacity
           activeOpacity={0.2}
           focusedOpacity={0.5}
-          onPress={renderEdit}>
+          onPress={handleFooterToggle}
+        >
           <View >
             <Text style={styles.footerText}>detail</Text>
           </View>
         </TouchableOpacity>
       </View >
-
     )
-
   }
   return (
     <SafeAreaView style={styles.root}>
@@ -113,7 +176,7 @@ export default function App() {
       <ImageViewing
         images={getImageSource(images)}
         //images={images}
-        backgroundColor="transparent"
+        backgroundColor="black"
         imageIndex={currentImageIndex}
         presentationStyle="overFullScreen"
         visible={isVisible}
@@ -129,10 +192,10 @@ export default function App() {
             }
             : undefined
         }
-        // FooterComponent={({ imageIndex }) => (
-        //   <ImageFooter imageIndex={imageIndex} imagesCount={images.length} />
-        // )}
-        FooterComponent={{ ImageFooter }}
+        FooterComponent={({ imageIndex }) => (
+          <FooterToggle imageIndex={imageIndex} imagesCount={images.length} />
+        )}
+      // FooterComponent={{  }}
       />
       <ImageList
         images={food.map((image) => image.thumbnail)}
@@ -151,10 +214,11 @@ export default function App() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: "transparent",
+    backgroundColor: "black",
     ...Platform.select({
       android: { paddingTop: StatusBar.currentHeight },
       default: null,
+      zIndex: 0
     }),
   },
   about: {
@@ -170,13 +234,50 @@ const styles = StyleSheet.create({
     color: "#FFFFFFEE",
   },
   footerRoot: {
-    backgroundColor: '#63CCC8',
+    backgroundColor: 'orange',
+    flexDirection: 'row',
+    padding: 10,
+    paddingBottom: 15,
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: 'space-between',
   },
   footerText: {
-    fontSize: 17,
+    fontSize: 25,
     color: "#FFF"
-  }
+  },
+  footerEdit: {
+    backgroundColor: 'red',
+    flexDirection: 'row',
+    padding: 10,
+    paddingBottom: 15,
+    alignItems: "center",
+    justifyContent: 'space-between',
+  },
+  container: {
+    backgroundColor: '#f8f9fa',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10,
+    height: '20%'
+  },
+  dragHandler: {
+    alignSelf: 'stretch',
+    height: '5%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#ccc'
+  },
+  panel: {
+    flex: 1,
+    backgroundColor: 'white',
+    position: 'relative'
+  },
+  panelHeader: {
+    height: 40,
+    backgroundColor: 'blue',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+
 });
 

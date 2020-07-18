@@ -13,9 +13,7 @@ export function AuthStackNavigator() {
             }}
         >
             {
-
                 <AuthStack.Screen name='Signin' component={SigninScreen} />
-
             }
         </AuthStack.Navigator>
     )
