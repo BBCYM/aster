@@ -28,6 +28,6 @@ const styles = StyleSheet.create({
         width: '100%',
         top: 0,
         // left: 25,
-        zIndex: 100,
+        zIndex: 10,
     },
 });
