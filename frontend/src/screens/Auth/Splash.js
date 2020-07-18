@@ -8,7 +8,7 @@ export function SplashScreen(props) {
         auth.configure(() => {
             auth.checkUser((userInfo)=>{
                 
-                // auth.connectBackend(userInfo)
+                auth.connectBackend(userInfo)
             })
         })
     })
