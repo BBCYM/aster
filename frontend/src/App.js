@@ -29,7 +29,7 @@ export default function App() {
                   console.log("hello user"),
                   <MainStack.Screen name='Pages' component={PagesTabNavigator} />
 
-                  ) : (
+                ) : (
                     console.log('need auth'),
                     <MainStack.Screen name='Auth' component={AuthStackNavigator} />
                   )
