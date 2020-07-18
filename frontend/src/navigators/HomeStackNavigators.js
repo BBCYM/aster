@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { createStackNavigator } from '@react-navigation/stack';
+
 // import Uber from '../utils/uber'
 // import GalleryDetail from '../utils/GalleryDetail'
 // import {NormalPanel, ScrollPanel, BottomPanel} from '../utils/SlidingUpPanel'
@@ -7,6 +8,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 // import ImageViewing from '../utils_ImageViewing/ImageViewingApp'
 import HomePage from '../screens/Home/Home';
 //import AllphotoPage from '../screens/Home/Allphoto';
+
 
 const HomeStack = createStackNavigator()
 
