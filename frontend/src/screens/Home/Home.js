@@ -11,6 +11,9 @@ import {
   FlatList,
 } from 'react-native';
 
+
+
+
 export default class Album extends Component {
 
   constructor(props) {
@@ -20,16 +23,45 @@ export default class Album extends Component {
         {id:'',title:'',count:'',image:''},
         ],
 
-        selectedIndex: 2
+        //selectedIndexes:[],
+        selected:[]
       };
   
       
-    this.updateIndex = this.updateIndex.bind(this)
+    //this.updateIndex = this.updateIndex.bind(this)
   }
 
-  updateIndex (selectedIndex) {
-    this.setState({selectedIndex})
+ // updateIndex (selectedIndex) {
+    //this.setState({selectedIndex})
+  //}
+
+  
+
+  componentDidMount() {
+    this._ping()
   }
+  
+  updateSelected = selected => {
+    this.setState({ selected }, () => {
+      
+        if (this.state.selected[0]){
+          //const { navigation } = this.props;
+          //navigation.navigate('Allphoto')
+          alert('photo')
+        }
+        else{
+          alert('album')
+        }
+        
+    });
+  };
+
+  ToAllphoto = () => {
+    const { navigation } = this.props;
+        navigation.navigate('Allphoto')
+  }
+  
+  
 
   _ping = async () => {
     // await 必須寫在async函式裡，await makes JavaScript wait until that promise settles and returns its result.
@@ -39,7 +71,8 @@ export default class Album extends Component {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'X-Requested-With': "com.rnexparea"
+            'X-Requested-With': "com.rnexparea",
+            
         },
         
 
@@ -56,6 +89,7 @@ export default class Album extends Component {
     this.setState({ title: data.title })
     this.setState({ count: data.count })
     this.setState({ image: data.image })
+   
 
   }
 
@@ -66,6 +100,7 @@ export default class Album extends Component {
   render() {
     const buttons = ['Album', 'Photo']
     const { selectedIndex } = this.state
+   
     
     return ( 
         <View style={styles.container}>
@@ -104,16 +139,22 @@ export default class Album extends Component {
                 </View>
               )
              }}/>
-        <View style={styles.container1}>
-          <ButtonGroup
-            onPress={this._ping}
-            selectedIndex={selectedIndex}
-            buttons={buttons}
-            containerStyle={{height: 40,borderRadius:50,marginLeft:70,marginRight:70}}
-            buttonContainerStyle={{opacity:0.5}}
-            style={styles.buttongroup}
+
+          
+             <View>
+          
+              <ButtonGroup
+              onPress={this.updateSelected }
+           
+              selectMultiple
+              selectedIndexes={this.state.selectedIndexes}
+              buttons={buttons}
+              containerStyle={{height: 40,borderRadius:50,marginLeft:70,marginRight:70}}
+              buttonContainerStyle={{opacity:0.5}}
+              style={styles.buttongroup}
             />
-        </View>  
+            </View>  
+        
              
         </View>
         

@@ -3,11 +3,11 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/stack'
 import ChatbotScreen from '../screens/Chatbot/Chatbot'
 import { HomeScreen } from '../navigators/HomeStackNavigators'
-import { GalleryScreen } from '../navigators/GalleryStackNavigators'
+import { GalleryStackScreen } from '../navigators/GalleryStackNavigators'
+import { ProfileStackScreen } from '../navigators/ProfileStackNavigators'
 import ProfileScreen from '../screens/Profile/Profile'
-import Gallery from '../utils/Gallery'
+import GalleryScreen from '../utils/Gallery'
 import Ionicons from 'react-native-vector-icons/Ionicons'
-import { useAuth } from '../hooks/useAuth'
 import { View, TouchableOpacity, StyleSheet, Image, Text } from 'react-native'
 import Uber from '../utils/uber'
 const PagesTab = createBottomTabNavigator()
@@ -52,7 +52,7 @@ export function PagesTabNavigator(props) {
                 />
                 <PagesTab.Screen
                     name='Profile'
-                    component={ProfileScreen}
+                    component={ProfileStackScreen}
                     options={{
                         tabBarLabel: 'Profile',
                         tabBarIcon: (props) => {
@@ -61,8 +61,14 @@ export function PagesTabNavigator(props) {
                     }}
                 />
                 <PagesTab.Screen
-                    name='Gallary'
-                    component={GalleryScreen}
+                    name='Gallery'
+                    component={GalleryStackScreen}
+                    listeners={() => ({
+                        tabPress: e => {
+                            e.preventDefault()
+                            props.navigation.navigate('Gallery')
+                        }
+                    })}
                     options={{
                         tabBarLabel: 'Gallary',
                         tabBarIcon: (props) => {
@@ -102,7 +108,8 @@ export function PagesTabNavigator(props) {
                 //     </View>
                 // ),
             }} />
-            <PagesStack.Screen name='uber' component={Uber} />
+            <PagesStack.Screen name='Profile' component={ProfileStackScreen} />
+            <PagesStack.Screen name='Gallery' component={GalleryStackScreen} />
         </PagesStack.Navigator>
     )
 }
