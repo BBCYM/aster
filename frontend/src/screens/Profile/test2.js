@@ -1,24 +1,20 @@
 import * as React from 'react'
 import { AuthContext } from '../../contexts/AuthContext'
-import { StyleSheet, Text, View, TextInput, Button, Image, TouchableOpacity } from 'react-native';
-import Images from '../../../index';
-
+import {
+    StyleSheet,
+    Text,
+    View,
+    Image,
+    TouchableOpacity
+} from 'react-native';
 
 export default function personalScreen(props) {
 
-    // constructor(props) {
-    //     super(props);  
-    //     this.state = { text: '' };
-    //     this.state = { name: '' };
-
-    // }
-
-    const { auth, state } = React.useContext(AuthContext)
+    const { state } = React.useContext(AuthContext)
 
 
     React.useEffect(() => {
         console.log(state.user)
-        _ping()
         // {
         //     email: string,
         //     id: string,
@@ -38,7 +34,6 @@ export default function personalScreen(props) {
 
         const response = await fetch("http://192.168.1.102:3000/personal", {
 
-
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -46,34 +41,39 @@ export default function personalScreen(props) {
             },
 
         })
+        // dj back to rn，用到response，一樣先await
+        var data = await response.json()
+        //var fullfillment = JSON.parse(data)
+        //var name = JSON.parse(data)
+
+        console.log(data)
+        console.log(data.name)
+
+        // this.setState({ name: data.name })
+        // this.setState({ text: data.text })
 
     }
 
     return (
         <View style={styles.container}>
             <View style={styles.header}></View>
-            <Image style={styles.avatar} source={{ uri: `${state.user.photo}` }} />
-            {/* https://lh3.googleusercontent.com/a-/AOh14GixVww8PP-TJc7CrmOa9z5zPM8bsbPbh08A6Fq-Og=s96-c */}
-            {/* <Image source={{ uri: state.user.photo }} /> */}
-            {/* <Image source={{ uri: `https://lh3.googleusercontent.com/a-/AOh14GixVww8PP-TJc7CrmOa9z5zPM8bsbPbh08A6Fq-Og=s96-c` }} /> */}
-            {/* <Image source={Images.pic.camera} /> */}
+            <Image style={styles.avatar} source={{ uri: 'https://www.teepr.com/wp-content/uploads/2019/06/15533156982868.jpg' }} />
             <View style={styles.body}>
                 <View style={styles.bodyContent}>
                     <Text style={styles.name}>{state.user.name}</Text>
                     <Text style={styles.description}>Lorem ipsum dolor sit amet, saepe sapientem eu nam. Qui ne assum electram expetendis, omittam deseruisse consequuntur ius an,</Text>
                     <View style={styles.Btncontainer}>
                         <TouchableOpacity style={styles.Btn}>
-                            <Text>REFRESH</Text>
+                            <Text>EDIT ACCOUNT</Text>
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={styles.Btn} onPress={() => { auth.signOut() }}>
+                        <TouchableOpacity style={styles.Btn}>
                             <Text>LOG OUT</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
             </View>
         </View>
-
     );
 
 }
@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
     name: {
         fontSize: 30,
         color: "#696969",
-        fontWeight: "600"
+        fontWeight: "600",
     },
 
     description: {
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
     },
 
     Btncontainer: {
-        marginVertical: 30,
+        marginVertical: 70,
     },
     Btn: {
         //marginTop: 10,
