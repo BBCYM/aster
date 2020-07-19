@@ -58,7 +58,7 @@ export default function personalScreen(props) {
             {/* <Image source={Images.pic.camera} /> */}
             <View style={styles.body}>
                 <View style={styles.bodyContent}>
-                    <Text style={styles.name}>{state.user.email}</Text>
+                    <Text style={styles.name}>{state.user.name}</Text>
                     <Text style={styles.description}>Lorem ipsum dolor sit amet, saepe sapientem eu nam. Qui ne assum electram expetendis, omittam deseruisse consequuntur ius an,</Text>
                     <View style={styles.Btncontainer}>
                         <TouchableOpacity style={styles.Btn}>
