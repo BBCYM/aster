@@ -5,17 +5,37 @@ from .models import User
 from .serializer import UserSerializer
 import json
 from operator import itemgetter
-from google.oauth2 import id_token, credentials
+from google.oauth2 import id_token, credentials, service_account
 from google.auth.transport.requests import Request, AuthorizedSession
 from authlib.integrations.requests_client import OAuth2Session
 import datetime
 from google.auth.exceptions import RefreshError, GoogleAuthError
 from django.utils.timezone import make_aware
 import os
+from google.cloud.vision import ImageAnnotatorClient, types
 # import time
 
 
-def downloadImage(session, userId, mediaItems):
+# Todo
+def toVisionApiLabel(q):
+    credent = service_account.Credentials.from_service_account_file(
+        'Anster-4bf921cd3b7b.json')
+    client = ImageAnnotatorClient(credentials=credent)
+    path=q.get()
+    with open(path, 'rb') as f:
+        content = f.read()
+    image = types.Image(content=content)
+    res = client.label_detection(image=image)
+    labels = res.label_annotations
+    for l in labels:
+        pritn(l)
+    if res.error.message:
+        raise Exception('{}\nFor more info on error messages, check: '
+                        'https://cloud.google.com/apis/design/errors'.format(
+                            res.error.message))
+
+
+def downloadImage(session, userId, mediaItems,q):
     # get item type
     for mediaItem in mediaItems:
         mimeType = mediaItem['mimeType'].split('/')
@@ -24,15 +44,16 @@ def downloadImage(session, userId, mediaItems):
                 os.mkdir(userId)
             except OSError:
                 print("Creation of the directory failed")
-        # only download images 
-        if mimeType[0]=='image':
+        # only download images
+        if mimeType[0] == 'image':
             # get the image data
             filename = mediaItem['filename']
             res = session.get(mediaItem['baseUrl']+'=d').content
             print(f'{filename} downloaded')
-            with open(f'{userId}/{filename}',mode='wb') as handler:
+            with open(f'{userId}/{filename}', mode='wb') as handler:
                 handler.write(res)
-                    
+            q.put(f'{userId}/{filename}')
+
 
 def checkUserToSession(data, req):
 
@@ -68,7 +89,7 @@ def checkUserToSession(data, req):
         access_token = token['access_token']
         newUser = UserSerializer(data={
             'userId': data['sub'],
-            'expiresAt': datetime.datetime.utcnow() + datetime.timedelta(0,token['expires_in']),
+            'expiresAt': datetime.datetime.utcnow() + datetime.timedelta(0, token['expires_in']),
             'refreshToken': token['refresh_token']
         })
         if newUser.is_valid():
