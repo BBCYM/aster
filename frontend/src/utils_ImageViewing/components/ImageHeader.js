@@ -15,14 +15,14 @@ import {
   TouchableOpacity
 } from "react-native";
 
-type Props = {
-  title?: string;
-  onRequestClose: () => void;
-};
+// type Props = {
+//   title?: string;
+//   onRequestClose: () => void;
+// };
 
 const HIT_SLOP = { top: 16, left: 16, bottom: 16, right: 16 };
 
-const ImageHeader = ({ title, onRequestClose }: Props) => (
+const ImageHeader = ({ title, onRequestClose }) => (
   <SafeAreaView style={styles.root}>
     <View style={styles.container}>
       <View style={styles.space} />
