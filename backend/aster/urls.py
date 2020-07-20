@@ -23,6 +23,6 @@ from personal.views import personalView
 urlpatterns = [
     path('', AuthView.as_view()),
     path('personal', personalView.as_view()),
-    path('bot/', BotView.as_view()),
+    path('bot', BotView.as_view()),
     path('home',HomeView.as_view()),
 ]
