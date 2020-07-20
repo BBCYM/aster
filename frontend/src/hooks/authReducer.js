@@ -17,11 +17,6 @@ function execSwitch(state, action){
                 ...state,
                 splash:action.payload
             }
-        case actionType.SET.Login:
-            return {
-                ...state,
-                isLogin: action.payload
-            }
         default:
             return state;
     }
