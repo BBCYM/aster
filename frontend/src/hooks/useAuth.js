@@ -43,29 +43,26 @@ export function useAuth() {
         },
         checkUser: async () => {
             console.log("check")
-            if (await GoogleSignin.isSignedIn()) {
-                let userInfo = await GoogleSignin.getCurrentUser()
-                if (dev) {
-                    var _isIndb = await axios.get(`http://${ipv4}:3000/?userid=${userInfo.user.id}`, {
-                        headers: {
-                            'X-Requested-With': 'com.aster'
-                        }
-                    })
-                    _isIndb = JSON.parse(_isIndb.data)
-                    if (!_isIndb.message) {
-                        dispatch(action(actionType.SET.SPLASH, false))
-                    } else {
-                        await AsyncStorage.getItem('user', (err, result) => {
-                            if (err) {
-                                throw err
-                            } else {
-                                dispatch([action(actionType.SET.USER, JSON.parse(result)), action(actionType.SET.SPLASH, false)])
-                                // callback(userInfo)
-                            }
-                        })
-                    }
+            let user
+            await AsyncStorage.getItem('user', (err, result) => {
+                if (err) {
+                    throw err
                 } else {
-                    dispatch([action(actionType.SET.USER, userInfo.user), action(actionType.SET.SPLASH, false)])
+                    user = JSON.parse(result)
+                }
+            })
+            if (user) {
+                console.log(user)
+                var _isIndb = await axios.get(`http://${ipv4}:3000/?userid=${user.id}`, {
+                    headers: {
+                        'X-Requested-With': 'com.aster'
+                    }
+                })
+                _isIndb = JSON.parse(_isIndb.data)
+                if (_isIndb && dev) {
+                    dispatch([action(actionType.SET.USER, user), action(actionType.SET.SPLASH, false)])
+                } else {
+                    dispatch(action(actionType.SET.SPLASH, false))
                 }
             } else {
                 dispatch(action(actionType.SET.SPLASH, false))
@@ -78,7 +75,7 @@ export function useAuth() {
                 await GoogleSignin.hasPlayServices()
                 // this will return userInfo
                 userInfo = await GoogleSignin.signIn()
-                
+
             } catch (e) {
                 console.log('has error')
                 console.log(e.code)
