@@ -6,10 +6,7 @@ export function SplashScreen(props) {
     const { auth } = React.useContext(AuthContext)
     React.useEffect(() => {
         auth.configure(() => {
-            auth.checkUser((userInfo)=>{
-                
-                auth.connectBackend(userInfo)
-            })
+            auth.checkUser()
         })
     })
     return (

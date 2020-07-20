@@ -18,11 +18,12 @@ from django.urls import path
 from auth.views import AuthView
 from bot.views import BotView
 from home.views import HomeView
-
+from photo.views import PhotoView
 from personal.views import personalView
 urlpatterns = [
     path('', AuthView.as_view()),
     path('personal', personalView.as_view()),
     path('bot', BotView.as_view()),
     path('home',HomeView.as_view()),
+    path('photo',PhotoView.as_view())
 ]
