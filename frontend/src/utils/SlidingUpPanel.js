@@ -50,6 +50,7 @@ export class NormalPanel extends Component {
 }
 
 export class ScrollPanel extends Component {
+
     render() {
         return (
             <View style={styles.container}>
@@ -97,8 +98,8 @@ export class BottomPanel extends Component {
                 <SlidingUpPanel
                     ref={c => (this._panel = c)}
                     draggableRange={{ top: height / 1.75, bottom: 120 }}
-                    animatedValue={this._draggedValue}
-                    showBackdrop={false}>
+                    // animatedValue={this._draggedValue}
+                    showBackdrop={true}>
                     <View style={styles2.panel}>
                         <View style={styles2.panelHeader}>
                             <Text style={{ color: '#FFF' }}>Bottom Sheet Peek</Text>
