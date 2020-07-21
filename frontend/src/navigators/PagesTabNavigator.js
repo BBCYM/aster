@@ -3,13 +3,12 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/stack'
 import ChatbotScreen from '../screens/Chatbot/Chatbot'
 import { HomeScreen } from '../navigators/HomeStackNavigators'
-import { GalleryStackScreen } from '../navigators/GalleryStackNavigators'
-import { ProfileStackScreen } from '../navigators/ProfileStackNavigators'
+// import { GalleryStackScreen } from '../navigators/GalleryStackNavigators'
 import ProfileScreen from '../screens/Profile/Profile'
-import GalleryScreen from '../utils/Gallery'
+import GalleryStackScreen from '../navigators/GalleryStackNavigators'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import { View, TouchableOpacity, StyleSheet, Image, Text } from 'react-native'
-import Uber from '../utils/uber'
+// import temp from '../utils_ImageViewing/ImageViewingApp-copy'
 const PagesTab = createBottomTabNavigator()
 const PagesStack = createStackNavigator()
 
@@ -52,7 +51,7 @@ export function PagesTabNavigator(props) {
                 />
                 <PagesTab.Screen
                     name='Profile'
-                    component={ProfileStackScreen}
+                    component={ProfileScreen}
                     options={{
                         tabBarLabel: 'Profile',
                         tabBarIcon: (props) => {
@@ -63,12 +62,12 @@ export function PagesTabNavigator(props) {
                 <PagesTab.Screen
                     name='Gallery'
                     component={GalleryStackScreen}
-                    listeners={() => ({
-                        tabPress: e => {
-                            e.preventDefault()
-                            props.navigation.navigate('Gallery')
-                        }
-                    })}
+                    // listeners={() => ({
+                    //     tabPress: e => {
+                    //         e.preventDefault()
+                    //         props.navigation.navigate('Gallery')
+                    //     }
+                    // })}
                     options={{
                         tabBarLabel: 'Gallary',
                         tabBarIcon: (props) => {
@@ -87,7 +86,7 @@ export function PagesTabNavigator(props) {
                 gestureDirection: 'horizontal',
                 gestureResponseDistance: {
                     // the larger, the easier
-                    horizontal: 200
+                    horizontal: 100
                 },
                 cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
                 headerShown: false,
@@ -97,19 +96,12 @@ export function PagesTabNavigator(props) {
             <PagesStack.Screen name='Chatbot' component={ChatbotScreen} options={{
                 headerShown: true,
                 headerTitle: null,
-                // headerRight: () => (
-                //     <View style={styles.block}>
-                //         <TouchableOpacity onPress={() => { props.navigation.navigate('Home') }}>
-                //             <Image style={styles.photo} source={require('../pic/photo.png')} />
-                //         </TouchableOpacity>
-                //         <TouchableOpacity onPress={() => { props.navigation.navigate('Profile') }}>
-                //             <Image style={styles.person} source={require('../pic/person.png')} />
-                //         </TouchableOpacity>
-                //     </View>
-                // ),
             }} />
-            <PagesStack.Screen name='Profile' component={ProfileStackScreen} />
-            <PagesStack.Screen name='Gallery' component={GalleryStackScreen} />
+            {/* <PagesStack.Screen name='Gallery' component={temp} options={{
+                headerShown: true,
+                headerTitle: null,
+            }}
+            /> */}
         </PagesStack.Navigator>
     )
 }

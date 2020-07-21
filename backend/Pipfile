@@ -13,7 +13,7 @@ dialogflow = "*"
 authlib = "*"
 djangorestframework = "*"
 djongo = "*"
-dialogflow-v2 = "*"
+google-cloud-vision = "*"
 google-api-core = "*"
 
 [requires]

@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { AuthContext } from '../../contexts/AuthContext'
 import { StyleSheet, Text, View, TextInput, Button, Image, TouchableOpacity } from 'react-native';
-import Images from '../../../index';
+
 
 
 export default function personalScreen(props) {
@@ -36,7 +36,8 @@ export default function personalScreen(props) {
         // 這邊用法是等fetch的伺服器回應我們後才讓結果等於response
         // 可以把fetch看成是ajax，真的很像
 
-        const response = await fetch("http://10.0.4.55:3000/personal", {
+
+        const response = await fetch("http://192.168.3.51:3000/personal", {
 
 
             method: 'GET',

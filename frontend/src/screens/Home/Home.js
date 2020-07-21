@@ -38,7 +38,7 @@ export default class Album extends Component {
 
 
   componentDidMount() {
-    this._ping()
+    // this._ping()
   }
 
   updateSelected = selected => {

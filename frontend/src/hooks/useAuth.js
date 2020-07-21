@@ -5,6 +5,7 @@ import { web } from '../../android/app/google-services.json'
 import AsyncStorage from '@react-native-community/async-storage'
 import { action, actionType } from '../utils/action'
 import { authReducer } from './authReducer'
+import { ipv4, dev } from '../utils/dev'
 import axios from 'axios'
 /**
  * initial state
@@ -14,8 +15,7 @@ const initialState = {
     user: null,
     splash: true
 };
-const dev = false
-const ipv4 = '192.168.169.14'
+
 export function useAuth() {
 
     const [state, dispatch] = React.useReducer(authReducer, initialState)
@@ -41,47 +41,70 @@ export function useAuth() {
             GoogleSignin.configure(config)
             callback()
         },
-        checkUser: async (callback) => {
+        checkUser: async () => {
             console.log("check")
-            let userInfo = await GoogleSignin.getCurrentUser()
-            if (await GoogleSignin.isSignedIn()) {
+            let user
+            await AsyncStorage.getItem('user', (err, result) => {
+                if (err) {
+                    throw err
+                } else {
+                    user = JSON.parse(result)
+                }
+            })
+            if (user) {
+                console.log(user)
                 if (dev) {
-                    var _isIndb = await axios.get(`http://${ipv4}:3000/?userid=${userInfo.user.id}`, {
+                    dispatch([action(actionType.SET.USER, user), action(actionType.SET.SPLASH, false)])
+                } else {
+                    console.log(ipv4)
+                    let _isIndb = await axios.get(`http://${ipv4}:3000/?userid=${user.id}`, {
                         headers: {
                             'X-Requested-With': 'com.aster'
                         }
                     })
                     _isIndb = JSON.parse(_isIndb.data)
-                    if (!_isIndb.message) {
-                        dispatch(action(actionType.SET.SPLASH, false))
+                    console.log(_isIndb)
+                    if (_isIndb.message) {
+                        dispatch([action(actionType.SET.USER, user), action(actionType.SET.SPLASH, false)])
                     } else {
-                        await AsyncStorage.getItem('user', (err, result) => {
-                            if (err) {
-                                throw err
-                            } else {
-                                dispatch([action(actionType.SET.USER, JSON.parse(result)), action(actionType.SET.SPLASH, false)])
-                                callback(userInfo)
-                            }
-                        })
+                        dispatch(action(actionType.SET.SPLASH, false))
                     }
-                } else {
-                    dispatch([action(actionType.SET.USER, userInfo.user), action(actionType.SET.SPLASH, false)])
                 }
             } else {
                 dispatch(action(actionType.SET.SPLASH, false))
             }
         },
         signIn: async () => {
+            let userInfo
             try {
                 console.log("signIn")
                 await GoogleSignin.hasPlayServices()
                 // this will return userInfo
-                let userInfo = await GoogleSignin.signIn()
-                await AsyncStorage.setItem('user', JSON.stringify(userInfo.user))
-                dispatch(action(actionType.Auth.SIGNIN, { user: userInfo.user }))
+                userInfo = await GoogleSignin.signIn()
+
             } catch (e) {
+                console.log('has error')
                 console.log(e.code)
                 dispatch([action(actionType.SET.SPLASH, true)])
+            }
+            var url = `http://${ipv4}:3000/`
+            if (!dev) {
+                const res = await axios.post(url, {
+                    scopes: userInfo.scopes,
+                    sub: userInfo.user.id,
+                    serverAuthCode: userInfo.serverAuthCode
+                }, {
+                    headers: {
+                        'X-Requested-With': 'com.aster'
+                    }
+                })
+                console.log(JSON.parse(res.data))
+                await AsyncStorage.setItem('user', JSON.stringify(userInfo.user))
+                dispatch(action(actionType.SET.USER, userInfo.user))
+
+            } else {
+                AsyncStorage.setItem('user', JSON.stringify(userInfo.user))
+                dispatch(action(actionType.SET.USER, userInfo.user))
             }
         },
         signOut: async () => {
@@ -91,23 +114,6 @@ export function useAuth() {
                     console.log(err)
                 }
                 dispatch(action(actionType.SET.CLEAR, null))
-            })
-        },
-        connectBackend: async (user) => {
-            var url = `http://${ipv4}:3000/`
-            axios.post(url, {
-                scopes: user.scopes,
-                sub: user.user.id,
-                serverAuthCode: user.serverAuthCode
-            }, {
-                headers: {
-                    'X-Requested-With': 'com.aster'
-                }
-            }).then((res) => {
-                console.log(res.data)
-
-            }).catch((err) => {
-                console.log(err)
             })
         },
         getAccessToken: async () => {

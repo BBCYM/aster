@@ -57,5 +57,5 @@ buck-out/
 
 # CocoaPods
 /ios/Pods/
-
+dev.js
 google-services.json
