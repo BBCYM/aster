@@ -159,7 +159,7 @@ class App extends Component {
                     </View>
                 </TouchableOpacity>
 
-                <TouchableOpacity
+                {/* <TouchableOpacity
                     style={{ fontsize: 30, padding: 30 }}
                     activeOpacity={0.2}
                     focusedOpacity={0.5}
@@ -177,7 +177,7 @@ class App extends Component {
                     <View >
                         <Text >sliding window - scroll</Text>
                     </View>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
 
                 <TouchableOpacity
                     style={{ fontsize: 30, padding: 30 }}
