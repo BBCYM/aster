@@ -1,9 +1,5 @@
-import React, { Component } from 'react';
-<<<<<<< HEAD
-import { ButtonGroup  } from 'react-native-elements';
-=======
-import { ButtonGroup } from 'react-native-elements';
->>>>>>> michelle
+import React, { Component } from 'react'
+import { ButtonGroup } from 'react-native-elements'
 import {
   StyleSheet,
   Text,

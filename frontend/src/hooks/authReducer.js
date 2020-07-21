@@ -1,5 +1,5 @@
 import { actionType } from '../utils/action'
-function execSwitch(state, action){
+function execSwitch(state, action) {
     console.log(`Action: ${action.type}`)
     switch (action.type) {
         case actionType.SET.USER:
@@ -15,7 +15,7 @@ function execSwitch(state, action){
         case actionType.SET.SPLASH:
             return {
                 ...state,
-                splash:action.payload
+                splash: action.payload
             }
         default:
             return state;
@@ -24,11 +24,11 @@ function execSwitch(state, action){
 export function authReducer(state, actions) {
     let temp = state
     if (Array.isArray(actions)) {
-        actions.forEach( (action)=> {
+        actions.forEach((action) => {
             temp = execSwitch(temp, action)
         });
     } else {
-        temp = execSwitch(temp,actions)
+        temp = execSwitch(temp, actions)
     }
     return temp
 }
