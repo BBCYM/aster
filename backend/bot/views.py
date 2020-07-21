@@ -65,7 +65,8 @@ class BotView(views.APIView):
         #print("測試candy_string_value:", res.query_result.parameters.fields['value'].string_value)
         #print("Category.original_string_value:", res.query_result.parameters.fields['Category.original'].string_value)
         print("測試用:", res.query_result)
-        
+        # print("抓:", res.query_result.parameters.fields['dogBreed'].list_value.values[0].string_value)
+
         #print("測試用Fulfillment message:", res.query_result.fulfillment_messages.text['text'].text)
 
 
