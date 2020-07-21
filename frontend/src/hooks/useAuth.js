@@ -5,6 +5,7 @@ import { web } from '../../android/app/google-services.json'
 import AsyncStorage from '@react-native-community/async-storage'
 import { action, actionType } from '../utils/action'
 import { authReducer } from './authReducer'
+import { ipv4, dev } from '../utils/dev'
 import axios from 'axios'
 /**
  * initial state
@@ -14,8 +15,7 @@ const initialState = {
     user: null,
     splash: true
 };
-const dev = true
-const ipv4 = '10.1.1.12'
+
 export function useAuth() {
 
     const [state, dispatch] = React.useReducer(authReducer, initialState)
@@ -53,16 +53,22 @@ export function useAuth() {
             })
             if (user) {
                 console.log(user)
-                var _isIndb = await axios.get(`http://${ipv4}:3000/?userid=${user.id}`, {
-                    headers: {
-                        'X-Requested-With': 'com.aster'
-                    }
-                })
-                _isIndb = JSON.parse(_isIndb.data)
-                if (_isIndb && dev) {
+                if (dev) {
                     dispatch([action(actionType.SET.USER, user), action(actionType.SET.SPLASH, false)])
                 } else {
-                    dispatch(action(actionType.SET.SPLASH, false))
+                    console.log(ipv4)
+                    let _isIndb = await axios.get(`http://${ipv4}:3000/?userid=${user.id}`, {
+                        headers: {
+                            'X-Requested-With': 'com.aster'
+                        }
+                    })
+                    _isIndb = JSON.parse(_isIndb.data)
+                    console.log(_isIndb)
+                    if (_isIndb.message) {
+                        dispatch([action(actionType.SET.USER, user), action(actionType.SET.SPLASH, false)])
+                    } else {
+                        dispatch(action(actionType.SET.SPLASH, false))
+                    }
                 }
             } else {
                 dispatch(action(actionType.SET.SPLASH, false))
@@ -82,22 +88,24 @@ export function useAuth() {
                 dispatch([action(actionType.SET.SPLASH, true)])
             }
             var url = `http://${ipv4}:3000/`
-            axios.post(url, {
-                scopes: userInfo.scopes,
-                sub: userInfo.user.id,
-                serverAuthCode: userInfo.serverAuthCode
-            }, {
-                headers: {
-                    'X-Requested-With': 'com.aster'
-                }
-            }).then((res) => {
-                console.log(res.data)
-                AsyncStorage.setItem('user', JSON.stringify(userInfo.user))
+            if (!dev) {
+                const res = await axios.post(url, {
+                    scopes: userInfo.scopes,
+                    sub: userInfo.user.id,
+                    serverAuthCode: userInfo.serverAuthCode
+                }, {
+                    headers: {
+                        'X-Requested-With': 'com.aster'
+                    }
+                })
+                console.log(JSON.parse(res.data))
+                await AsyncStorage.setItem('user', JSON.stringify(userInfo.user))
                 dispatch(action(actionType.SET.USER, userInfo.user))
 
-            }).catch((err) => {
-                console.log(err)
-            })
+            } else {
+                AsyncStorage.setItem('user', JSON.stringify(userInfo.user))
+                dispatch(action(actionType.SET.USER, userInfo.user))
+            }
         },
         signOut: async () => {
             await GoogleSignin.signOut()

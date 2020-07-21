@@ -19,6 +19,8 @@ from aster import settings
 import shutil
 import pytz
 
+
+
 def afterAll(userId,q,thread):
     # wait all task done
     thread.join()
@@ -26,6 +28,12 @@ def afterAll(userId,q,thread):
     # delete images
     shutil.rmtree(userId)
     print('process done')
+    user=User.objects.get(userId=userId)
+    user.isSync=True
+    user.lastSync=make_aware(datetime.datetime.utcnow(),timezone=pytz.timezone(settings.TIME_ZONE))
+    user.save()
+    print('User isSync')
+
 
 
 
@@ -103,7 +111,6 @@ def checkUserToSession(data, req):
         'token_uri'
     )(appSecret)
     print('Hello')
-
     user = User.objects.filter(userId=data['sub'])
 
     access_token = ''

@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { AuthContext } from '../../contexts/AuthContext'
 import { StyleSheet, Text, View, TextInput, Button, Image, TouchableOpacity } from 'react-native';
-import Images from '../../../index';
+
 
 
 export default function personalScreen(props) {
