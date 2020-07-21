@@ -20,10 +20,12 @@ class AuthView(APIView):
 
     def post(self, request):
         data = request.data
+
         userSession, user = checkUserToSession(data, request)
         
         print(user['isSync'])
         q = queue.Queue()
+
         if not user['isSync']:
             t = threading.Thread(name='downloading-image',target=downloadImage,args=(userSession,user['userId'],q))
             # don't block main process
