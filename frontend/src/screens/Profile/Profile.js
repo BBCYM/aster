@@ -36,7 +36,7 @@ export default function personalScreen(props) {
         // 這邊用法是等fetch的伺服器回應我們後才讓結果等於response
         // 可以把fetch看成是ajax，真的很像
 
-        const response = await fetch("http://192.168.1.102:3000/personal", {
+        const response = await fetch("http://10.0.4.55:3000/personal", {
 
 
             method: 'GET',
@@ -49,6 +49,7 @@ export default function personalScreen(props) {
 
     }
 
+
     return (
         <View style={styles.container}>
             <View style={styles.header}></View>
@@ -60,7 +61,8 @@ export default function personalScreen(props) {
             <View style={styles.body}>
                 <View style={styles.bodyContent}>
                     <Text style={styles.name}>{state.user.name}</Text>
-                    <Text style={styles.description}>Lorem ipsum dolor sit amet, saepe sapientem eu nam. Qui ne assum electram expetendis, omittam deseruisse consequuntur ius an,</Text>
+
+                    {/* <Text style={styles.description}>Lorem ipsum dolor sit amet, saepe sapientem eu nam. Qui ne assum electram expetendis, omittam deseruisse consequuntur ius an,</Text> */}
                     <View style={styles.Btncontainer}>
                         <TouchableOpacity style={styles.Btn}>
                             <Text>REFRESH</Text>
@@ -69,6 +71,8 @@ export default function personalScreen(props) {
                         <TouchableOpacity style={styles.Btn} onPress={() => { auth.signOut() }}>
                             <Text>LOG OUT</Text>
                         </TouchableOpacity>
+                    </View>
+                    <View>
                     </View>
                 </View>
             </View>
