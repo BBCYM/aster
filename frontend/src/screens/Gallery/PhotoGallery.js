@@ -7,11 +7,14 @@ import {
   TouchableOpacity,
   Text,
   Dimensions,
+  ScrollView
 } from 'react-native';
-import { Overlay, Header, ListItem } from 'react-native-elements';
+import { Overlay,SearchBar } from 'react-native-elements';
 import FastImage from 'react-native-fast-image';
 import ImageViewer from 'react-native-image-zoom-viewer';
-import PhotoFooter from '../../components/photoComponent'
+import { photoFooter, TagList } from '../../components/photoComponent'
+import Ionicons from 'react-native-vector-icons/Ionicons';
+
 
 export default class App extends Component {
   constructor(props) {
@@ -19,7 +22,9 @@ export default class App extends Component {
     this.state = {
       isVisible: false,
       currentId: 0,
-      isTagModalVisi: false
+      isTagModalVisi: true,
+      inputTag: '',
+      tag: Array(20).fill("").map((_, i) => ({ key: `${i}`, text: `item #${i}` })),
     };
   }
   componentDidMount() {
@@ -35,24 +40,20 @@ export default class App extends Component {
       modalSource: newArr,
     });
   }
+  changeCurrentTag = (inputTag) => {
+    this.setState({ inputTag })
+  }
   showImage(item) {
+    // load tag of the item
+
     this.setState({
+      tag: Array(20).fill("").map((_, i) => ({ key: `${i}`, text: `item #${i}` })),
       currentImg: item.src,
       currentId: item.id,
       isVisible: true,
     })
   }
-  list = [
-    {
-      title: 'Appointments',
-      icon: 'av-timer'
-    },
-    {
-      title: 'Trips',
-      icon: 'flight-takeoff'
-    },
-  ]
-  
+
   render() {
     return (
       <View style={{ flex: 1 }}>
@@ -61,23 +62,30 @@ export default class App extends Component {
           onBackdropPress={() => { this.setState({ isTagModalVisi: false }) }}
           overlayStyle={styles.overlayStyle}
         >
-          <View style={{ flex: 1 }}>
-            <Header
-              leftComponent={{ icon: 'menu', color: '#fff' }}
-              centerComponent={{ text: 'MY TITLE', style: { color: '#fff' } }}
-              rightComponent={{ icon: 'home', color: '#fff' }}
-            />
-            {
-              this.list.map((item, i) => (
-                <ListItem
-                  key={i}
-                  title={item.title}
-                  leftIcon={{ name: item.icon }}
-                  bottomDivider
-                  chevron
-                />
-              ))
-            }
+          <View style={{ flex: 1 }} >
+            <View>
+              <SearchBar
+                placeholder="Add Tag"
+                onChangeText={this.changeCurrentTag}
+                value={this.state.inputTag}
+                inputStyle={{ color: '#303960' }}
+                lightTheme={true}
+                searchIcon={() => <Ionicons name='pricetag-outline' size={20} color='#75828e' />}
+                round={true}
+                containerStyle={{ padding: 5 }}
+              />
+            </View>
+            {TagList(this)}
+            {/* <ScrollView style={{ flex: 1 }}>
+              {
+                this.state.tag.map((item, i) => (
+                    <SwipeRow>
+                      <Text>Hello</Text>
+                      <Text>World</Text>
+                    </SwipeRow>
+                ))
+              }
+            </ScrollView> */}
           </View>
         </Overlay>
         <Modal visible={this.state.isVisible} transparent={false} onRequestClose={() => this.setState({ isVisible: false, isTagModalVisi: false })}>
@@ -87,7 +95,7 @@ export default class App extends Component {
             index={this.state.currentId}
             enablePreload={true}
             renderIndicator={() => null}
-            renderFooter={(currentIndex) => PhotoFooter(this)}
+            renderFooter={(currentIndex) => photoFooter(this)}
             footerContainerStyle={{ bottom: 0, position: "absolute", zIndex: 1000 }}
           />
         </Modal>
@@ -123,7 +131,14 @@ const styles = StyleSheet.create({
     height: 100,
   },
   overlayStyle: {
-    height: screenHeight * 0.8,
+    height: screenHeight * 0.5,
     width: screenWidth * 0.8,
+    margin: 0,
+    padding: 0,
+  },
+  Save: {
+    paddingRight: 5,
+    fontSize: 17,
+    color: '#63CCC8',
   }
 });

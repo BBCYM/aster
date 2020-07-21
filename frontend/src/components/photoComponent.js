@@ -4,10 +4,43 @@ import {
     Text,
     StyleSheet,
     Dimensions,
+    TouchableOpacity,
+    TouchableHighlight
 } from 'react-native'
+import { SearchBar, ListItem } from 'react-native-elements'
 import ActionButton from 'react-native-action-button';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-export default function photoFooter(that) {
+import { SwipeListView, SwipeRow } from 'react-native-swipe-list-view';
+
+
+export function TagList(that) {
+    return (
+        <SwipeListView
+            data={that.state.tag}
+            renderItem={(data, rowMap) => (
+                <View>
+                    <ListItem
+                        key={data.item.key}
+                        title={data.item.text}
+                        bottomDivider
+                    />
+                </View>
+            )}
+            renderHiddenItem={(data, rowMap) => (
+                <TouchableHighlight>
+                    <View>
+                        <Ionicons name='trash-outline'/>
+                    </View>
+                </TouchableHighlight>
+            )}
+            leftOpenValue={75}
+            rightOpenValue={-75}
+        />
+    )
+}
+
+
+export function photoFooter(that) {
     return (
         <View style={styles.root}>
             <ActionButton
@@ -18,11 +51,11 @@ export default function photoFooter(that) {
                 fixNativeFeedbackRadius={true}
                 spacing={10}
             >
-                <ActionButton.Item 
-                    buttonColor='#9b59b6' 
-                    title="New Tag" 
-                    spaceBetween={5}                    
-                    onPress={() => {that.setState({isTagModalVisi:true})}}
+                <ActionButton.Item
+                    buttonColor='#9b59b6'
+                    title="New Tag"
+                    spaceBetween={5}
+                    onPress={() => { that.setState({ isTagModalVisi: true }) }}
                 >
                     <Ionicons name="pricetags-outline" style={styles.actionButtonIcon} />
                 </ActionButton.Item>
@@ -47,5 +80,6 @@ const styles = StyleSheet.create({
         fontSize: 20,
         height: 22,
         color: 'white',
-    }
+    },
+
 })
