@@ -51,7 +51,11 @@ export function PagesTabNavigator(props) {
                 />
                 <PagesTab.Screen
                     name='Profile'
+<<<<<<< HEAD
                     component={ProfileScreen}
+=======
+                    component={ProfileStackScreen}
+>>>>>>> michelle
                     options={{
                         tabBarLabel: 'Profile',
                         tabBarIcon: (props) => {
@@ -62,12 +66,21 @@ export function PagesTabNavigator(props) {
                 <PagesTab.Screen
                     name='Gallery'
                     component={GalleryStackScreen}
+<<<<<<< HEAD
                     // listeners={() => ({
                     //     tabPress: e => {
                     //         e.preventDefault()
                     //         props.navigation.navigate('Gallery')
                     //     }
                     // })}
+=======
+                    listeners={() => ({
+                        tabPress: e => {
+                            e.preventDefault()
+                            props.navigation.navigate('Gallery')
+                        }
+                    })}
+>>>>>>> michelle
                     options={{
                         tabBarLabel: 'Gallary',
                         tabBarIcon: (props) => {
@@ -86,7 +99,11 @@ export function PagesTabNavigator(props) {
                 gestureDirection: 'horizontal',
                 gestureResponseDistance: {
                     // the larger, the easier
+<<<<<<< HEAD
                     horizontal: 100
+=======
+                    horizontal: 200
+>>>>>>> michelle
                 },
                 cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
                 headerShown: false,
@@ -96,12 +113,28 @@ export function PagesTabNavigator(props) {
             <PagesStack.Screen name='Chatbot' component={ChatbotScreen} options={{
                 headerShown: true,
                 headerTitle: null,
+<<<<<<< HEAD
             }} />
             {/* <PagesStack.Screen name='Gallery' component={temp} options={{
                 headerShown: true,
                 headerTitle: null,
             }}
             /> */}
+=======
+                // headerRight: () => (
+                //     <View style={styles.block}>
+                //         <TouchableOpacity onPress={() => { props.navigation.navigate('Home') }}>
+                //             <Image style={styles.photo} source={require('../pic/photo.png')} />
+                //         </TouchableOpacity>
+                //         <TouchableOpacity onPress={() => { props.navigation.navigate('Profile') }}>
+                //             <Image style={styles.person} source={require('../pic/person.png')} />
+                //         </TouchableOpacity>
+                //     </View>
+                // ),
+            }} />
+            <PagesStack.Screen name='Profile' component={ProfileStackScreen} />
+            <PagesStack.Screen name='Gallery' component={GalleryStackScreen} />
+>>>>>>> michelle
         </PagesStack.Navigator>
     )
 }

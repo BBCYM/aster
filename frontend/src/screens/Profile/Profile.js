@@ -3,7 +3,6 @@ import { AuthContext } from '../../contexts/AuthContext'
 import { StyleSheet, Text, View, TextInput, Button, Image, TouchableOpacity } from 'react-native';
 
 
-
 export default function personalScreen(props) {
 
     // constructor(props) {

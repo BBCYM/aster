@@ -15,7 +15,6 @@ const initialState = {
     user: null,
     splash: true
 };
-
 export function useAuth() {
 
     const [state, dispatch] = React.useReducer(authReducer, initialState)
