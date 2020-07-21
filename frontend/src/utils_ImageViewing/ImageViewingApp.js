@@ -64,8 +64,8 @@ export default function App() {
   const RenderEdit = () => {
     const { height } = Dimensions.get('window')
     return (
-      // <View ref={() => _panel.show()}>
-      <View >
+      <View ref={() => _panel.show()}>
+      {/* <View > */}
         < TouchableOpacity activeOpacity={0.2} focusedOpacity={0.5} >
           <View >
             <Text styles={{ color: "red", zIndex: 20 }} >button</Text>

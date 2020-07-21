@@ -148,7 +148,7 @@ class App extends Component {
                     </ImageCarousel>
 
                 </View>
-                <TouchableOpacity
+                {/* <TouchableOpacity
                     style={{ fontsize: 30, padding: 30 }}
                     activeOpacity={0.2}
                     focusedOpacity={0.5}
@@ -199,7 +199,7 @@ class App extends Component {
                     <View >
                         <Text >to image view</Text>
                     </View>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
 
                 <TouchableOpacity style={{ fontsize: 30, padding: 30 }} activeOpacity={0.2} focusedOpacity={0.5} onPress={this.ToImageViewing}>
                     <View >
