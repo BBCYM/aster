@@ -15,6 +15,7 @@ djangorestframework = "*"
 djongo = "*"
 google-cloud-vision = "*"
 google-api-core = "*"
+django = "*"
 
 [requires]
 python_version = "3.7"
