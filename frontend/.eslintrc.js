@@ -12,10 +12,6 @@ module.exports = {
 		"plugin:react-hooks/recommended"
 	],
 	"parser": "babel-eslint",
-	'globals': {
-		'Atomics': 'readonly',
-		'SharedArrayBuffer': 'readonly'
-	},
 	'parserOptions': {
 		'ecmaFeatures': {
 			'jsx': true
@@ -32,22 +28,28 @@ module.exports = {
 	],
 	'rules': {
 		'indent': [
-			'error',
+			'warn',
 			'tab'
 		],
 		'linebreak-style': [
-			'error',
+			'warn',
 			'windows'
 		],
 		'quotes': [
-			'error',
+			'warn',
 			'single'
 		],
 		'semi': [
-			'error',
+			'warn',
 			'never'
 		],
-		"react-hooks/rules-of-hooks": "error",
+		"no-mixed-spaces-and-tabs": [
+			'warn',
+			'smart-tabs'
+		],
+		"react/display-name": [0],
+		"react/prop-types": [0],
+		"react-hooks/rules-of-hooks": [0],
 		"react-hooks/exhaustive-deps": "warn"
 	}
 }

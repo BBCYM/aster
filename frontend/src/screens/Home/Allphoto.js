@@ -1,6 +1,6 @@
 /*This is an Example of Grid Image Gallery in React Native*/
-import React, { Component } from 'react';
-import { ButtonGroup } from 'react-native-elements';
+import React, { Component } from 'react'
+import { ButtonGroup } from 'react-native-elements'
 import {
 	StyleSheet,
 	Text,
@@ -9,18 +9,18 @@ import {
 	FlatList,
 	Modal,
 	Image
-} from 'react-native';
-import FastImage from 'react-native-fast-image';
+} from 'react-native'
+import FastImage from 'react-native-fast-image'
 
 export default class App extends Component {
 	constructor(props) {
-		super(props);
+		super(props)
 		this.state = {
 			imageuri: '',
 			ModalVisibleStatus: false,
 			selectedIndex: 2,
 			data: [{ image: '' }]
-		};
+		}
 		this.updateIndex = this.updateIndex.bind(this)
 	}
 
@@ -31,7 +31,7 @@ export default class App extends Component {
 			ModalVisibleStatus: visible,
 			imageuri: imageURL,
 
-		});
+		})
 	}
 
 	updateIndex(selectedIndex) {
@@ -39,13 +39,13 @@ export default class App extends Component {
 	}
 
 	componentDidMount() {
-		var that = this;
+		var that = this
 		let items = Array.apply(null, Array(120)).map((v, i) => {
-			return { id: i, image: '' + (i + 1) };
-		});
+			return { id: i, image: '' + (i + 1) }
+		})
 		that.setState({
 			dataSource: items,
-		});
+		})
 	}
 
 	render() {
@@ -59,7 +59,7 @@ export default class App extends Component {
 					animationType={'fade'}
 					visible={this.state.ModalVisibleStatus}
 					onRequestClose={() => {
-						this.ShowModalFunction(!this.state.ModalVisibleStatus, '');
+						this.ShowModalFunction(!this.state.ModalVisibleStatus, '')
 					}}>
 					<View style={styles.modelStyle}>
 						<FastImage
@@ -72,7 +72,7 @@ export default class App extends Component {
 							activeOpacity={0.5}
 							style={styles.closeButtonStyle}
 							onPress={() => {
-								this.ShowModalFunction(!this.state.ModalVisibleStatus, '');
+								this.ShowModalFunction(!this.state.ModalVisibleStatus, '')
 							}}>
 							<FastImage
 								source={{
@@ -84,7 +84,7 @@ export default class App extends Component {
 						</TouchableOpacity>
 					</View>
 				</Modal>
-			);
+			)
 		} else {
 			return (
 				// 頁面最上層文字(未設)
@@ -103,7 +103,7 @@ export default class App extends Component {
 									key={item.id}
 									style={{ flex: 1 }}
 									onPress={() => {
-										this.ShowModalFunction(true, item.image);
+										this.ShowModalFunction(true, item.image)
 									}}>
 									<FastImage
 										style={styles.image}
@@ -129,7 +129,7 @@ export default class App extends Component {
 						/>
 					</View>
 				</View>
-			);
+			)
 		}
 
 	}
@@ -137,11 +137,11 @@ export default class App extends Component {
 		// await 必須寫在async函式裡，await makes JavaScript wait until that promise settles and returns its result.
 		// 這邊用法是等fetch的伺服器回應我們後才讓結果等於response
 		// 可以把fetch看成是ajax，真的很像
-		const response = await fetch("http://192.168.43.95:3000/cai", {
+		const response = await fetch('http://192.168.43.95:3000/cai', {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
-				'X-Requested-With': "com.rnexparea"
+				'X-Requested-With': 'com.rnexparea'
 			},
 
 
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
 
 
 	}
-});
+})
 
 
 
