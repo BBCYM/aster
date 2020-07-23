@@ -72,11 +72,9 @@ export default class Album extends Component {
       headers: {
         'Content-Type': 'application/json',
         'X-Requested-With': "com.rnexparea",
-
       },
-
-
     })
+
     // dj back to rn，用到response，一樣先await
     var data = await response.json()
     //var data = JSON.parse(data)
