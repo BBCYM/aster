@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, Component } from "react";
 import {
   Alert,
   Platform,
@@ -29,18 +29,21 @@ import { city } from "./data/city";
 import { food } from "./data/food";
 
 // import { ImageSource } from "./@types";
+class FooterImageViewing extends Component {
 
+}
 export default function App() {
   const [currentImageIndex, setImageIndex] = useState(0);
   const [images, setImages] = useState(architecture);
   //const [setImages] = useState(architecture);
   const [isVisible, setIsVisible] = useState(false);
   const [isToggled, setToggle] = useState(true)
-
+  const [_panel, set_panel] = useState(<SlidingUpPanel />)
   const onSelect = (images, index) => {
     setImageIndex(index);
     setImages(images);
     setIsVisible(true);
+    setToggle(true)
   };
 
   const onRequestClose = () => setIsVisible(false);
@@ -64,22 +67,23 @@ export default function App() {
   const RenderEdit = () => {
     const { height } = Dimensions.get('window')
     return (
-      // <View ref={() => _panel.show()}>
+      // <View ref={() => _panel.show}>
       <View >
-        < TouchableOpacity activeOpacity={0.2} focusedOpacity={0.5} >
+        < TouchableOpacity activeOpacity={0.2} focusedOpacity={0.5} styles={{ flex: 1, }}>
           <View >
-            <Text styles={{ color: "red", zIndex: 20 }} >button</Text>
+            <Text styles={{ margin: 50, color: "cyan", zIndex: 20, fontSize: 30, backgroundColor: "gray" }} >button</Text>
           </View>
         </TouchableOpacity >
         <SlidingUpPanel
-          ref={c => (_panel = c)}
+          // ref={c => (set_panel(c))}
+          ref={c => (panel_catch = c)}
           draggableRange={{ top: height / 1.75, bottom: 120 }}
           showBackdrop={true}
         >
           <View style={styles.panel}>
 
             <View style={styles.panelHeader}>
-              <Text style={{ color: '#FFF' }}>Tag</Text>
+              <Text style={{ color: 'transparent' }}>Tag</Text>
             </View>
             <View style={styles.container}>
               <Text>Bottom</Text>
@@ -91,7 +95,7 @@ export default function App() {
             </View>
 
             <View style={styles.panelHeader}>
-              <Text style={{ color: '#FFF' }}>Description</Text>
+              <Text style={{ color: 'transparent' }}>Description</Text>
             </View>
             <View style={styles.container}>
               < TouchableOpacity activeOpacity={0.2} focusedOpacity={0.5} >
@@ -170,30 +174,31 @@ export default function App() {
         onPress={(index) => onSelect(architecture, index)}
         shift={0.75}
       />
-      <View style={styles.about}>
+      {/* <View style={styles.about}>
         <Text style={styles.name}>[ react-native-image-viewing ]</Text>
-      </View>
+      </View> */}
       <ImageViewing
         images={getImageSource(images)}
         //images={images}
-        backgroundColor="black"
+        backgroundColor="transparent"
         imageIndex={currentImageIndex}
         presentationStyle="overFullScreen"
         visible={isVisible}
         onRequestClose={onRequestClose}
         onLongPress={onLongPress}
-        HeaderComponent={
-          images === travel
-            ? ({ imageIndex }) => {
-              const title = get(images, `${imageIndex}.title`);
-              return (
-                <ImageHeader title={title} onRequestClose={onRequestClose} />
-              );
-            }
-            : undefined
-        }
+        // HeaderComponent={
+        //   images === travel
+        //     ? ({ imageIndex }) => {
+        //       const title = get(images, `${imageIndex}.title`);
+        //       return (
+        //         <ImageHeader title={title} onRequestClose={onRequestClose} />
+        //       );
+        //     }
+        //     : undefined
+        // }
         FooterComponent={({ imageIndex }) => (
-          <FooterToggle imageIndex={imageIndex} imagesCount={images.length} />
+          // <FooterToggle imageIndex={imageIndex} imagesCount={images.length} />
+          <FooterToggle />
         )}
       // FooterComponent={{  }}
       />
@@ -214,7 +219,7 @@ export default function App() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: "black",
+    backgroundColor: "transparent",
     ...Platform.select({
       android: { paddingTop: StatusBar.currentHeight },
       default: null,

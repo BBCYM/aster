@@ -12,6 +12,7 @@ dialogflow = "*"
 authlib = "*"
 djangorestframework = "*"
 djongo = "*"
+google = "*"
 
 [requires]
 python_version = "3.7"
