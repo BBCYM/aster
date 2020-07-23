@@ -61,12 +61,12 @@ class personalView(views.APIView):
 
         return response.Response(re)
 
-    # def get(self, request):
+    def get(self, request):
 
-    #     data = {'name': 'Michelle',
-    #             'text': 'this is the intro.'}
+        data = {'name': 'Michelle',
+                'text': 'this is the intro.'}
 
-    #     print(data)
-    #     #re = MessageToJson(data)
+        print(data)
+        #re = MessageToJson(data)
 
-    #     return response.Response(data)
+        return response.Response(data)

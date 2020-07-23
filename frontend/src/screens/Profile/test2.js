@@ -1,26 +1,20 @@
 import * as React from 'react'
 import { AuthContext } from '../../contexts/AuthContext'
-import { StyleSheet, Text, View, Modal, Image, TouchableOpacity, Button } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons'
-import { ipv4 } from '../../utils/dev';
-
-
+import {
+    StyleSheet,
+    Text,
+    View,
+    Image,
+    TouchableOpacity
+} from 'react-native';
 
 export default function personalScreen(props) {
 
-    // constructor(props) {
-    //     super(props);  
-    //     this.state = { text: '' };
-    //     this.state = { name: '' };
-
-    // }
-
-    const { auth, state } = React.useContext(AuthContext)
+    const { state } = React.useContext(AuthContext)
 
 
     React.useEffect(() => {
         console.log(state.user)
-        // _ping()
         // {
         //     email: string,
         //     id: string,
@@ -37,76 +31,50 @@ export default function personalScreen(props) {
         // await 必須寫在async函式裡，await makes JavaScript wait until that promise settles and returns its result.
         // 這邊用法是等fetch的伺服器回應我們後才讓結果等於response
         // 可以把fetch看成是ajax，真的很像
-        const response = await fetch(`http://${ipv4}:3000/personal`, {
 
+        const response = await fetch("http://192.168.1.102:3000/personal", {
 
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
                 'X-Requested-With': "com.rnexparea"
-
             },
 
         })
+        // dj back to rn，用到response，一樣先await
         var data = await response.json()
+        //var fullfillment = JSON.parse(data)
+        //var name = JSON.parse(data)
 
         console.log(data)
+        console.log(data.name)
+
+        // this.setState({ name: data.name })
+        // this.setState({ text: data.text })
 
     }
-
 
     return (
         <View style={styles.container}>
             <View style={styles.header}></View>
-            <Image style={styles.avatar} source={{ uri: `${state.user.photo}` }} />
-            {/* https://lh3.googleusercontent.com/a-/AOh14GixVww8PP-TJc7CrmOa9z5zPM8bsbPbh08A6Fq-Og=s96-c */}
-            {/* <Image source={{ uri: state.user.photo }} /> */}
-            {/* <Image source={{ uri: `https://lh3.googleusercontent.com/a-/AOh14GixVww8PP-TJc7CrmOa9z5zPM8bsbPbh08A6Fq-Og=s96-c` }} /> */}
-            {/* <Image source={Images.pic.camera} /> */}
+            <Image style={styles.avatar} source={{ uri: 'https://www.teepr.com/wp-content/uploads/2019/06/15533156982868.jpg' }} />
             <View style={styles.body}>
                 <View style={styles.bodyContent}>
                     <Text style={styles.name}>{state.user.name}</Text>
-
-                    {/* <Text style={styles.description}>Lorem ipsum dolor sit amet, saepe sapientem eu nam. Qui ne assum electram expetendis, omittam deseruisse consequuntur ius an,</Text> */}
+                    <Text style={styles.description}>Lorem ipsum dolor sit amet, saepe sapientem eu nam. Qui ne assum electram expetendis, omittam deseruisse consequuntur ius an,</Text>
                     <View style={styles.Btncontainer}>
                         <TouchableOpacity style={styles.Btn}>
-                            <Text>REFRESH</Text>
+                            <Text>EDIT ACCOUNT</Text>
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={styles.Btn} onPress={() => { auth.signOut() }}>
+                        <TouchableOpacity style={styles.Btn}>
                             <Text>LOG OUT</Text>
                         </TouchableOpacity>
-
-                        {/* 這邊開始 */}
-                        {/* <View >
-                            <Modal
-                                transparent={true}
-                                visible={true}>
-
-                                <View style={{ backgroundColor: "blue" }}></View>
-                            </Modal>
-
-                        </View> */}
-
-
-                        <View>
-                            <TouchableOpacity style={styles.heartBtn} activeOpacity={0.2}
-                                focusedOpacity={0.5} onPress={() => { _ping() }}>
-                                <Ionicons name='heart' color={'red'} size={50} />
-                            </TouchableOpacity>
-                        </View>
-
-                        {/* 這邊結束 */}
                     </View>
-
-
-
                 </View>
             </View>
         </View>
-
     );
-
 
 }
 
@@ -142,7 +110,7 @@ const styles = StyleSheet.create({
     name: {
         fontSize: 30,
         color: "#696969",
-        fontWeight: "600"
+        fontWeight: "600",
     },
 
     description: {
@@ -154,7 +122,7 @@ const styles = StyleSheet.create({
     },
 
     Btncontainer: {
-        marginVertical: 30,
+        marginVertical: 70,
     },
     Btn: {
         //marginTop: 10,
@@ -174,20 +142,6 @@ const styles = StyleSheet.create({
         shadowRadius: 5.46,
         elevation: 7,
 
-    },
-    heartBtn: {
-        marginTop: 100,
-        width: 50,
-        height: 50,
-        // borderRadius: 30,
-        // backgroundColor: "white",
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 0,
-        },
-        shadowRadius: 5.46,
-        // elevation: 7,
     },
 
 });
