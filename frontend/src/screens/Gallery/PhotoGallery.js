@@ -5,9 +5,7 @@ import {
 	FlatList,
 	Modal,
 	TouchableOpacity,
-	Text,
 	Dimensions,
-	ScrollView
 } from 'react-native'
 import { Overlay, SearchBar } from 'react-native-elements'
 import FastImage from 'react-native-fast-image'
@@ -22,9 +20,9 @@ export default class App extends Component {
 		this.state = {
 			isVisible: false,
 			currentId: 0,
-			isTagModalVisi: true,
+			isTagModalVisi: false,
 			inputTag: '',
-			tag: Array(20).fill('').map((_, i) => ({ key: `${i}`, text: `item #${i}` })),
+			tag: []
 		}
 	}
 	componentDidMount() {
@@ -39,19 +37,59 @@ export default class App extends Component {
 			dataSource: items,
 			modalSource: newArr,
 		})
+		console.log(this.state.tag)
+	}
+	deleteTag(id) {
+		this.setState(prevState => {
+			console.log(`deleting tag id:${id}`)
+			let slicedTag = [...prevState.tag]
+			var result = slicedTag.findIndex((v, i) => {
+				return v.key === id
+			})
+			slicedTag.splice(result, 1)
+			return {
+				...prevState,
+				tag: slicedTag
+			}
+		})
 	}
 	changeCurrentTag = (inputTag) => {
 		this.setState({ inputTag })
 	}
 	showImage(item) {
 		// load tag of the item
-
 		this.setState({
 			tag: Array(20).fill('').map((_, i) => ({ key: `${i}`, text: `item #${i}` })),
 			currentImg: item.src,
 			currentId: item.id,
 			isVisible: true,
 		})
+	}
+	addTag=()=>{
+		console.log(this.state.inputTag.length!==0)
+		console.log(this.state.inputTag.trim())
+		if (this.state.inputTag.length!==0 && this.state.inputTag.trim()){
+			this.setState(prevState=>{
+				console.log('adding tag')
+				let tags = [...prevState.tag]
+				let l = tags.length
+				let t
+				if (l>0) {
+					t = Number(tags[0].key)+1
+				} else {
+					t = 0
+				}
+				tags.unshift({key:String(t), text: prevState.inputTag})
+				return {
+					...prevState,
+					tag: tags,
+					inputTag:''
+				}
+			})
+		} else {
+			this.setState({inputTag:''})
+			this.search.clear()
+		}
 	}
 
 	render() {
@@ -65,8 +103,10 @@ export default class App extends Component {
 					<View style={{ flex: 1 }} >
 						<View>
 							<SearchBar
+								ref={search => this.search = search}
 								placeholder="Add Tag"
 								onChangeText={this.changeCurrentTag}
+								onSubmitEditing={this.addTag}
 								value={this.state.inputTag}
 								inputStyle={{ color: '#303960' }}
 								lightTheme={true}
@@ -76,16 +116,6 @@ export default class App extends Component {
 							/>
 						</View>
 						{TagList(this)}
-						{/* <ScrollView style={{ flex: 1 }}>
-              {
-                this.state.tag.map((item, i) => (
-                    <SwipeRow>
-                      <Text>Hello</Text>
-                      <Text>World</Text>
-                    </SwipeRow>
-                ))
-              }
-            </ScrollView> */}
 					</View>
 				</Overlay>
 				<Modal visible={this.state.isVisible} transparent={false} onRequestClose={() => this.setState({ isVisible: false, isTagModalVisi: false })}>

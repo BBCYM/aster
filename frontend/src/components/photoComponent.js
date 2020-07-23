@@ -1,16 +1,14 @@
 import * as React from 'react'
 import {
 	View,
-	Text,
 	StyleSheet,
 	Dimensions,
 	TouchableOpacity,
-	TouchableHighlight
 } from 'react-native'
-import { SearchBar, ListItem } from 'react-native-elements'
+import { ListItem } from 'react-native-elements'
 import ActionButton from 'react-native-action-button'
 import Ionicons from 'react-native-vector-icons/Ionicons'
-import { SwipeListView, SwipeRow } from 'react-native-swipe-list-view'
+import { SwipeListView } from 'react-native-swipe-list-view'
 
 
 export function TagList(that) {
@@ -27,14 +25,19 @@ export function TagList(that) {
 				</View>
 			)}
 			renderHiddenItem={(data, rowMap) => (
-				<TouchableHighlight>
-					<View>
-						<Ionicons name='trash-outline' />
-					</View>
-				</TouchableHighlight>
+				<TouchableOpacity onPress={() => that.deleteTag(data.item.key)}>
+					<ListItem
+						key={data.item.key}
+						rightElement={
+							<Ionicons name='trash-outline' size={30} />
+						}
+						containerStyle={{ backgroundColor: 'pink' }}
+					/>
+				</TouchableOpacity>
 			)}
-			leftOpenValue={75}
-			rightOpenValue={-75}
+			disableRightSwipe
+			rightOpenValue={-65}
+			useNativeDriver={true}
 		/>
 	)
 }
@@ -55,7 +58,12 @@ export function photoFooter(that) {
 					buttonColor='#9b59b6'
 					title="New Tag"
 					spaceBetween={5}
-					onPress={() => { that.setState({ isTagModalVisi: true }) }}
+					onPress={() => {
+						that.setState({
+							isTagModalVisi: true,
+							tag: Array(20).fill('').map((_, i) => ({ key: `${20-i-1}`, text: `item #${i}` })),
+						})
+					}}
 				>
 					<Ionicons name="pricetags-outline" style={styles.actionButtonIcon} />
 				</ActionButton.Item>
