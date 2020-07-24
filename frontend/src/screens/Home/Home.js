@@ -46,9 +46,9 @@ export default class Album extends Component {
 		this.setState({ selected }, () => {
 
 			if (this.state.selected[0]) {
-				//const { navigation } = this.props;
-				//navigation.navigate('Allphoto')
-				alert('photo')
+				const { navigation } = this.props
+				navigation.navigate('PhotoGallery')
+				// alert('photo')
 			}
 			else {
 				alert('album')

@@ -17,7 +17,7 @@ export default function personalScreen(props) {
 
 	React.useEffect(() => {
 		console.log(state.user)
-		_ping()
+		// _ping()
 		// {
 		//     email: string,
 		//     id: string,

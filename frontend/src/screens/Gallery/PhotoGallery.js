@@ -14,7 +14,7 @@ import { photoFooter, TagList } from '../../components/photoComponent'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 
 
-export default class App extends Component {
+export default class GalleryScreen extends Component {
 	constructor(props) {
 		super(props)
 		this.state = {
@@ -26,35 +26,39 @@ export default class App extends Component {
 		}
 	}
 	componentDidMount() {
-		var that = this
 		let items = Array.apply(null, Array(60)).map((v, i) => {
 			return { id: i, src: 'https://unsplash.it/400/400?image=' + (i + 1) }
 		})
 		var newArr = items.map((v, i) => {
 			return { url: v.src }
 		})
-		that.setState({
-			dataSource: items,
-			modalSource: newArr,
-		})
-		console.log(this.state.tag)
-	}
-	deleteTag(id) {
-		this.setState(prevState => {
-			console.log(`deleting tag id:${id}`)
-			let slicedTag = [...prevState.tag]
-			var result = slicedTag.findIndex((v, i) => {
-				return v.key === id
-			})
-			slicedTag.splice(result, 1)
-			return {
-				...prevState,
-				tag: slicedTag
-			}
+		this.setState({
+			fastSource: items,
+			modalSource: newArr
 		})
 	}
+
 	changeCurrentTag = (inputTag) => {
 		this.setState({ inputTag })
+	}
+	addTag() {
+		this.setState(prevState => {
+			console.log('adding tag')
+			let tags = [...prevState.tag]
+			let l = tags.length
+			let t
+			if (l > 0) {
+				t = Number(tags[0].key) + 1
+			} else {
+				t = 0
+			}
+			tags.unshift({ key: String(t), text: prevState.inputTag })
+			return {
+				...prevState,
+				tag: tags,
+				inputTag: ''
+			}
+		})
 	}
 	showImage(item) {
 		// load tag of the item
@@ -65,29 +69,29 @@ export default class App extends Component {
 			isVisible: true,
 		})
 	}
-	addTag=()=>{
-		console.log(this.state.inputTag.length!==0)
+	addTag = () => {
+		console.log(this.state.inputTag.length !== 0)
 		console.log(this.state.inputTag.trim())
-		if (this.state.inputTag.length!==0 && this.state.inputTag.trim()){
-			this.setState(prevState=>{
+		if (this.state.inputTag.length !== 0 && this.state.inputTag.trim()) {
+			this.setState(prevState => {
 				console.log('adding tag')
 				let tags = [...prevState.tag]
 				let l = tags.length
 				let t
-				if (l>0) {
-					t = Number(tags[0].key)+1
+				if (l > 0) {
+					t = Number(tags[0].key) + 1
 				} else {
 					t = 0
 				}
-				tags.unshift({key:String(t), text: prevState.inputTag})
+				tags.unshift({ key: String(t), text: prevState.inputTag })
 				return {
 					...prevState,
 					tag: tags,
-					inputTag:''
+					inputTag: ''
 				}
 			})
 		} else {
-			this.setState({inputTag:''})
+			this.setState({ inputTag: '' })
 			this.search.clear()
 		}
 	}
@@ -105,7 +109,7 @@ export default class App extends Component {
 							<SearchBar
 								ref={search => this.search = search}
 								placeholder="Add Tag"
-								onChangeText={this.changeCurrentTag}
+								onChangeText={(inputTag) => { this.setState({ inputTag }) }}
 								onSubmitEditing={this.addTag}
 								value={this.state.inputTag}
 								inputStyle={{ color: '#303960' }}
@@ -118,7 +122,7 @@ export default class App extends Component {
 						{TagList(this)}
 					</View>
 				</Overlay>
-				<Modal visible={this.state.isVisible} transparent={false} onRequestClose={() => this.setState({ isVisible: false, isTagModalVisi: false })}>
+				<Modal visible={this.state.isVisible} transparent={false} onRequestClose={() => { this.setState({ isVisible: false, isTagModalVisi: false }) }}>
 					<ImageViewer
 						useNativeDriver={true}
 						imageUrls={this.state.modalSource}
@@ -130,7 +134,7 @@ export default class App extends Component {
 					/>
 				</Modal>
 				<FlatList
-					data={this.state.dataSource}
+					data={this.state.fastSource}
 					renderItem={({ item }) => (
 						<View style={{ flex: 1, flexDirection: 'column', margin: 1 }}>
 							<TouchableOpacity onPress={() => this.showImage(item)}>

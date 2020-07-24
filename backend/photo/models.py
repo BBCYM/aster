@@ -1,6 +1,5 @@
 from djongo import models
 
-
 class Top3_tag(models.Model):
     tag = models.CharField(max_length=255)
     precision = models.CharField(max_length=255)

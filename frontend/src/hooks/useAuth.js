@@ -1,6 +1,5 @@
 import * as React from 'react'
-import { NetworkInfo } from 'react-native-network-info'
-import { GoogleSignin, statusCodes } from '@react-native-community/google-signin'
+import { GoogleSignin} from '@react-native-community/google-signin'
 import { web } from '../../android/app/google-services.json'
 import AsyncStorage from '@react-native-community/async-storage'
 import { action, actionType } from '../utils/action'
@@ -11,7 +10,6 @@ import axios from 'axios'
  * initial state
  */
 const initialState = {
-	// isLoading:true,
 	user: null,
 	splash: true
 }
@@ -32,8 +30,9 @@ export function useAuth() {
 				if (err) {
 					console.log(err)
 				} else if (result) {
-					console.log(result)
+					
 					var user = JSON.parse(result)
+					console.log(user)
 					config.accountName = user.email
 				}
 			})
@@ -80,7 +79,6 @@ export function useAuth() {
 				await GoogleSignin.hasPlayServices()
 				// this will return userInfo
 				userInfo = await GoogleSignin.signIn()
-
 			} catch (e) {
 				console.log('has error')
 				console.log(e.code)

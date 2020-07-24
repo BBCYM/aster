@@ -2,17 +2,15 @@ import * as React from 'react'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/stack'
 import ChatbotScreen from '../screens/Chatbot/Chatbot'
-import { HomeScreen } from '../navigators/HomeStackNavigators'
-// import { GalleryStackScreen } from '../navigators/GalleryStackNavigators'
+import HomeScreen from '../screens/Home/Home'
 import ProfileScreen from '../screens/Profile/Profile'
-import GalleryStackScreen from '../navigators/GalleryStackNavigators'
+import GalleryHome from '../screens/Gallery/PhotoGallery'
 import Ionicons from 'react-native-vector-icons/Ionicons'
-import { View, TouchableOpacity, StyleSheet, Image, Text } from 'react-native'
-// import temp from '../utils_ImageViewing/ImageViewingApp-copy'
 const PagesTab = createBottomTabNavigator()
 const PagesStack = createStackNavigator()
 
 export function PagesTabNavigator(props) {
+	
 	function index() {
 		return (
 			<PagesTab.Navigator
@@ -59,15 +57,10 @@ export function PagesTabNavigator(props) {
 						}
 					}}
 				/>
+
 				<PagesTab.Screen
 					name='Gallery'
-					component={GalleryStackScreen}
-					// listeners={() => ({
-					//     tabPress: e => {
-					//         e.preventDefault()
-					//         props.navigation.navigate('Gallery')
-					//     }
-					// })}
+					component={GalleryHome}
 					options={{
 						tabBarLabel: 'Gallary',
 						tabBarIcon: (props) => {
@@ -97,11 +90,6 @@ export function PagesTabNavigator(props) {
 				headerShown: true,
 				headerTitle: null,
 			}} />
-			{/* <PagesStack.Screen name='Gallery' component={temp} options={{
-                headerShown: true,
-                headerTitle: null,
-            }}
-            /> */}
 		</PagesStack.Navigator>
 	)
 }

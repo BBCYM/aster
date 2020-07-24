@@ -12,6 +12,16 @@ import { SwipeListView } from 'react-native-swipe-list-view'
 
 
 export function TagList(that) {
+	function deleteTag(id){
+		console.log(`deleting tag id:${id}`)
+		let slicedTag = [...that.state.tag]
+		var result = slicedTag.findIndex((v, i) => {
+			return v.key === id
+		})
+		slicedTag.splice(result, 1)
+		// dispatch(action(actionType.SET.TAG, slicedTag))
+		that.setState({tag:slicedTag})
+	}
 	return (
 		<SwipeListView
 			data={that.state.tag}
@@ -25,7 +35,7 @@ export function TagList(that) {
 				</View>
 			)}
 			renderHiddenItem={(data, rowMap) => (
-				<TouchableOpacity onPress={() => that.deleteTag(data.item.key)}>
+				<TouchableOpacity onPress={() => deleteTag(data.item.key)}>
 					<ListItem
 						key={data.item.key}
 						rightElement={
@@ -44,6 +54,8 @@ export function TagList(that) {
 
 
 export function photoFooter(that) {
+	
+
 	return (
 		<View style={styles.root}>
 			<ActionButton
@@ -58,12 +70,7 @@ export function photoFooter(that) {
 					buttonColor='#9b59b6'
 					title="New Tag"
 					spaceBetween={5}
-					onPress={() => {
-						that.setState({
-							isTagModalVisi: true,
-							tag: Array(20).fill('').map((_, i) => ({ key: `${20-i-1}`, text: `item #${i}` })),
-						})
-					}}
+					onPress={()=>{that.setState({isTagModalVisi:true, tag:Array(20).fill('').map((_, i) => ({ key: `${20 - i - 1}`, text: `item #${i}` }))})}}
 				>
 					<Ionicons name="pricetags-outline" style={styles.actionButtonIcon} />
 				</ActionButton.Item>
