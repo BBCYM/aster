@@ -12,7 +12,7 @@ import { SwipeListView } from 'react-native-swipe-list-view'
 
 
 export function TagList(that) {
-	function deleteTag(id){
+	function deleteTag(id) {
 		console.log(`deleting tag id:${id}`)
 		let slicedTag = [...that.state.tag]
 		var result = slicedTag.findIndex((v, i) => {
@@ -20,7 +20,7 @@ export function TagList(that) {
 		})
 		slicedTag.splice(result, 1)
 		// dispatch(action(actionType.SET.TAG, slicedTag))
-		that.setState({tag:slicedTag})
+		that.setState({ tag: slicedTag })
 	}
 	return (
 		<SwipeListView
@@ -53,8 +53,15 @@ export function TagList(that) {
 }
 
 
-export function photoFooter(that) {
+export function photoFooter(that, currentIndex) {
 	
+	function fetchTags(currentIndex){
+		console.log(currentIndex)
+		that.setState({
+			tag: Array(20).fill('').map((_, i) => ({ key: `${i}`, text: `item #${i}` })),
+			isTagModalVisi: true
+		})
+	}
 
 	return (
 		<View style={styles.root}>
@@ -67,13 +74,21 @@ export function photoFooter(that) {
 				spacing={10}
 			>
 				<ActionButton.Item
-					buttonColor='#9b59b6'
+					buttonColor='#63CCC8'
 					title="New Tag"
 					spaceBetween={5}
-					onPress={()=>{that.setState({isTagModalVisi:true, tag:Array(20).fill('').map((_, i) => ({ key: `${20 - i - 1}`, text: `item #${i}` }))})}}
+					onPress={() => fetchTags(currentIndex)}
 				>
 					<Ionicons name="pricetags-outline" style={styles.actionButtonIcon} />
 				</ActionButton.Item>
+				{/* <ActionButton.Item
+					buttonColor='#63CCC8'
+					title="Description"
+					spaceBetween={5}
+					// onPress={()=>{that.setState({isTagModalVisi:true, tag:Array(20).fill('').map((_, i) => ({ key: `${20 - i - 1}`, text: `item #${i}` }))})}}
+				>
+					<Ionicons name="clipboard-outline" style={styles.actionButtonIcon} />
+				</ActionButton.Item> */}
 			</ActionButton>
 		</View>
 	)

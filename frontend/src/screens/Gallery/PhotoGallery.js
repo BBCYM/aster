@@ -63,7 +63,6 @@ export default class GalleryScreen extends Component {
 	showImage(item) {
 		// load tag of the item
 		this.setState({
-			tag: Array(20).fill('').map((_, i) => ({ key: `${i}`, text: `item #${i}` })),
 			currentImg: item.src,
 			currentId: item.id,
 			isVisible: true,
@@ -129,7 +128,7 @@ export default class GalleryScreen extends Component {
 						index={this.state.currentId}
 						enablePreload={true}
 						renderIndicator={() => null}
-						renderFooter={(currentIndex) => photoFooter(this)}
+						renderFooter={(currentIndex) => photoFooter(this, currentIndex)}
 						footerContainerStyle={{ bottom: 0, position: 'absolute', zIndex: 1000 }}
 					/>
 				</Modal>
