@@ -163,9 +163,9 @@ export default class Album extends Component {
 
 	}
 
+
+
 }
-
-
 
 const styles = StyleSheet.create({
 	container: {
