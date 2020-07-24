@@ -3,8 +3,9 @@ from rest_framework.response import Response
 from .models import User
 from rest_framework import status
 from .customResponse import simpleMessage
-from .authenticate import checkUserToSession, downloadImage
+from .authenticate import checkUserToSession, downloadImage, toVisionApiLabel, afterAll
 import threading
+import queue
 class AuthView(APIView):
     
     def get(self, request):
@@ -19,15 +20,25 @@ class AuthView(APIView):
 
     def post(self, request):
         data = request.data
+
         userSession, user = checkUserToSession(data, request)
-        photoRes= userSession.get('https://photoslibrary.googleapis.com/v1/mediaItems').json()
+        
         print(user['isSync'])
+        q = queue.Queue()
+
         if not user['isSync']:
-            photos=photoRes['mediaItems'][:3]
-            t = threading.Thread(name=f'downloading-image',target=downloadImage,args=(userSession,user['userId'],photos))
+            t = threading.Thread(name='downloading-image',target=downloadImage,args=(userSession,user['userId'],q))
             # don't block main process
             t.setDaemon(True)
+            
+            t2 = threading.Thread(name='toVisionLabel',target=toVisionApiLabel,args=(user['userId'],q))
+            t2.setDaemon(True)
+            
+            t3 = threading.Thread(name='afterAll',target=afterAll, args=(user['userId'],q,t))
+            t3.setDaemon(True)
             t.start()
+            t2.start()
+            t3.start()
         # use threading.enumerate to check thread pool
         return Response(simpleMessage('good'),status=status.HTTP_200_OK)
 

@@ -5,34 +5,98 @@ from .models import User
 from .serializer import UserSerializer
 import json
 from operator import itemgetter
-from google.oauth2 import id_token, credentials
+from google.oauth2 import id_token, credentials, service_account
 from google.auth.transport.requests import Request, AuthorizedSession
 from authlib.integrations.requests_client import OAuth2Session
 import datetime
 from google.auth.exceptions import RefreshError, GoogleAuthError
 from django.utils.timezone import make_aware
 import os
-# import time
+from google.cloud.vision import ImageAnnotatorClient, types
+import time
+from photo.models import Photo
+from aster import settings
+import shutil
+import pytz
 
 
-def downloadImage(session, userId, mediaItems):
-    # get item type
+
+def afterAll(userId,q,thread):
+    # wait all task done
+    thread.join()
+    q.join()
+    # delete images
+    shutil.rmtree(userId)
+    print('process done')
+    user=User.objects.get(userId=userId)
+    user.isSync=True
+    user.lastSync=make_aware(datetime.datetime.utcnow(),timezone=pytz.timezone(settings.TIME_ZONE))
+    user.save()
+    print('User isSync')
+
+
+
+
+def toVisionApiLabel(userId, q):
+    credent = service_account.Credentials.from_service_account_file(
+        'Anster-4bf921cd3b7b.json')
+    client = ImageAnnotatorClient(credentials=credent)
+    while True:
+        mediaItem = q.get()
+        filename = mediaItem['filename']
+        while not os.path.exists(f'{userId}/{filename}'):
+            time.sleep(0.1)
+        with open(f'{userId}/{filename}', 'rb') as f:
+            content = f.read()
+        image = types.Image(content=content)
+        res = client.label_detection(image=image)
+        labels = res.label_annotations
+        sliceTime = mediaItem['mediaMetadata']['creationTime'].split('Z')[0]
+        if '.' in mediaItem['mediaMetadata']['creationTime']:
+            sliceTime = sliceTime.split('.')[0]
+        sliceTime = datetime.datetime.strptime(sliceTime,"%Y-%m-%dT%H:%M:%S")
+        print(sliceTime)
+        Photo.objects.create(
+            userId=userId,
+            photoId=mediaItem['id'],
+            tag={
+                'main_tag':'temp',
+                'emotion_tag':'temp',
+                'top3_tag':[{'tag':l.description,'precision':str(l.score)}for l in labels[:3]],
+                'all_tag': [{'tag':l.description,'precision':str(l.score)}for l in labels[4:]]
+            },
+            time=make_aware(sliceTime,timezone=pytz.timezone(settings.TIME_ZONE))
+        )
+        q.task_done()
+        print('done one')
+        if res.error.message:
+            raise Exception('{}\nFor more info on error messages, check: '
+                            'https://cloud.google.com/apis/design/errors'.format(
+                                res.error.message))
+
+
+def downloadImage(session, userId, q):
+    photoRes = session.get(
+        'https://photoslibrary.googleapis.com/v1/mediaItems?pageSize=100').json()
+    mediaItems = photoRes['mediaItems'][:3]
+    # while photoRes.get('nextPageToken') != None:
     for mediaItem in mediaItems:
+        q.put(mediaItem)
         mimeType = mediaItem['mimeType'].split('/')
         if not os.path.isdir(f'./{userId}'):
             try:
                 os.mkdir(userId)
             except OSError:
                 print("Creation of the directory failed")
-        # only download images 
-        if mimeType[0]=='image':
+        # only download images
+        if mimeType[0] == 'image':
             # get the image data
             filename = mediaItem['filename']
             res = session.get(mediaItem['baseUrl']+'=d').content
             print(f'{filename} downloaded')
-            with open(f'{userId}/{filename}',mode='wb') as handler:
+            with open(f'{userId}/{filename}', mode='wb') as handler:
                 handler.write(res)
-                    
+
 
 def checkUserToSession(data, req):
 
@@ -47,7 +111,6 @@ def checkUserToSession(data, req):
         'token_uri'
     )(appSecret)
     print('Hello')
-
     user = User.objects.filter(userId=data['sub'])
 
     access_token = ''
@@ -66,14 +129,12 @@ def checkUserToSession(data, req):
         print('Hello')
         print(token)
         access_token = token['access_token']
-        newUser = UserSerializer(data={
-            'userId': data['sub'],
-            'expiresAt': datetime.datetime.utcnow() + datetime.timedelta(0,token['expires_in']),
-            'refreshToken': token['refresh_token']
-        })
-        if newUser.is_valid():
-            newUser.save()
-            print('new user created')
+        newUser = User.objects.create(
+            userId=data['sub'],
+            expiresAt=datetime.datetime.utcnow() + datetime.timedelta(0, token['expires_in']),
+            refreshToken=token['refresh_token']
+        )
+        print('new user created')
         user = User.objects.filter(userId=data['sub'])
         print('create new user')
     userData = user.values()[0]
