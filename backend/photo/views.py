@@ -98,9 +98,12 @@ class EmotionView(APIView):
         custom_tag = request.data["custom_tag"]
 
         try:
-            # cus_tag_model = Custom_tag.objects.filter(tag=custom_tag)
+            cus_tag_model = Custom_tag.objects.filter(tag=custom_tag)
+            tag_model = Tag.objects.values(main_tag=cus_tag_model)
             # tag_model = Tag.objects.values(main_tag=custom_tag)
-            photo = Photo.objects.filter()
+            # photo = Photo.objects.filter(
+            #     tag={"custom_tag": {"tag": custom_tag}})
+            photo = Photo.objects.filter(tag=tag_model)
             for i in photo:
                 print(i, end="\n")
             print(photo)
