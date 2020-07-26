@@ -184,9 +184,14 @@ export default function personalScreen(props) {
 
                         {/* 這邊結束 */}
                     </View>
+<<<<<<< HEAD
 
 
 
+=======
+                    <View>
+                    </View>
+>>>>>>> 4499d6138f1bbc12e3f6ce2c4fd2833ae3868862
                 </View>
             </View>
         </View>

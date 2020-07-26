@@ -32,4 +32,8 @@ class Photo(models.Model):
     userId = models.CharField(max_length=255)
     tag = models.EmbeddedField(model_container=Tag, null=True, blank=True)
     location = models.CharField(max_length=255)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 4499d6138f1bbc12e3f6ce2c4fd2833ae3868862
     time = models.DateTimeField()
