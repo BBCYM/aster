@@ -28,7 +28,7 @@ export default function App() {
 								<MainStack.Screen name='Splash' component={SplashScreen} />
 							) : (
 								state.user ? (
-									console.log("hello user"),
+									console.log('hello user'),
 									<MainStack.Screen name='Pages' component={PagesTabNavigator} />
 
 								) : (
@@ -39,7 +39,6 @@ export default function App() {
 						}
 					</MainStack.Navigator>
 				</NavigationContainer>
-
 			</ThemeProvider>
 		</AuthContext.Provider>
 	)

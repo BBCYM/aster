@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'bot',
     'home',
     'photo',
+    'django_filters',
+    'album',
 
 ]
 

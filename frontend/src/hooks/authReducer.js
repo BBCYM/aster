@@ -10,7 +10,8 @@ function execSwitch(state, action) {
 	case actionType.SET.CLEAR:
 		return {
 			...state,
-			user: action.payload
+			user: action.payload,
+			splash: true
 		}
 	case actionType.SET.SPLASH:
 		return {
