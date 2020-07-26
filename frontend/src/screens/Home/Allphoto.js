@@ -1,6 +1,6 @@
 /*This is an Example of Grid Image Gallery in React Native*/
 import React, { Component } from 'react';
-import { ButtonGroup  } from 'react-native-elements';
+//import { ButtonGroup  } from 'react-native-elements';
 import {
   StyleSheet,
   Text,
@@ -18,10 +18,10 @@ export default class App extends Component {
     this.state = {
       imageuri: '',
       ModalVisibleStatus: false,
-      selectedIndex: 2,
+     // selectedIndex: 2,
       data:[{image:''}]
     };
-    this.updateIndex = this.updateIndex.bind(this)
+    //this.updateIndex = this.updateIndex.bind(this)
   }
 
   ShowModalFunction(visible, imageURL) {
@@ -34,14 +34,14 @@ export default class App extends Component {
     });
   }
 
-  updateIndex (selectedIndex) {
-    this.setState({selectedIndex})
-  }
+  //updateIndex (selectedIndex) {
+  //  this.setState({selectedIndex})
+  //}
   
   componentDidMount() {
     var that = this;
     let items = Array.apply(null, Array(120)).map((v, i) => {
-      return { id: i, image: '' + (i + 1) };
+      return { id: i, image: 'https://unsplash.it/400/400?image=' + (i + 1) };
     });
     that.setState({
       dataSource: items,
@@ -49,8 +49,8 @@ export default class App extends Component {
 }
 
   render() {
-    const buttons = ['Album', 'Photo']
-    const { selectedIndex } = this.state
+    //const buttons = ['Album', 'Photo']
+    //const { selectedIndex } = this.state
     
     if (this.state.ModalVisibleStatus) {
       return (
@@ -118,7 +118,7 @@ export default class App extends Component {
             numColumns={3}
             keyExtractor={(item, index) => index.toString()}
           />
-            <View style={styles.container1}>
+            {/*<View style={styles.container1}>
               <ButtonGroup
                 onPress={this._ping}
                 selectedIndex={selectedIndex}
@@ -127,7 +127,7 @@ export default class App extends Component {
                 buttonContainerStyle={{opacity:0.5}}
                 style={styles.buttongroup}
               />
-            </View>    
+                  </View>    */}
         </View>
       );
     }
@@ -137,29 +137,21 @@ export default class App extends Component {
     // await 必須寫在async函式裡，await makes JavaScript wait until that promise settles and returns its result.
     // 這邊用法是等fetch的伺服器回應我們後才讓結果等於response
     // 可以把fetch看成是ajax，真的很像
-    const response = await fetch("http://192.168.43.95:3000/cai", {
+    const response = await fetch("http://192.168.43.95:3000/home", {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
             'X-Requested-With': "com.rnexparea"
         },
-        
-        
-
     })
     // dj back to rn，用到response，一樣先await
     var data = await response.json()
     //var data = JSON.parse(data)
     //var name = JSON.parse(data)
-
     console.log(data)
-   
-
-
+  
     this.setState({ name: data.name })
     this.setState({ image: data.image})
-    
-
   }
 }
 
@@ -192,10 +184,6 @@ const styles = StyleSheet.create({
     right: 9,
     position: 'absolute',
   },
-  container1: {
-    
-    
-  }
 });
 
 

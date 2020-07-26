@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   Alert,
@@ -280,4 +279,3 @@ const styles = StyleSheet.create({
   },
 
 });
-

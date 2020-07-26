@@ -42,7 +42,7 @@ export default function RoomScreen() {
     setMessages(GiftedChat.append(messages, newMessage));
     console.log(newMessage[0].text);
 
-    const response = await fetch('http://192.168.2.109:3000/bot', {
+    const response = await fetch('http://192.168.43.95:3000/bot', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

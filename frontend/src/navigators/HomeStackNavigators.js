@@ -16,8 +16,8 @@ export function HomeScreen() {
     return (
         <HomeStack.Navigator>
             <HomeStack.Screen name='Home' component={HomePage} />
-            
-            {/* <HomeStack.Screen name='uber' component={Uber} />
+            {/*<HomeStack.Screen name='Allphoto' component={AllphotoPage}/>
+             <HomeStack.Screen name='uber' component={Uber} />
             <HomeStack.Screen name='GalleryDetail' component={GalleryDetail} />
             <HomeStack.Screen name='NormalPanel' component={NormalPanel} />
             <HomeStack.Screen name='ScrollPanel' component={ScrollPanel} />
