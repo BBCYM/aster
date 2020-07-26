@@ -32,29 +32,29 @@ export default function personalScreen(props) {
         // }
     })
 
-    // _ping函式
-    // 寫法等同於
-    //_ping = async function() {}
-    _ping = async () => {
-        // await 必須寫在async函式裡，await makes JavaScript wait until that promise settles and returns its result.
-        // 這邊用法是等fetch的伺服器回應我們後才讓結果等於response
-        // 可以把fetch看成是ajax，真的很像
-        const response = await fetch(`http://${ipv4}:3000/personal`, {
+    // // _ping函式
+    // // 寫法等同於
+    // //_ping = async function() {}
+    // _ping = async () => {
+    //     // await 必須寫在async函式裡，await makes JavaScript wait until that promise settles and returns its result.
+    //     // 這邊用法是等fetch的伺服器回應我們後才讓結果等於response
+    //     // 可以把fetch看成是ajax，真的很像
+    //     const response = await fetch(`http://${ipv4}:3000/personal`, {
 
 
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': "com.rnexparea"
+    //         method: 'GET',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //             'X-Requested-With': "com.rnexparea"
 
-            },
+    //         },
 
-        })
-        var data = await response.json()
+    //     })
+    //     var data = await response.json()
 
-        console.log(data)
+    //     console.log(data)
 
-    }
+    // }
 
     // //for test backend album 
     // testAlbum = async () => {
@@ -131,9 +131,9 @@ export default function personalScreen(props) {
     //     // 可以把fetch看成是ajax，真的很像
 
     //     // data = new Date()
-    //     data = JSON.stringify(new Date())
+    //     var data = JSON.stringify(new Date())
 
-    //     time = moment(data).format()
+    //     var time = moment(data).format()
     //     console.log(time);
     //     console.log(typeof (time));
 
@@ -184,8 +184,6 @@ export default function personalScreen(props) {
 
                         {/* 這邊結束 */}
                     </View>
-
-
 
                     <View>
                     </View>

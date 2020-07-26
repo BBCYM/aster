@@ -41,7 +41,6 @@ class Photo(models.Model):
     userId = models.CharField(max_length=255)
     tag = models.EmbeddedField(model_container=Tag, null=True, blank=True)
     location = models.CharField(max_length=255)
-
     decription = models.CharField(max_length=2550, null=True, blank=True)
     create_time = models.DateTimeField()  # 拍照的時間
     upload_time = models.DateTimeField()  # 上傳到後端的照片
