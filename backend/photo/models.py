@@ -1,6 +1,5 @@
 from djongo import models
 
-
 class Top3_tag(models.Model):
     tag = models.CharField(max_length=255)
     precision = models.CharField(max_length=255)
@@ -46,3 +45,4 @@ class Photo(models.Model):
     upload_time = models.DateTimeField()  # 上傳到後端的照片
     is_deleted = models.BooleanField(default=False)  # add by bobo
     time = models.DateTimeField()
+    objects = models.DjongoManager()

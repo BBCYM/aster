@@ -7,6 +7,7 @@ import { createStackNavigator } from '@react-navigation/stack'
 // import ImageView from '../utils/ImageView_old'
 // import ImageViewing from '../utils_ImageViewing/ImageViewingApp'
 import HomePage from '../screens/Home/Home'
+import GalleryScreen from '../screens/Gallery/PhotoGallery'
 //import AllphotoPage from '../screens/Home/Allphoto';
 
 
@@ -23,7 +24,7 @@ export function HomeScreen() {
 	return (
 		<HomeStack.Navigator>
 			<HomeStack.Screen name='Home' component={HomePage} />
-            
+			<HomeStack.Screen name='PhotoGallery' component={GalleryScreen} />
 			{/* <HomeStack.Screen name='uber' component={Uber} />
 >>>>>>> 11b662ab286b8b20d7b34ace7fe4371916d706ba
             <HomeStack.Screen name='GalleryDetail' component={GalleryDetail} />

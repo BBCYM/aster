@@ -24,7 +24,7 @@ module.exports = {
 	},
 	'plugins': [
 		'react',
-		"jsx-a11y",
+		"jsx-a11y"
 	],
 	'rules': {
 		'indent': [
@@ -46,6 +46,9 @@ module.exports = {
 		"no-mixed-spaces-and-tabs": [
 			'warn',
 			'smart-tabs'
+		],
+		"no-unused-vars": [
+			"warn"
 		],
 		"react/display-name": [0],
 		"react/prop-types": [0],

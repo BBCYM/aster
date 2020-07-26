@@ -11,20 +11,20 @@ import Ionicons from 'react-native-vector-icons/Ionicons'
 import { SwipeListView } from 'react-native-swipe-list-view'
 
 
-export function TagList(that) {
+export function TagList([status, setStatus]) {
 	function deleteTag(id) {
 		console.log(`deleting tag id:${id}`)
-		let slicedTag = [...that.state.tag]
+		let slicedTag = [...status.tag]
 		var result = slicedTag.findIndex((v, i) => {
 			return v.key === id
 		})
 		slicedTag.splice(result, 1)
 		// dispatch(action(actionType.SET.TAG, slicedTag))
-		that.setState({ tag: slicedTag })
+		setStatus({ tag: slicedTag })
 	}
 	return (
 		<SwipeListView
-			data={that.state.tag}
+			data={status.tag}
 			renderItem={(data, rowMap) => (
 				<View>
 					<ListItem
@@ -53,11 +53,11 @@ export function TagList(that) {
 }
 
 
-export function photoFooter(that, currentIndex) {
+export function photoFooter([status, setStatus], currentIndex) {
 	
 	function fetchTags(currentIndex){
 		console.log(currentIndex)
-		that.setState({
+		setStatus({
 			tag: Array(20).fill('').map((_, i) => ({ key: `${20-i-1}`, text: `item #${i}` })),
 			isTagModalVisi: true
 		})

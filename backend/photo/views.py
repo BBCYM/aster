@@ -85,7 +85,6 @@ class PhotoView(APIView):
             Failed: status.HTTP_500_INTERNAL_SERVER_ERROR
 
         """
-
         return Response('hello', status=status.HTTP_201_CREATED)
 
 
