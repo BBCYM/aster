@@ -3,7 +3,7 @@ import { AuthContext } from '../../contexts/AuthContext'
 import { StyleSheet, Text, View, Modal, Image, TouchableOpacity, Button } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import { ipv4 } from '../../utils/dev';
-import moment from 'moment';
+// import moment from 'moment';
 
 
 
@@ -177,21 +177,18 @@ export default function personalScreen(props) {
 
                         <View>
                             <TouchableOpacity style={styles.heartBtn} activeOpacity={0.2}
-                                focusedOpacity={0.5} onPress={() => { date() }}>
+                                focusedOpacity={0.5} >
                                 <Ionicons name='heart' color={'red'} size={50} />
                             </TouchableOpacity>
                         </View>
 
                         {/* 這邊結束 */}
                     </View>
-<<<<<<< HEAD
 
 
 
-=======
                     <View>
                     </View>
->>>>>>> 4499d6138f1bbc12e3f6ce2c4fd2833ae3868862
                 </View>
             </View>
         </View>
