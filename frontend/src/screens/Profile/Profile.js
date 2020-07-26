@@ -177,7 +177,7 @@ export default function personalScreen(props) {
 
                         <View>
                             <TouchableOpacity style={styles.heartBtn} activeOpacity={0.2}
-                                focusedOpacity={0.5} onPress={() => { _ping() }}>
+                                focusedOpacity={0.5} >
                                 <Ionicons name='heart' color={'red'} size={50} />
                             </TouchableOpacity>
                         </View>
