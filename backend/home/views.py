@@ -1,14 +1,9 @@
-<<<<<<< HEAD
-#from django.shortcuts import render
-from rest_framework import views, response, status
-=======
 from django.shortcuts import render
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from auth.customResponse import simpleMessage
 from photo.models import Photo
->>>>>>> 11b662ab286b8b20d7b34ace7fe4371916d706ba
 #import dialogflow_v2 as dialogflow
 #from google.oauth2 import service_account
 from operator import itemgetter
@@ -45,18 +40,16 @@ class HomeView(APIView):
 
     def put(self, request):
 
-<<<<<<< HEAD
-      data = {'tag':'dog',
-              
-               }
-     
-      y = json.dumps(data)
-      print(y)
+        data = {'tag': 'dog',
+
+                }
+
+        y = json.dumps(data)
+        print(y)
         #re = MessageToJson(data)
-=======
+
         return Response(simpleMessage('PUT/HomeView'), status=status.HTTP_200_OK)
->>>>>>> 11b662ab286b8b20d7b34ace7fe4371916d706ba
 
-    def delete(self, request):
+        def delete(self, request):
 
-        return Response(simpleMessage('DELETE/HomeView'))
+            return Response(simpleMessage('DELETE/HomeView'))
