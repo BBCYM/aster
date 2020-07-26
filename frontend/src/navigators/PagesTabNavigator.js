@@ -7,6 +7,7 @@ import ProfileScreen from '../screens/Profile/Profile'
 import GalleryHome from '../screens/Gallery/PhotoGallery copy'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import SomeGallery from '../screens/Gallery/SomeGallery'
+
 const PagesTab = createBottomTabNavigator()
 const PagesStack = createStackNavigator()
 
@@ -97,8 +98,10 @@ export function PagesTabNavigator(props) {
 				headerShown: true,
 				headerTitle: null,
 			}} />
+
 		</PagesStack.Navigator>
 	)
 }
+
 
 

@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'home',
     'photo',
     'django_filters'
+    'album',
 
 ]
 
@@ -85,7 +86,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'djongo',
         'NAME': 'aster',
-        'ENFORCE_SCHEMA': False
+        'ENFORCE_SCHEMA': False,
     }
 }
 
