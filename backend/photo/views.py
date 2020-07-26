@@ -1,6 +1,6 @@
 from rest_framework.views import APIView, status
 from rest_framework.response import Response
-from .models import Photo
+from .models import Photo, Custom_tag, All_Tag, Tag, Top3_tag
 from auth.customResponse import simpleMessage
 from datetime import datetime
 import json
@@ -90,6 +90,26 @@ class PhotoView(APIView):
 
 
 class EmotionView(APIView):
+    def post(self, request):
+        """
+        test
+        """
+        user_id = request.data["user_id"]
+        custom_tag = request.data["custom_tag"]
+
+        try:
+            # cus_tag_model = Custom_tag.objects.filter(tag=custom_tag)
+            # tag_model = Tag.objects.values(main_tag=custom_tag)
+            photo = Photo.objects.filter()
+            for i in photo:
+                print(i, end="\n")
+            print(photo)
+
+        except Exception as e:
+            print(e)
+            return Response("PhotoViewError", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response(simpleMessage('PUT/PhotoView'), status=status.HTTP_200_OK)
 
     def put(self, request):
         """
