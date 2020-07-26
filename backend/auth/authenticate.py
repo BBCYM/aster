@@ -20,21 +20,19 @@ import shutil
 import pytz
 
 
-
-def afterAll(userId,q,thread):
+def afterAll(userId, q, thread):
     # wait all task done
     thread.join()
     q.join()
     # delete images
     shutil.rmtree(userId)
     print('process done')
-    user=User.objects.get(userId=userId)
-    user.isSync=True
-    user.lastSync=make_aware(datetime.datetime.utcnow(),timezone=pytz.timezone(settings.TIME_ZONE))
+    user = User.objects.get(userId=userId)
+    user.isSync = True
+    user.lastSync = make_aware(datetime.datetime.utcnow(
+    ), timezone=pytz.timezone(settings.TIME_ZONE))
     user.save()
     print('User isSync')
-
-
 
 
 def toVisionApiLabel(userId, q):
@@ -54,18 +52,21 @@ def toVisionApiLabel(userId, q):
         sliceTime = mediaItem['mediaMetadata']['creationTime'].split('Z')[0]
         if '.' in mediaItem['mediaMetadata']['creationTime']:
             sliceTime = sliceTime.split('.')[0]
-        sliceTime = datetime.datetime.strptime(sliceTime,"%Y-%m-%dT%H:%M:%S")
+        sliceTime = datetime.datetime.strptime(sliceTime, "%Y-%m-%dT%H:%M:%S")
         print(sliceTime)
+        # 這個才是正確的
         Photo.objects.create(
             userId=userId,
             photoId=mediaItem['id'],
             tag={
-                'main_tag':'temp',
-                'emotion_tag':'temp',
-                'top3_tag':[{'tag':l.description,'precision':str(l.score)}for l in labels[:3]],
-                'all_tag': [{'tag':l.description,'precision':str(l.score)}for l in labels[4:]]
+                'main_tag': 'temp',
+                'emotion_tag': 'temp',
+                'top3_tag': [{'tag': l.description, 'precision': str(l.score)}for l in labels[:3]],
+                'all_tag': [{'tag': l.description, 'precision': str(l.score)}for l in labels[4:]]
             },
-            time=make_aware(sliceTime,timezone=pytz.timezone(settings.TIME_ZONE))
+            location="invalid",
+            time=make_aware(
+                sliceTime, timezone=pytz.timezone(settings.TIME_ZONE))
         )
         q.task_done()
         print('done one')
@@ -131,7 +132,8 @@ def checkUserToSession(data, req):
         access_token = token['access_token']
         newUser = User.objects.create(
             userId=data['sub'],
-            expiresAt=datetime.datetime.utcnow() + datetime.timedelta(0, token['expires_in']),
+            expiresAt=datetime.datetime.utcnow() + datetime.timedelta(0,
+                                                                      token['expires_in']),
             refreshToken=token['refresh_token']
         )
         print('new user created')
