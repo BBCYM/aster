@@ -4,6 +4,7 @@ import { renderBubble } from './ChatContainer';
 import AsyncStorage from '@react-native-community/async-storage';
 import uuid from 'react-native-uuid';
 import {ipv4} from '../../utils/dev';
+import { withTheme } from 'react-native-elements';
 
 export default function RoomScreen() {
   const [messages, setMessages] = useState([
@@ -61,14 +62,23 @@ export default function RoomScreen() {
         usermsg: newMessage[0].text,
       }),
     });
-
     var data = await response.json();
-    // console.log(data);
+    // var data = await response.json();
+    // console.log(typeof(data));
+    // data.replace(/'/g, '"');
+    // console.log(data)
+    // console.log(typeof(data));
     var message = JSON.parse(data);
 
+    console.log("Chatbot: typeof(message)= ", typeof(message));
     // console.log(message);
-    console.log(message.parameters.visionAPI_1000[0]);
-    message.fulfillmentMessages.forEach(element => {
+    // console.log(message.dialog);
+    var json_message = JSON.parse(message.dialog)
+    // console.log(json_message.fulfillmentMessages);
+    // var json_id = JSON.parse(message.pid)
+    console.log(message.pid);
+
+    json_message.fulfillmentMessages.forEach(element => {
       var resmsg = element.text.text[0];
       console.log(resmsg);
       var temp = uuid.v1();
@@ -86,31 +96,7 @@ export default function RoomScreen() {
     // var resmsg = message.fulfillmentMessages[0].text.text[0];
     // var resmsg1 = message.fulfillmentMessages[1].text.text[0];
     // newMessage[0].text = resmsg;
-    // console.log(newMessage);
-    // console.log(resmsg);
-    // console.log(resmsg1);
-    // var temp = uuid.v1();
-    // // console.log(temp);
-    // let msg = {
-    //   _id: temp,
-    //   text: resmsg,
-    //   createdAt: new Date(),
-    //   user: {
-    //     _id: 0,
-    //     name: 'Aster',
-    //   },
-    // };
-    // var temp1 = uuid.v1();
-    // let msg1 = {
-    //   _id: temp1,
-    //   text: resmsg1,
-    //   createdAt: new Date(),
-    //   user: {
-    //     _id: 0,
-    //     name: 'Aster',
-    //   },
-    // };
-    // combine = GiftedChat.append(combine, [msg1, msg])
+    
     await AsyncStorage.setItem(
       'msg',
       JSON.stringify(combine),
@@ -128,6 +114,13 @@ export default function RoomScreen() {
       renderBubble={renderBubble}
       renderAvatar={null}
       placeholder="Type here ..."
+      parsePatterns={linkStyle => [
+				{
+					pattern: /want result/,
+					style: {color: "white",textDecorationLine: "underline"},
+					onPress: tag => console.log(`Pressed on hashtag: ${tag}`),
+				},
+			]}
     />
   );
 }

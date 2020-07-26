@@ -31,5 +31,6 @@ export const renderBubble = props => (
 				borderBottomRightRadius: 3,
 			},
 		}}
+		
 	/>
 )

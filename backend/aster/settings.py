@@ -42,12 +42,8 @@ INSTALLED_APPS = [
     'personal',
     'bot',
     'home',
-<<<<<<< HEAD
-=======
     'photo',
-    'album'
-
->>>>>>> 11b662ab286b8b20d7b34ace7fe4371916d706ba
+    'album',
 
 ]
 
@@ -90,7 +86,6 @@ DATABASES = {
         'ENGINE': 'djongo',
         'NAME': 'aster',
         'ENFORCE_SCHEMA': False,
-
     }
 }
 
