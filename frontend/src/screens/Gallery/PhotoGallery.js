@@ -15,6 +15,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons'
 
 
 export default class GalleryScreen extends Component {
+
 	constructor(props) {
 		super(props)
 		this.state = {
@@ -25,6 +26,8 @@ export default class GalleryScreen extends Component {
 			tag: []
 		}
 	}
+
+
 	componentDidMount() {
 		let items = Array.apply(null, Array(60)).map((v, i) => {
 			return { id: i, src: 'https://unsplash.it/400/400?image=' + (i + 1) }
@@ -40,25 +43,6 @@ export default class GalleryScreen extends Component {
 
 	changeCurrentTag = (inputTag) => {
 		this.setState({ inputTag })
-	}
-	addTag() {
-		this.setState(prevState => {
-			console.log('adding tag')
-			let tags = [...prevState.tag]
-			let l = tags.length
-			let t
-			if (l > 0) {
-				t = Number(tags[0].key) + 1
-			} else {
-				t = 0
-			}
-			tags.unshift({ key: String(t), text: prevState.inputTag })
-			return {
-				...prevState,
-				tag: tags,
-				inputTag: ''
-			}
-		})
 	}
 	showImage(item) {
 		// load tag of the item

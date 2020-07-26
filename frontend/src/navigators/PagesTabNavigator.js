@@ -4,8 +4,9 @@ import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/
 import ChatbotScreen from '../screens/Chatbot/Chatbot'
 import HomeScreen from '../screens/Home/Home'
 import ProfileScreen from '../screens/Profile/Profile'
-import GalleryHome from '../screens/Gallery/PhotoGallery'
+import GalleryHome from '../screens/Gallery/PhotoGallery copy'
 import Ionicons from 'react-native-vector-icons/Ionicons'
+
 const PagesTab = createBottomTabNavigator()
 const PagesStack = createStackNavigator()
 
@@ -71,6 +72,8 @@ export function PagesTabNavigator(props) {
 			</PagesTab.Navigator>
 		)
 	}
+	
+	
 	return (
 		<PagesStack.Navigator
 			initialRouteName='index'
