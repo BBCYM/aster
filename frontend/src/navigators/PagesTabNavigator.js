@@ -7,6 +7,7 @@ import { HomeScreen } from '../navigators/HomeStackNavigators'
 import ProfileScreen from '../screens/Profile/Profile'
 import GalleryStackScreen from '../navigators/GalleryStackNavigators'
 import Ionicons from 'react-native-vector-icons/Ionicons'
+
 import { View, TouchableOpacity, StyleSheet, Image, Text } from 'react-native'
 // import temp from '../utils_ImageViewing/ImageViewingApp-copy'
 const PagesTab = createBottomTabNavigator()
