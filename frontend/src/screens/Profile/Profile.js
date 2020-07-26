@@ -3,7 +3,7 @@ import { AuthContext } from '../../contexts/AuthContext'
 import { StyleSheet, Text, View, Modal, Image, TouchableOpacity, Button } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import { ipv4 } from '../../utils/dev';
-import moment from 'moment';
+// import moment from 'moment';
 
 
 
@@ -32,29 +32,29 @@ export default function personalScreen(props) {
         // }
     })
 
-    // _ping函式
-    // 寫法等同於
-    //_ping = async function() {}
-    _ping = async () => {
-        // await 必須寫在async函式裡，await makes JavaScript wait until that promise settles and returns its result.
-        // 這邊用法是等fetch的伺服器回應我們後才讓結果等於response
-        // 可以把fetch看成是ajax，真的很像
-        const response = await fetch(`http://${ipv4}:3000/personal`, {
+    // // _ping函式
+    // // 寫法等同於
+    // //_ping = async function() {}
+    // _ping = async () => {
+    //     // await 必須寫在async函式裡，await makes JavaScript wait until that promise settles and returns its result.
+    //     // 這邊用法是等fetch的伺服器回應我們後才讓結果等於response
+    //     // 可以把fetch看成是ajax，真的很像
+    //     const response = await fetch(`http://${ipv4}:3000/personal`, {
 
 
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': "com.rnexparea"
+    //         method: 'GET',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //             'X-Requested-With': "com.rnexparea"
 
-            },
+    //         },
 
-        })
-        var data = await response.json()
+    //     })
+    //     var data = await response.json()
 
-        console.log(data)
+    //     console.log(data)
 
-    }
+    // }
 
     // //for test backend album 
     // testAlbum = async () => {
@@ -131,9 +131,9 @@ export default function personalScreen(props) {
     //     // 可以把fetch看成是ajax，真的很像
 
     //     // data = new Date()
-    //     data = JSON.stringify(new Date())
+    //     var data = JSON.stringify(new Date())
 
-    //     time = moment(data).format()
+    //     var time = moment(data).format()
     //     console.log(time);
     //     console.log(typeof (time));
 
@@ -177,21 +177,15 @@ export default function personalScreen(props) {
 
                         <View>
                             <TouchableOpacity style={styles.heartBtn} activeOpacity={0.2}
-                                focusedOpacity={0.5} onPress={() => { date() }}>
+                                focusedOpacity={0.5} onPress={() => { _ping() }}>
                                 <Ionicons name='heart' color={'red'} size={50} />
                             </TouchableOpacity>
                         </View>
 
                         {/* 這邊結束 */}
                     </View>
-<<<<<<< HEAD
-
-
-
-=======
                     <View>
                     </View>
->>>>>>> 4499d6138f1bbc12e3f6ce2c4fd2833ae3868862
                 </View>
             </View>
         </View>
