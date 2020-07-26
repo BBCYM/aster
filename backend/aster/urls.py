@@ -20,10 +20,14 @@ from bot.views import BotView
 from home.views import HomeView
 from photo.views import PhotoView
 from personal.views import personalView
+from album.views import AlbumView
+
 urlpatterns = [
     path('', AuthView.as_view()),
     path('personal', personalView.as_view()),
     path('bot', BotView.as_view()),
-    path('home',HomeView.as_view()),
-    path('photo',PhotoView.as_view())
+    path('home', HomeView.as_view()),
+    path('photo', PhotoView.as_view()),
+    path('album', AlbumView.as_view()),
+
 ]
