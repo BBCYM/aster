@@ -28,6 +28,6 @@ urlpatterns = [
     path('bot', BotView.as_view()),
     path('home', HomeView.as_view()),
     path('photo', PhotoView.as_view()),
-    path('album', AlbumView.as_view())
+    path('album', AlbumView.as_view()),
 
 ]

@@ -3,6 +3,7 @@ import { AuthContext } from '../../contexts/AuthContext'
 import { StyleSheet, Text, View, Modal, Image, TouchableOpacity, Button } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import { ipv4 } from '../../utils/dev';
+import moment from 'moment';
 
 
 
@@ -30,6 +31,7 @@ export default function personalScreen(props) {
         //     name: string // full name
         // }
     })
+
     // _ping函式
     // 寫法等同於
     //_ping = async function() {}
@@ -53,6 +55,90 @@ export default function personalScreen(props) {
         console.log(data)
 
     }
+
+    // //for test backend album 
+    // testAlbum = async () => {
+    //     // await 必須寫在async函式裡，await makes JavaScript wait until that promise settles and returns its result.
+    //     // 這邊用法是等fetch的伺服器回應我們後才讓結果等於response
+    //     // 可以把fetch看成是ajax，真的很像
+
+    //     //產生time
+    //     data = JSON.stringify(new Date());
+    //     time = moment().format();
+
+
+    //     const response = await fetch(`http://${ipv4}:3000/album`, {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //             'X-Requested-With': "com.rnexparea"
+    //         },
+    //         body: JSON.stringify({
+
+    //             userId: 'a1234sdf',
+    //             albumName: 'kowaicat30',
+    //             albumId: 'test30_new',
+    //             photo: {
+    //                 'userId': 'skdfnsdf',
+    //                 'photoId': 'ovbienrpj',
+    //                 'tag': {
+    //                     'main_tag': 'cat',
+    //                     'emotion_tag': 'cute',
+    //                     'top3_tag': [
+    //                         {
+    //                             'tag': 'cat1',
+    //                             'precision': '99'
+    //                         },
+    //                         {
+    //                             'tag': 'cat122',
+    //                             'precision': '88'
+    //                         }
+    //                     ],
+    //                     'all_tag': [
+    //                         {
+    //                             'tag': 'cat1',
+    //                             'precision': '99'
+    //                         },
+    //                         {
+    //                             'tag': 'cat122',
+    //                             'precision': '88'
+    //                         },
+    //                         {
+    //                             'tag': 'catmeme',
+    //                             'precision': '898'
+    //                         }
+    //                     ]
+    //                 },
+    //                 'location': 'Taipei',
+    //                 'time': time
+    //             },
+    //             tag: [{ 'tag': 'cats' }, { 'tag': 'kittens' }],
+    //             time: time
+
+    //         }),
+    //     })
+    //     var message = await response.json()
+
+    //     console.log(message)
+
+    // }
+
+    // //for test backend album 
+    // function date() {
+
+    //     // await 必須寫在async函式裡，await makes JavaScript wait until that promise settles and returns its result.
+    //     // 這邊用法是等fetch的伺服器回應我們後才讓結果等於response
+    //     // 可以把fetch看成是ajax，真的很像
+
+    //     // data = new Date()
+    //     data = JSON.stringify(new Date())
+
+    //     time = moment(data).format()
+    //     console.log(time);
+    //     console.log(typeof (time));
+
+
+    // }
 
 
     return (
@@ -91,7 +177,7 @@ export default function personalScreen(props) {
 
                         <View>
                             <TouchableOpacity style={styles.heartBtn} activeOpacity={0.2}
-                                focusedOpacity={0.5} onPress={() => { _ping() }}>
+                                focusedOpacity={0.5} onPress={() => { date() }}>
                                 <Ionicons name='heart' color={'red'} size={50} />
                             </TouchableOpacity>
                         </View>
