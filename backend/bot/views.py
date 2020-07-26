@@ -26,10 +26,10 @@ class BotView(views.APIView):
     # http post method
     def post(self,request):
         data = request.data['usermsg']
-        print('這是request=',request)
-        print('這是data=',data)
+        # print('這是request=',request)
+        # print('這是data=',data)
 
-        print('這是response.data=',request.data)
+        # print('這是response.data=',request.data)
         #return response.Response("ok")
 
 
@@ -41,8 +41,7 @@ class BotView(views.APIView):
             PROJECT_ID = itemgetter("project_id")(appSecret)
         session_id = 'userforDemo12345'
         text = data   #這裡改成在RN輸入的字串
-        #text = '嗨'   #這裡改成在RN輸入的字串
-        print('測試抓不抓得到=',data)
+        # print('測試抓不抓得到=',data)
         
 
         session_client = dialogflow.SessionsClient(credentials=credentials)
@@ -54,21 +53,37 @@ class BotView(views.APIView):
             res = session_client.detect_intent(session=session, query_input=query_input)
         except InvalidArgument:
             return response.Response("InvalidArgument",status=status.HTTP_400_BAD_REQUEST)
-        print("Fulfillment text:", res.query_result.fulfillment_text)
-        print("Fulfillment_messages:", res.query_result.fulfillment_messages[0].text.text[0])
-        test = res.query_result.fulfillment_messages[0].text.text
-        print(type(test))
-        print("Fulfillment_messages:", res.query_result.fulfillment_messages[1].text.text[0])
 
-        #print("String value:", res.query_result.parameters.fields['value'])
+        # print("測試用:", res.query_result)
+        parameters = res.query_result.parameters
+        print("parameters:",parameters)
 
-        #print("測試candy_string_value:", res.query_result.parameters.fields['value'].string_value)
-        #print("Category.original_string_value:", res.query_result.parameters.fields['Category.original'].string_value)
-        print("測試用:", res.query_result)
+        # location = parameters.fields['location'].list_value.values[0].struct_value.fields['city'].string_value
+        # photo = parameters.fields['photo'].list_value.values[0].string_value
+        # datetime = parameters.fields['date-time'].list_value.values[0].string_value
+        # vision = parameters.fields['visionAPI_1000'].list_value.values[0].string_value
+        photo = parameters.fields['photo'].list_value
+        datetime = parameters.fields['date-time'].list_value
+        vision = parameters.fields['visionAPI_1000'].list_value
         
+        if len(photo) is not 0:
+            # print('photo: ',photo)
+            # print(photo.values[0].string_value)
+            photokey = photo.values[0].string_value
+            print(photokey)
+
+        if len(datetime) is not 0:
+            # print(datetime.values[0].string_value)
+            datetimekey = datetime.values[0].string_value
+            print(datetimekey)
+
+        if len(vision) is not 0:
+            # print(vision.values[0].string_value)
+            visionkey = vision.values[0].string_value
+            print(visionkey)
+
+        # print("抓:", res.query_result.parameters.fields['dogBreed'].list_value.values[0].string_value)
         #print("測試用Fulfillment message:", res.query_result.fulfillment_messages.text['text'].text)
-
-
         #print("data:", res.query_result)
 
         re = MessageToJson(res.query_result)

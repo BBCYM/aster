@@ -1,7 +1,10 @@
 import * as React from 'react'
 import { AuthContext } from '../../contexts/AuthContext'
-import { StyleSheet, Text, View, TextInput, Button, Image, TouchableOpacity } from 'react-native';
-import Images from '../../../index';
+import { StyleSheet, Text, View, Modal, Image, TouchableOpacity, Button } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons'
+import { ipv4 } from '../../utils/dev';
+// import moment from 'moment';
+
 
 
 export default function personalScreen(props) {
@@ -18,7 +21,7 @@ export default function personalScreen(props) {
 
     React.useEffect(() => {
         console.log(state.user)
-        _ping()
+        // _ping()
         // {
         //     email: string,
         //     id: string,
@@ -28,26 +31,119 @@ export default function personalScreen(props) {
         //     name: string // full name
         // }
     })
-    // _ping函式
-    // 寫法等同於
-    //_ping = async function() {}
-    _ping = async () => {
-        // await 必須寫在async函式裡，await makes JavaScript wait until that promise settles and returns its result.
-        // 這邊用法是等fetch的伺服器回應我們後才讓結果等於response
-        // 可以把fetch看成是ajax，真的很像
 
+<<<<<<< HEAD
         const response = await fetch("http://192.168.43.95:3000/personal", {
+=======
+    // // _ping函式
+    // // 寫法等同於
+    // //_ping = async function() {}
+    // _ping = async () => {
+    //     // await 必須寫在async函式裡，await makes JavaScript wait until that promise settles and returns its result.
+    //     // 這邊用法是等fetch的伺服器回應我們後才讓結果等於response
+    //     // 可以把fetch看成是ajax，真的很像
+    //     const response = await fetch(`http://${ipv4}:3000/personal`, {
 
 
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': "com.rnexparea"
-            },
+    //         method: 'GET',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //             'X-Requested-With': "com.rnexparea"
 
-        })
+    //         },
 
-    }
+    //     })
+    //     var data = await response.json()
+
+    //     console.log(data)
+
+    // }
+
+    // //for test backend album 
+    // testAlbum = async () => {
+    //     // await 必須寫在async函式裡，await makes JavaScript wait until that promise settles and returns its result.
+    //     // 這邊用法是等fetch的伺服器回應我們後才讓結果等於response
+    //     // 可以把fetch看成是ajax，真的很像
+
+    //     //產生time
+    //     data = JSON.stringify(new Date());
+    //     time = moment().format();
+
+
+    //     const response = await fetch(`http://${ipv4}:3000/album`, {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //             'X-Requested-With': "com.rnexparea"
+    //         },
+    //         body: JSON.stringify({
+
+    //             userId: 'a1234sdf',
+    //             albumName: 'kowaicat30',
+    //             albumId: 'test30_new',
+    //             photo: {
+    //                 'userId': 'skdfnsdf',
+    //                 'photoId': 'ovbienrpj',
+    //                 'tag': {
+    //                     'main_tag': 'cat',
+    //                     'emotion_tag': 'cute',
+    //                     'top3_tag': [
+    //                         {
+    //                             'tag': 'cat1',
+    //                             'precision': '99'
+    //                         },
+    //                         {
+    //                             'tag': 'cat122',
+    //                             'precision': '88'
+    //                         }
+    //                     ],
+    //                     'all_tag': [
+    //                         {
+    //                             'tag': 'cat1',
+    //                             'precision': '99'
+    //                         },
+    //                         {
+    //                             'tag': 'cat122',
+    //                             'precision': '88'
+    //                         },
+    //                         {
+    //                             'tag': 'catmeme',
+    //                             'precision': '898'
+    //                         }
+    //                     ]
+    //                 },
+    //                 'location': 'Taipei',
+    //                 'time': time
+    //             },
+    //             tag: [{ 'tag': 'cats' }, { 'tag': 'kittens' }],
+    //             time: time
+
+    //         }),
+    //     })
+    //     var message = await response.json()
+
+    //     console.log(message)
+
+    // }
+
+    // //for test backend album 
+    // function date() {
+
+    //     // await 必須寫在async函式裡，await makes JavaScript wait until that promise settles and returns its result.
+    //     // 這邊用法是等fetch的伺服器回應我們後才讓結果等於response
+    //     // 可以把fetch看成是ajax，真的很像
+>>>>>>> 11b662ab286b8b20d7b34ace7fe4371916d706ba
+
+    //     // data = new Date()
+    //     var data = JSON.stringify(new Date())
+
+    //     var time = moment(data).format()
+    //     console.log(time);
+    //     console.log(typeof (time));
+
+
+    // }
+
 
     return (
         <View style={styles.container}>
@@ -60,7 +156,8 @@ export default function personalScreen(props) {
             <View style={styles.body}>
                 <View style={styles.bodyContent}>
                     <Text style={styles.name}>{state.user.name}</Text>
-                    <Text style={styles.description}>Lorem ipsum dolor sit amet, saepe sapientem eu nam. Qui ne assum electram expetendis, omittam deseruisse consequuntur ius an,</Text>
+
+                    {/* <Text style={styles.description}>Lorem ipsum dolor sit amet, saepe sapientem eu nam. Qui ne assum electram expetendis, omittam deseruisse consequuntur ius an,</Text> */}
                     <View style={styles.Btncontainer}>
                         <TouchableOpacity style={styles.Btn}>
                             <Text>REFRESH</Text>
@@ -69,12 +166,37 @@ export default function personalScreen(props) {
                         <TouchableOpacity style={styles.Btn} onPress={() => { auth.signOut() }}>
                             <Text>LOG OUT</Text>
                         </TouchableOpacity>
+
+                        {/* 這邊開始 */}
+                        {/* <View >
+                            <Modal
+                                transparent={true}
+                                visible={true}>
+
+                                <View style={{ backgroundColor: "blue" }}></View>
+                            </Modal>
+
+                        </View> */}
+
+
+                        <View>
+                            <TouchableOpacity style={styles.heartBtn} activeOpacity={0.2}
+                                focusedOpacity={0.5} >
+                                <Ionicons name='heart' color={'red'} size={50} />
+                            </TouchableOpacity>
+                        </View>
+
+                        {/* 這邊結束 */}
+                    </View>
+
+                    <View>
                     </View>
                 </View>
             </View>
         </View>
 
     );
+
 
 }
 
@@ -142,6 +264,20 @@ const styles = StyleSheet.create({
         shadowRadius: 5.46,
         elevation: 7,
 
+    },
+    heartBtn: {
+        marginTop: 100,
+        width: 50,
+        height: 50,
+        // borderRadius: 30,
+        // backgroundColor: "white",
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 0,
+        },
+        shadowRadius: 5.46,
+        // elevation: 7,
     },
 
 });

@@ -1,16 +1,19 @@
 /*This is an Example of Grid Image Gallery in React Native*/
 import React, { Component } from 'react';
 //import { ButtonGroup  } from 'react-native-elements';
+import React, { Component } from 'react'
+import { ButtonGroup } from 'react-native-elements'
+
 import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  FlatList,
-  Modal,
-  Image
-} from 'react-native';
-import FastImage from 'react-native-fast-image';
+	StyleSheet,
+	Text,
+	View,
+	TouchableOpacity,
+	FlatList,
+	Modal,
+	Image
+} from 'react-native'
+import FastImage from 'react-native-fast-image'
 
 export default class App extends Component {
   constructor(props) {
@@ -186,7 +189,4 @@ const styles = StyleSheet.create({
   },
 });
 
-
-
-  
-  
+	

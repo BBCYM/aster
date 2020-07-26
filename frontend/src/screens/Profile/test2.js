@@ -6,7 +6,7 @@ import {
     View,
     Image,
     TouchableOpacity
-} from 'react-native';
+} from 'react-native'
 
 export default function personalScreen(props) {
 
@@ -32,12 +32,12 @@ export default function personalScreen(props) {
         // 這邊用法是等fetch的伺服器回應我們後才讓結果等於response
         // 可以把fetch看成是ajax，真的很像
 
-        const response = await fetch("http://192.168.1.102:3000/personal", {
+        const response = await fetch('http://192.168.1.102:3000/personal', {
 
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'X-Requested-With': "com.rnexparea"
+                'X-Requested-With': 'com.rnexparea'
             },
 
         })
@@ -74,7 +74,7 @@ export default function personalScreen(props) {
                 </View>
             </View>
         </View>
-    );
+    )
 
 }
 
@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
         height: 130,
         borderRadius: 63,
         borderWidth: 4,
-        borderColor: "white",
+        borderColor: 'white',
         marginBottom: 10,
         alignSelf: 'center',
         position: 'absolute',
@@ -109,13 +109,13 @@ const styles = StyleSheet.create({
     },
     name: {
         fontSize: 30,
-        color: "#696969",
-        fontWeight: "600",
+        color: '#696969',
+        fontWeight: '600',
     },
 
     description: {
         fontSize: 16,
-        color: "#696969",
+        color: '#696969',
         marginTop: 20,
         textAlign: 'center'
 
@@ -133,8 +133,8 @@ const styles = StyleSheet.create({
         marginBottom: 30,
         width: 180,
         borderRadius: 30,
-        backgroundColor: "white",
-        shadowColor: "#000",
+        backgroundColor: 'white',
+        shadowColor: '#000',
         shadowOffset: {
             width: 0,
             height: 0,
@@ -144,4 +144,4 @@ const styles = StyleSheet.create({
 
     },
 
-});
+})

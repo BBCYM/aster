@@ -42,6 +42,12 @@ INSTALLED_APPS = [
     'personal',
     'bot',
     'home',
+<<<<<<< HEAD
+=======
+    'photo',
+    'album'
+
+>>>>>>> 11b662ab286b8b20d7b34ace7fe4371916d706ba
 
 ]
 
@@ -81,8 +87,10 @@ WSGI_APPLICATION = 'aster.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'djongo',
+        'NAME': 'aster',
+        'ENFORCE_SCHEMA': False,
+
     }
 }
 
