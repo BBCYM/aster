@@ -6,7 +6,7 @@ import HomeScreen from '../screens/Home/Home'
 import ProfileScreen from '../screens/Profile/Profile'
 import GalleryHome from '../screens/Gallery/PhotoGallery copy'
 import Ionicons from 'react-native-vector-icons/Ionicons'
-
+import SomeGallery from '../screens/Gallery/SomeGallery'
 const PagesTab = createBottomTabNavigator()
 const PagesStack = createStackNavigator()
 
@@ -90,6 +90,10 @@ export function PagesTabNavigator(props) {
 		>
 			<PagesStack.Screen name='index' component={index} />
 			<PagesStack.Screen name='Chatbot' component={ChatbotScreen} options={{
+				headerShown: true,
+				headerTitle: null,
+			}} />
+			<PagesStack.Screen name='SomeGallery' component={SomeGallery} options={{
 				headerShown: true,
 				headerTitle: null,
 			}} />

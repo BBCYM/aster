@@ -16,6 +16,7 @@ djongo = "*"
 google-cloud-vision = "*"
 google-api-core = "*"
 django = "*"
+django-filter = "*"
 
 [requires]
 python_version = "3.7"
