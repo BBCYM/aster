@@ -5,6 +5,7 @@ class Top3_tag(models.Model):
     tag = models.CharField(max_length=255)
     precision = models.CharField(max_length=255)
 
+
     class Meta:
         abstract = True
 
@@ -13,8 +14,6 @@ class Custom_tag(models.Model):
     tag = models.CharField(max_length=255)
     is_deleted = models.BooleanField(default=False)  # add by bobo
 
-    class Meta:
-        abstract = True
 
 
 class All_Tag(models.Model):
@@ -41,7 +40,10 @@ class Photo(models.Model):
     userId = models.CharField(max_length=255)
     tag = models.EmbeddedField(model_container=Tag, null=True, blank=True)
     location = models.CharField(max_length=255)
+
     decription = models.CharField(max_length=2550, null=True, blank=True)
     create_time = models.DateTimeField()  # 拍照的時間
     upload_time = models.DateTimeField()  # 上傳到後端的照片
     is_deleted = models.BooleanField(default=False)  # add by bobo
+    time = models.DateTimeField()
+

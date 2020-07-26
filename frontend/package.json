@@ -34,6 +34,7 @@
     "react-native-image-zoom-viewer": "^3.0.1",
     "react-native-network-info": "^5.2.1",
     "react-native-ping": "^1.2.3",
+    "react-native-popup-dialog": "^0.18.3",
     "react-native-reanimated": "^1.9.0",
     "react-native-redash": "^14.2.1",
     "react-native-safe-area-context": "^3.0.7",
