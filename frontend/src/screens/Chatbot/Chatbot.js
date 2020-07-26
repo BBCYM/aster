@@ -4,7 +4,6 @@ import { renderBubble } from './ChatContainer';
 import AsyncStorage from '@react-native-community/async-storage';
 import uuid from 'react-native-uuid';
 import {ipv4} from '../../utils/dev';
-import { withTheme } from 'react-native-elements';
 
 export default function RoomScreen() {
   const [messages, setMessages] = useState([
@@ -114,7 +113,12 @@ export default function RoomScreen() {
 				{
 					pattern: /want result/,
 					style: {color: "white",textDecorationLine: "underline"},
-					onPress: tag => console.log(`Pressed on hashtag: ${tag}`),
+					onPress: (tag) => {
+            console.log(`Pressed on hashtag: ${tag}`)
+            navigation.navigate('Details', {
+              pid: message.pid,
+            });
+          },
 				},
 			]}
     />
