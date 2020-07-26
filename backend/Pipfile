@@ -13,11 +13,8 @@ dialogflow = "*"
 authlib = "*"
 djangorestframework = "*"
 djongo = "*"
-<<<<<<< HEAD
-=======
 google = "*"
 google-cloud-vision = "*"
->>>>>>> 11b662ab286b8b20d7b34ace7fe4371916d706ba
 google-api-core = "*"
 django = "*"
 django-filter = "*"
