@@ -13,11 +13,19 @@ import HomePage from '../screens/Home/Home'
 const HomeStack = createStackNavigator()
 
 export function HomeScreen() {
+<<<<<<< HEAD
+    return (
+        <HomeStack.Navigator>
+            <HomeStack.Screen name='Home' component={HomePage} />
+            {/*<HomeStack.Screen name='Allphoto' component={AllphotoPage}/>
+             <HomeStack.Screen name='uber' component={Uber} />
+=======
 	return (
 		<HomeStack.Navigator>
 			<HomeStack.Screen name='Home' component={HomePage} />
             
 			{/* <HomeStack.Screen name='uber' component={Uber} />
+>>>>>>> 11b662ab286b8b20d7b34ace7fe4371916d706ba
             <HomeStack.Screen name='GalleryDetail' component={GalleryDetail} />
             <HomeStack.Screen name='NormalPanel' component={NormalPanel} />
             <HomeStack.Screen name='ScrollPanel' component={ScrollPanel} />

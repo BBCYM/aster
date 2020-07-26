@@ -7,6 +7,7 @@ import { HomeScreen } from '../navigators/HomeStackNavigators'
 import ProfileScreen from '../screens/Profile/Profile'
 import GalleryStackScreen from '../navigators/GalleryStackNavigators'
 import Ionicons from 'react-native-vector-icons/Ionicons'
+
 import { View, TouchableOpacity, StyleSheet, Image, Text } from 'react-native'
 // import temp from '../utils_ImageViewing/ImageViewingApp-copy'
 const PagesTab = createBottomTabNavigator()
@@ -100,10 +101,34 @@ export function PagesTabNavigator(props) {
 			{/* <PagesStack.Screen name='Gallery' component={temp} options={{
                 headerShown: true,
                 headerTitle: null,
+
+            }} />
+            <PagesStack.Screen name='Profile' component={ProfileStackScreen} />
+            <PagesStack.Screen name='Gallery' component={GalleryStackScreen} />
+        </PagesStack.Navigator>
+    )
+}
+const styles = StyleSheet.create({
+    block: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        flexDirection: 'row',
+        marginRight: 15,
+    },
+    person: {
+        marginLeft: 10
+    },
+    photo: {
+        marginRight: 10
+    }
+})
+=======
             }}
             /> */}
 		</PagesStack.Navigator>
 	)
 }
+
 
 

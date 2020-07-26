@@ -48,7 +48,11 @@ export default function RoomScreen() {
     setMessages(combine);
     console.log(newMessage[0].text);
 
+<<<<<<< HEAD
+    const response = await fetch('http://192.168.43.95:3000/bot', {
+=======
     const response = await fetch(`http://${ipv4}:3000/bot`, {
+>>>>>>> 11b662ab286b8b20d7b34ace7fe4371916d706ba
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

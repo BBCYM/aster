@@ -1,5 +1,5 @@
-
 import React, { useState } from "react";
+import React, { useState, Component } from "react";
 import {
 	Alert,
 	Platform,
@@ -29,7 +29,9 @@ import { city } from "./data/city";
 import { food } from "./data/food";
 
 // import { ImageSource } from "./@types";
+class FooterImageViewing extends Component {
 
+}
 export default function App() {
 	const [currentImageIndex, setImageIndex] = useState(0);
 	const [images, setImages] = useState(architecture);
@@ -195,7 +197,7 @@ export default function App() {
 				FooterComponent={({ imageIndex }) => (
 					<FooterToggle imageIndex={imageIndex} imagesCount={images.length} />
 				)}
-				// FooterComponent={{  }}
+			// FooterComponent={{  }}
 			/>
 			<ImageList
 				images={food.map((image) => image.thumbnail)}
@@ -280,4 +282,3 @@ const styles = StyleSheet.create({
 	},
 
 });
-

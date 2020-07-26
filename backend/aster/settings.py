@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'bot',
     'home',
     'photo',
+    'album',
 
 ]
 
