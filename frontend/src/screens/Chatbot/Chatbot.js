@@ -3,6 +3,8 @@ import { GiftedChat } from 'react-native-gifted-chat';
 import { renderBubble } from './ChatContainer';
 import AsyncStorage from '@react-native-community/async-storage';
 import uuid from 'react-native-uuid';
+import {ipv4} from '../../utils/dev';
+
 export default function RoomScreen() {
   const [messages, setMessages] = useState([
     // example of chat message
@@ -45,7 +47,7 @@ export default function RoomScreen() {
     setMessages(combine);
     console.log(newMessage[0].text);
 
-    const response = await fetch('http://192.168.0.179:3000/bot', {
+    const response = await fetch(`http://${ipv4}:3000/bot`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -62,34 +64,49 @@ export default function RoomScreen() {
 
     // console.log(message);
     console.log(message.parameters.visionAPI_1000[0]);
-    var resmsg = message.fulfillmentMessages[0].text.text[0];
-    var resmsg1 = message.fulfillmentMessages[1].text.text[0];
+    message.fulfillmentMessages.forEach(element => {
+      var resmsg = element.text.text[0];
+      console.log(resmsg);
+      var temp = uuid.v1();
+      let msg = {
+        _id: temp,
+        text: resmsg,
+        createdAt: new Date(),
+        user: {
+          _id: 0,
+          name: 'Aster',
+        },
+      };
+      combine = GiftedChat.append(combine, [msg])
+    });
+    // var resmsg = message.fulfillmentMessages[0].text.text[0];
+    // var resmsg1 = message.fulfillmentMessages[1].text.text[0];
     // newMessage[0].text = resmsg;
     // console.log(newMessage);
-    console.log(resmsg);
-    console.log(resmsg1);
-    var temp = uuid.v4();
-    // console.log(temp);
-    let msg = {
-      _id: temp,
-      text: resmsg,
-      createdAt: new Date(),
-      user: {
-        _id: 0,
-        name: 'Aster',
-      },
-    };
-    var temp1 = uuid.v4();
-    let msg1 = {
-      _id: temp1,
-      text: resmsg1,
-      createdAt: new Date(),
-      user: {
-        _id: 0,
-        name: 'Aster',
-      },
-    };
-    combine = GiftedChat.append(combine, [msg1, msg])
+    // console.log(resmsg);
+    // console.log(resmsg1);
+    // var temp = uuid.v1();
+    // // console.log(temp);
+    // let msg = {
+    //   _id: temp,
+    //   text: resmsg,
+    //   createdAt: new Date(),
+    //   user: {
+    //     _id: 0,
+    //     name: 'Aster',
+    //   },
+    // };
+    // var temp1 = uuid.v1();
+    // let msg1 = {
+    //   _id: temp1,
+    //   text: resmsg1,
+    //   createdAt: new Date(),
+    //   user: {
+    //     _id: 0,
+    //     name: 'Aster',
+    //   },
+    // };
+    // combine = GiftedChat.append(combine, [msg1, msg])
     await AsyncStorage.setItem(
       'msg',
       JSON.stringify(combine),

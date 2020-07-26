@@ -13,9 +13,9 @@ dialogflow = "*"
 authlib = "*"
 djangorestframework = "*"
 djongo = "*"
+google = "*"
 google-cloud-vision = "*"
 google-api-core = "*"
-google-cloud = "*"
 django = "*"
 
 [requires]
