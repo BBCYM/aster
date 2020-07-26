@@ -29,6 +29,6 @@ urlpatterns = [
     path('home', HomeView.as_view()),
     path('photo', PhotoView.as_view()),
     path('photo/emotion', EmotionView.as_view()),
-    path('photo/tag', TagView.as_view())
+    path('photo/tag', TagView.as_view()),
     path('album', AlbumView.as_view()),
 ]

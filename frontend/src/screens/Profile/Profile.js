@@ -184,6 +184,7 @@ export default function personalScreen(props) {
 
                         {/* 這邊結束 */}
                     </View>
+
                     <View>
                     </View>
                 </View>
