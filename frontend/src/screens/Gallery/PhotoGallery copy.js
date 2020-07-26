@@ -14,6 +14,7 @@ import { photoFooter, TagList } from '../../components/photoComponent copy'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import Axios from 'axios'
 import { AuthContext } from '../../contexts/AuthContext'
+import AsyncStorage from '@react-native-community/async-storage'
 
 export default function GalleryScreen() {
 	function useMergeState(initialState) {
@@ -27,56 +28,80 @@ export default function GalleryScreen() {
 		currendId: 0,
 		isTagModalVisi: false,
 		inputTag: '',
-		tag:[]
+		fastSource: [],
+		modalSource: [],
+		tag: []
 	})
 	const { auth } = React.useContext(AuthContext)
-	async function fetchImageSource (callback){
-		const accessToken = await auth.getAccessToken()
-		Axios.get('https://photoslibrary.googleapis.com/v1/mediaItems', {
-			params: {
-				pageSize: 100
-			},
-			headers: {
-				'Authorization': `Bearer ${accessToken}`,
-				'Content-type': 'application/json'
-			}
-		}).then((res) => {
-			let mediaItems = res.data['mediaItems']
-			console.log(mediaItems.length)
-			let fastSource = []
-			let modalSource = []
-			for (const [i,item] of mediaItems.entries()){
-				var width = 400
-				var height = 400
-				var img = {
-					id:i,
-					imgId:item['id'],
-					src: `${item['baseUrl']}=w${width}-h${height}`,
-					headers: {Authorization:`Bearer ${accessToken}`}
+	async function fetchImageSource(callback) {
+		const isLoaded = await AsyncStorage.getItem('GalleryLoaded')
+		if (isLoaded === 'false') {
+			console.log('Loading photo')
+			const accessToken = await auth.getAccessToken()
+			let pageToken = ''
+			do {
+				var params = {
+					pageSize: 100
 				}
-
-				fastSource.push(img)
-				modalSource.push({
-					url:item['baseUrl'],
-					// props:{
-					// 	headers:{Authorization:`Bearer ${accessToken}`}
-					// }
-				})
-			}
-			return {fastSource: fastSource, modalSource:modalSource}
-		}).then((res)=>{
-			callback(res.fastSource,res.modalSource)
-		}).catch((err) => {
-			console.log(err)
-		})
-
+				if (pageToken) {
+					console.log('has pageToken')
+					params.pageToken = pageToken
+				}
+				try {
+					let res = await Axios.get('https://photoslibrary.googleapis.com/v1/mediaItems', {
+						params: params,
+						headers: {
+							'Authorization': `Bearer ${accessToken}`,
+							'Content-type': 'application/json'
+						}
+					})
+					pageToken = res.data['nextPageToken']
+					// console.log(pageToken)
+					let mediaItems = res.data['mediaItems']
+					let fSource = status.fastSource
+					let mSource = status.modalSource
+					for (const [i, item] of mediaItems.entries()) {
+						var width = 400
+						var height = 400
+						var img = {
+							id: i,
+							imgId: item['id'],
+							src: `${item['baseUrl']}=w${width}-h${height}`,
+							headers: { Authorization: `Bearer ${accessToken}` }
+						}
+						fSource.push(img)
+						mSource.push({
+							url: item['baseUrl'],
+							// props:{
+							// 	headers:{Authorization:`Bearer ${accessToken}`}
+							// }
+						})
+					}
+					setStatus({ fastSource: fSource, modalSource: mSource })
+				} catch (err) {
+					console.log('error')
+					console.log(err)
+				}
+			} while (pageToken)
+		} 
+		callback(isLoaded)
 	}
 	React.useEffect(() => {
-		fetchImageSource((fastSource, modalSource)=>{
-			setStatus({ fastSource: fastSource, modalSource: modalSource })
+		fetchImageSource(async (isLoaded) => {
+			console.log(isLoaded)
+			if (isLoaded==='false'){
+				// first time
+				let fSource = ['fSource',JSON.stringify(status.fastSource)]
+				let mSource = ['mSource',JSON.stringify(status.modalSource)]
+				let GalleryLoaded = ['GalleryLoaded', 'true']
+				await AsyncStorage.multiSet([fSource,mSource,GalleryLoaded])
+			} else {
+				let temp = await AsyncStorage.multiGet(['fSource','mSource'])
+				setStatus({fastSource:JSON.parse(temp[0][1]),modalSource:JSON.parse(temp[1][1])})
+			}
 		})
 		console.log('hello')
-	},[])
+	}, [])
 
 	function showImage(item) {
 		// load tag of the item
@@ -121,7 +146,7 @@ export default function GalleryScreen() {
 							// ref={search => this.search = search}
 							placeholder="Add Tag"
 							onChangeText={(inputTag) => { setStatus({ inputTag: inputTag }) }}
-							onSubmitEditing={()=>addTag()}
+							onSubmitEditing={() => addTag()}
 							value={status.inputTag}
 							inputStyle={{ color: '#303960' }}
 							lightTheme={true}
@@ -139,7 +164,7 @@ export default function GalleryScreen() {
 					index={status.currentId}
 					enablePreload={true}
 					renderIndicator={() => null}
-					renderFooter={(currentIndex) => photoFooter([status,setStatus], currentIndex)}
+					renderFooter={(currentIndex) => photoFooter([status, setStatus], currentIndex)}
 					footerContainerStyle={{ bottom: 0, position: 'absolute', zIndex: 1000 }}
 				/>
 			</Modal>
@@ -147,7 +172,7 @@ export default function GalleryScreen() {
 				data={status.fastSource}
 				renderItem={({ item }) => (
 					<View style={{ flex: 1, flexDirection: 'column', margin: 1 }}>
-						<TouchableOpacity onPress={()=>showImage(item)}>
+						<TouchableOpacity onPress={() => showImage(item)}>
 							<FastImage
 								style={styles.imageThumbnail}
 								source={{

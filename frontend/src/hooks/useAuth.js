@@ -51,6 +51,8 @@ export function useAuth() {
 			})
 			if (user) {
 				console.log(user)
+				await AsyncStorage.setItem('GalleryLoaded', 'false')
+				console.log(await AsyncStorage.getItem('GalleryLoaded'))
 				if (dev) {
 					dispatch([action(actionType.SET.USER, user), action(actionType.SET.SPLASH, false)])
 				} else {
@@ -84,6 +86,8 @@ export function useAuth() {
 				console.log(e.code)
 				dispatch([action(actionType.SET.SPLASH, true)])
 			}
+			await AsyncStorage.setItem('GalleryLoaded', 'false')
+			console.log(await AsyncStorage.getItem('GalleryLoaded'))
 			var url = `http://${ipv4}:3000/`
 			if (!dev) {
 				const res = await axios.post(url, {
@@ -97,6 +101,7 @@ export function useAuth() {
 				})
 				console.log(JSON.parse(res.data))
 				await AsyncStorage.setItem('user', JSON.stringify(userInfo.user))
+				
 				dispatch(action(actionType.SET.USER, userInfo.user))
 
 			} else {
