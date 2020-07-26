@@ -15,7 +15,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons'
 import Axios from 'axios'
 import { AuthContext } from '../../contexts/AuthContext'
 
-export default function SomeGalleryScreen() {
+export default function SomeGalleryScreen(props) {
 	function useMergeState(initialState) {
 		const [state, setState] = React.useState(initialState)
 		const setStatus = newState =>
@@ -34,7 +34,7 @@ export default function SomeGalleryScreen() {
 	const { auth } = React.useContext(AuthContext)
 	async function fetchImageSource(callback) {
 		console.log('Loading photo')
-		const temp = ['a', 'b', 'c']
+		const temp = props.route.params.pid
 		const accessToken = await auth.getAccessToken()
 		let fSource = []
 		let mSource = []
