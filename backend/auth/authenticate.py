@@ -61,12 +61,14 @@ def toVisionApiLabel(userId, q):
             tag={
                 'main_tag': 'temp',
                 'emotion_tag': 'temp',
+                'custom_tag': [{'tag': 'bobo', 'is_deleted': False}],
                 'top3_tag': [{'tag': l.description, 'precision': str(l.score)}for l in labels[:3]],
                 'all_tag': [{'tag': l.description, 'precision': str(l.score)}for l in labels[4:]]
             },
             location="invalid",
             time=make_aware(
-                sliceTime, timezone=pytz.timezone(settings.TIME_ZONE))
+                sliceTime, timezone=pytz.timezone(settings.TIME_ZONE)),
+
         )
         q.task_done()
         print('done one')
