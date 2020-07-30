@@ -1,10 +1,10 @@
 from rest_framework.views import APIView, status
 from rest_framework.response import Response
-from .models import Photo, Custom_tag, All_Tag, Tag, Top3_tag
+# from .models import Photo, Custom_tag, All_Tag, Tag, Top3_tag
 from auth.customResponse import simpleMessage
 from datetime import datetime
 import json
-from django.forms.models import model_to_dict
+
 
 
 class PhotoView(APIView):
@@ -22,54 +22,56 @@ class PhotoView(APIView):
             Failed: status.HTTP_500_INTERNAL_SERVER_ERROR
 
         """
-        Photo.objects.create(
-            userId='bobo',
-            photoId='234234324',
-            tag={
-                'main_tag': 'dog',
-                'emotion_tag': 'baby',
-                # 'custom_tag': [
-                #     {
-                #         'tag': 'custom1',
-                #         'is_deleted': False
-                #     },
-                #     {
-                #         'tag': 'custom2',
-                #         'is_deleted': False
-                #     }
+        p = Photo.objects.values('tag').filter(tag__main_tag__in='天空')
+        print(p)
+        # Photo.objects.create(
+        #     userId='bobo',
+        #     photoId='234234324',
+        #     tag={
+        #         'main_tag': 'dog',
+        #         'emotion_tag': 'baby',
+        #         # 'custom_tag': [
+        #         #     {
+        #         #         'tag': 'custom1',
+        #         #         'is_deleted': False
+        #         #     },
+        #         #     {
+        #         #         'tag': 'custom2',
+        #         #         'is_deleted': False
+        #         #     }
 
-                # ],
-                'custom_tag': [],
-                'top3_tag': [
-                    {
-                        'tag': 'cat1',
-                        'precision': '99'
-                    },
-                    {
-                        'tag': 'cat122',
-                        'precision': '88'
-                    }
-                ],
-                'all_tag': [
-                    {
-                        'tag': 'cat1',
-                        'precision': '99'
-                    },
-                    {
-                        'tag': 'cat122',
-                        'precision': '88'
-                    },
-                    {
-                        'tag': 'catmeme',
-                        'precision': '898'
-                    }
-                ]
-            },
-            location='Japan',
-            upload_time=datetime.now(),
-            create_time=datetime.now()
-        )
-        print(f"datatime.utcnow() = {datetime.now()}")
+        #         # ],
+        #         'custom_tag': [],
+        #         'top3_tag': [
+        #             {
+        #                 'tag': 'cat1',
+        #                 'precision': '99'
+        #             },
+        #             {
+        #                 'tag': 'cat122',
+        #                 'precision': '88'
+        #             }
+        #         ],
+        #         'all_tag': [
+        #             {
+        #                 'tag': 'cat1',
+        #                 'precision': '99'
+        #             },
+        #             {
+        #                 'tag': 'cat122',
+        #                 'precision': '88'
+        #             },
+        #             {
+        #                 'tag': 'catmeme',
+        #                 'precision': '898'
+        #             }
+        #         ]
+        #     },
+        #     location='Japan',
+        #     upload_time=datetime.now(),
+        #     create_time=datetime.now()
+        # )
+        # print(f"datatime.utcnow() = {datetime.now()}")
         return Response('hello', status=status.HTTP_201_CREATED)
 
     def delete(self, request):

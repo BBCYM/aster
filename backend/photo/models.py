@@ -1,49 +1,48 @@
-from djongo import models
+from mongoengine import Document, fields, EmbeddedDocument, signals
+from datetime import datetime
 
 
-class Top3_tag(models.Model):
-    tag = models.CharField(max_length=255)
-    precision = models.CharField(max_length=255)
 
-    class Meta:
-        abstract = True
+class Custom_tag(EmbeddedDocument):
+    tag = fields.StringField()
+    is_deleted = fields.BooleanField(default=False)
 
 
-class Custom_tag(models.Model):
-    tag = models.CharField(max_length=255)
-    is_deleted = models.BooleanField(default=False)  # add by bobo
-
-    class Meta:
-        abstract = True
+class ATag(EmbeddedDocument):
+    tag = fields.StringField()
+    precision = fields.StringField()
 
 
-class All_Tag(models.Model):
-    tag = models.CharField(max_length=255)
-    precision = models.CharField(max_length=255)
-
-    class Meta:
-        abstract = True
-
-
-class Tag(models.Model):
-    main_tag = models.CharField(max_length=255)
-    emotion_tag = models.CharField(max_length=255)
-    custom_tag = models.ArrayField(model_container=Custom_tag)  # add by bobo
-    top3_tag = models.ArrayField(model_container=Top3_tag)
-    all_tag = models.ArrayField(model_container=All_Tag)
-
-    class Meta:
-        abstract = True
+class Tag(EmbeddedDocument):
+    main_tag = fields.StringField()
+    emotion_tag = fields.StringField()
+    custom_tag = fields.EmbeddedDocumentListField(Custom_tag)
+    top3_tag = fields.EmbeddedDocumentListField(ATag)
+    all_tag = fields.EmbeddedDocumentListField(ATag)
 
 
-class Photo(models.Model):
-    photoId = models.CharField(max_length=255, primary_key=True)
-    userId = models.CharField(max_length=255)
-    tag = models.EmbeddedField(model_container=Tag, null=True, blank=True)
-    location = models.CharField(max_length=255, null=True, blank=True)
-    decription = models.CharField(max_length=2550, null=True, blank=True)
-    create_time = models.DateTimeField(null=True, blank=True)  # 拍照的時間
-    time = models.DateTimeField()  # 上傳到後端的照片
-    is_deleted = models.BooleanField(default=False)  # add by bobo
+class Photo(Document):
+    photoId = fields.StringField()
+    userId = fields.StringField()
+    tag = fields.EmbeddedDocumentField(Tag)
+    location = fields.StringField()
+    createTime = fields.DateTimeField() # 拍照的時間
+    time = fields.DateTimeField() # 上傳到後端的照片
+    updateTime = fields.DateTimeField(default=datetime.utcnow())
+    isDeleted = fields.BooleanField(default=False)
 
-    objects = models.DjongoManager()
+    @classmethod
+    def pre_save(cls, sender, document):
+        document.lastUpdateTime = datetime.utcnow()
+
+signals.pre_save.connect(Photo.pre_save, sender=Photo)
+
+    # photoId = fields.StringField(max_length=255, primary_key=True)
+    # userId = fields.StringField(max_length=255)
+    # tag = models.EmbeddedField(model_container=Tag, null=True, blank=True)
+    # location = fields.StringField(max_length=255, null=True, blank=True)
+    # decription = fields.StringField(max_length=2550, null=True, blank=True)
+    # create_time = models.DateTimeField(null=True, blank=True)  # 拍照的時間
+    # time = models.DateTimeField()  # 上傳到後端的照片
+    # is_deleted = models.BooleanField(default=False)  # add by bobo
+    

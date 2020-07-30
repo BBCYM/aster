@@ -10,8 +10,9 @@ class AuthView(APIView):
     
     def get(self, request):
         temp = request.query_params.get('userid',None)
-        user = User.objects.filter(userId=temp)
-        if user.exists():
+        # user = User.objects.filter(userId=temp)
+        user = User.objects(userId=temp)
+        if user:
             return Response(simpleMessage(True))
         else:
             return Response(simpleMessage(False))
