@@ -31,7 +31,8 @@ def afterAll(userId, q, thread):
     user = User.objects(userId=userId)
     user.update(
         isSync=True,
-        lastSync=make_aware(datetime.datetime.utcnow(), timezone=pytz.timezone(settings.TIME_ZONE))
+        lastSync=make_aware(datetime.datetime.utcnow(),
+                            timezone=pytz.timezone(settings.TIME_ZONE))
     )
     print('User isSync')
 
@@ -58,17 +59,19 @@ def toVisionApiLabel(userId, q):
         print(sliceTime)
         # 這個才是正確的
         t = Tag(
-            main_tag=translator.translate(labels[0].description.lower(), dest="zh-tw").text
+            main_tag=translator.translate(
+                labels[0].description.lower(), dest="zh-tw").text
         )
         for l in labels[:3]:
-            t.top3_tag.append(ATag(tag=l.description,precision=str(l.score)))
+            t.top3_tag.append(ATag(tag=l.description, precision=str(l.score)))
         for l in labels[4:]:
-            t.all_tag.append(ATag(tag=l.description,precision=str(l.score)))
+            t.all_tag.append(ATag(tag=l.description, precision=str(l.score)))
         pho = Photo(
-            photoId = mediaItem['id'],
-            userId = userId,
-            tag = t,
-            createTime = make_aware(sliceTime, timezone=pytz.timezone(settings.TIME_ZONE)),
+            photoId=mediaItem['id'],
+            userId=userId,
+            tag=t,
+            createTime=make_aware(
+                sliceTime, timezone=pytz.timezone(settings.TIME_ZONE)),
         )
         pho.save()
         # Photo.objects.create(
@@ -156,7 +159,8 @@ def checkUserToSession(data, req):
         # )
         newUser = User(
             userId=data['sub'],
-            expiresAt=datetime.datetime.utcnow() + datetime.timedelta(0, token['expires_in']),
+            expiresAt=datetime.datetime.utcnow() + datetime.timedelta(0,
+                                                                      token['expires_in']),
             refreshToken=token['refresh_token']
         )
         newUser.save()
@@ -171,7 +175,7 @@ def checkUserToSession(data, req):
         token_uri=TOKEN_URI,
         client_id=CLIENT_ID,
         client_secret=CLIENT_SECRET,
-        refresh_token = userData.refreshToken
+        refresh_token=userData.refreshToken
         # refresh_token=userData['refreshToken']
     )
     # credent.expiry = userData['expiresAt'].replace(tzinfo=None)
@@ -185,7 +189,8 @@ def checkUserToSession(data, req):
             credent.refresh(Request())
             # user.update(expiresAt=make_aware(credent.expiry),
             #             refreshToken=credent.refresh_token)
-            user.update(set__expiresAt=make_aware(credent.expiry), set__refreshToken=credent.refresh_token)
+            user.update(set__expiresAt=make_aware(credent.expiry),
+                        set__refreshToken=credent.refresh_token)
         except RefreshError as e:
             return Response(e, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     print('auth done')
