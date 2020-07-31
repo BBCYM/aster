@@ -17,8 +17,6 @@ class AuthView(APIView):
         else:
             return Response(simpleMessage(False))
 
-            
-
     def post(self, request):
         data = request.data
 
