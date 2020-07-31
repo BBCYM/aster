@@ -38,7 +38,7 @@ def afterAll(userId, q, thread):
 
 def toVisionApiLabel(userId, q):
     credent = service_account.Credentials.from_service_account_file(
-        'Anster-4bf921cd3b7b.json')
+        'anster-1593361678608.json')
     client = ImageAnnotatorClient(credentials=credent)
     translator = g_translator()
     while True:
