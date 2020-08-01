@@ -1,78 +1,79 @@
 from rest_framework.views import APIView, status
 from rest_framework.response import Response
-# from .models import Photo, Custom_tag, All_Tag, Tag, Top3_tag
 from auth.customResponse import simpleMessage
 from datetime import datetime
 import json
-
+from mongoengine import connect
+from .models import Photo, Tag
+connect('aster')
 
 
 class PhotoView(APIView):
     def get(self, request):
+        photo_id = request.query_params["photoId"]
+        try:
+            photo = Photo.objects(photoId__exact=photo_id).all_fields()
+            print(photo.to_json())
+
+            return_txt = {"result": 'GET/PhotoView',
+                          'photo_object': photo.to_json()}
+        except Exception as e:
+            print('PhotoViewError:', e)
+        return Response(return_txt, status=status.HTTP_200_OK)
+
+    def post(self, request):
         """
         (測試用)
-        單張照片顯示頁面，更改emotion時
-        根據photoId去更改資料庫的emotion欄位
+        產生一筆假資料
 
         Args:
-            request: 裡面需要有photoId和emotion
+            None
 
         Returns:
-            Success: status.HTTP_200_OK
-            Failed: status.HTTP_500_INTERNAL_SERVER_ERROR
+            None
 
         """
-        p = Photo.objects.values('tag').filter(tag__main_tag__in='天空')
-        print(p)
-        # Photo.objects.create(
-        #     userId='bobo',
-        #     photoId='234234324',
-        #     tag={
-        #         'main_tag': 'dog',
-        #         'emotion_tag': 'baby',
-        #         # 'custom_tag': [
-        #         #     {
-        #         #         'tag': 'custom1',
-        #         #         'is_deleted': False
-        #         #     },
-        #         #     {
-        #         #         'tag': 'custom2',
-        #         #         'is_deleted': False
-        #         #     }
+        photo = Photo(photoId='12345', userId='abc', tag={
+            'main_tag': 'dog',
+            'emotion_tag': 'cute',
+            'custom_tag': [
+                {
+                    'tag': 'custom1',
+                    'is_deleted': False
+                },
+                {
+                    'tag': 'custom2',
+                    'is_deleted': False
+                }
+            ],
+            'top3_tag': [
+                {
+                    'tag': 'cat1',
+                    'precision': '99'
+                },
+                {
+                    'tag': 'cat2',
+                    'precision': '88'
+                }
+            ],
+            'all_tag': [
+                {
+                    'tag': 'cat1',
+                    'precision': '99'
+                },
+                {
+                    'tag': 'cat2',
+                    'precision': '88'
+                },
+                {
+                    'tag': 'cat3',
+                    'precision': '898'
+                }
+            ]},
+            location='TPE', createTime=datetime.utcnow())
+        photo.save()
 
-        #         # ],
-        #         'custom_tag': [],
-        #         'top3_tag': [
-        #             {
-        #                 'tag': 'cat1',
-        #                 'precision': '99'
-        #             },
-        #             {
-        #                 'tag': 'cat122',
-        #                 'precision': '88'
-        #             }
-        #         ],
-        #         'all_tag': [
-        #             {
-        #                 'tag': 'cat1',
-        #                 'precision': '99'
-        #             },
-        #             {
-        #                 'tag': 'cat122',
-        #                 'precision': '88'
-        #             },
-        #             {
-        #                 'tag': 'catmeme',
-        #                 'precision': '898'
-        #             }
-        #         ]
-        #     },
-        #     location='Japan',
-        #     upload_time=datetime.now(),
-        #     create_time=datetime.now()
-        # )
-        # print(f"datatime.utcnow() = {datetime.now()}")
-        return Response('hello', status=status.HTTP_201_CREATED)
+        return Response(simpleMessage('POST/PhotoView'), status=status.HTTP_201_CREATED)
 
     def delete(self, request):
         """
@@ -80,14 +81,24 @@ class PhotoView(APIView):
         把photoId的is_delete欄位改成true
 
         Args:
-            request: 裡面需要有photoId和emotion
+            request: 裡面需要有photoId
 
         Returns:
-            Success: status.HTTP_200_OK
-            Failed: status.HTTP_500_INTERNAL_SERVER_ERROR
-
+            None
         """
-        return Response('hello', status=status.HTTP_201_CREATED)
+        photo_id = request.query_params["photoId"]
+
+        try:
+
+            update_rows = Photo.objects(photoId__exact=photo_id).update(
+                isDeleted=True)
+            print(f'Photo/View: PhotoView.delete, db:{update_rows} rows')
+            # photo = Photo.objects(photoId=photo_id)
+            # print(photo.delete())
+        except Exception as e:
+            print(e)
+            return Response("PhotoViewError", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(simpleMessage('DELETE/PhotoView'), status=status.HTTP_201_CREATED)
 
 
 class EmotionView(APIView):
@@ -95,19 +106,17 @@ class EmotionView(APIView):
         """
         test
         """
-        user_id = request.data["user_id"]
-        custom_tag = request.data["custom_tag"]
+        user_id = request.data["userId"]
+        emotion_tag = request.data["emotion_tag"]
 
         try:
-            # cus_tag_model = Custom_tag.objects.filter(tag=custom_tag)
-            # tag_model = Tag.objects.values(main_tag=cus_tag_model)
-            # tag_model = Tag.objects.values(main_tag=custom_tag)
-            photo = Photo.objects.filter(
-                tag={'custom_tag': {'tag': 'custom1'}})
-            # photo = Photo.objects.filter(tag=tag_model)
+            # photo = Photo.objects(userId__exact=user_id, )
+            photo = Photo.objects(tag__emotion_tag__exact=emotion_tag).update(
+                tag__emotion_tag='bobo')
+            print("photo", photo)
+
             for i in photo:
-                print(i, end="\n")
-            print(photo)
+                print(i.photoId, end="\n")
 
         except Exception as e:
             print(e)
@@ -121,25 +130,24 @@ class EmotionView(APIView):
         根據photoId去更改資料庫的emotion欄位
 
         Args:
-            request: 裡面需要有photoId和emotion
+            request: 裡面需要有photoId和emotion_tag
 
         Returns:
-            Success: status.HTTP_200_OK
-            Failed: status.HTTP_500_INTERNAL_SERVER_ERROR
+            None
 
         """
         photo_id = request.data["photoId"]
-        user_id = request.data["emotion"]
+        emotion_tag = request.data["emotion_tag"]
 
         try:
-            Photo.objects.filter(photoId=photo_id).update(userId=user_id)
-            # Photo.objects.filter(userId='jonathan').update(userId='v-wenklu')
+            update_rows = Photo.objects(photoId__exact=photo_id).update(
+                tag__emotion_tag=emotion_tag)
+            print(f'Photo/View: EmotionView.put, db:{update_rows} rows')
+        except Exception as e:
+            print(e)
+            return Response("EmotionViewError", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        except Exception:
-
-            return Response("PhotoViewError", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        return Response(simpleMessage('PUT/PhotoView'), status=status.HTTP_200_OK)
+        return Response(simpleMessage('PUT/EmotionView'), status=status.HTTP_200_OK)
 
 
 class TagView(APIView):
@@ -150,27 +158,26 @@ class TagView(APIView):
         要過濾掉is_delete=true
 
         Args:
-            request: 裡面需要有photoId和emotion
+            request: photoId
 
         Returns:
-            Success: status.HTTP_200_OK
-            Failed: status.HTTP_500_INTERNAL_SERVER_ERROR
+            該photo全部的custom_tag
         """
         photo_id = request.data["photoId"]
         custom_tag_array = []
 
         try:
-            photo = Photo.objects.get(
-                photoId=photo_id)
+            photo = Photo.objects(photoId__exact=photo_id).get()
 
-            if len(photo.tag["custom_tag"]) == 0:
-                print(len(photo.tag["custom_tag"]))
+            array_field = photo.tag.custom_tag
+
+            if len(array_field) == 0:
+                print(len(array_field))
                 return Response(simpleMessage("zero"), status=status.HTTP_200_OK)
 
-            for single_tag in photo.tag["custom_tag"]:
-
-                if single_tag["is_deleted"] == False:
-                    custom_tag_array.append(single_tag["tag"])
+            for single_tag in array_field:
+                if single_tag.is_deleted == False:
+                    custom_tag_array.append(single_tag.tag)
 
         except Exception as e:
             print(e)
@@ -191,9 +198,7 @@ class TagView(APIView):
             request: 裡面需要有photoId和custom_tag
 
         Returns:
-            Success: status.HTTP_200_OK
-            Failed: "Same Tag, plz insert a unique tag" status.HTTP_500_INTERNAL_SERVER_ERROR
-            Failed: "PhotoViewError"  status.HTTP_500_INTERNAL_SERVER_ERROR
+            更改過後的tag
         """
         photo_id = request.data["photoId"]
         custom_tag = request.data["custom_tag"]
@@ -203,8 +208,9 @@ class TagView(APIView):
         }
 
         try:
-            photo = Photo.objects.get(
-                photoId=photo_id)
+            photo = Photo.objects(photoId__exact=photo_id)
+
+            array_field = photo.tag.custom_tag
 
             custom_tag_array = photo.tag["custom_tag"]
 
@@ -233,8 +239,7 @@ class TagView(APIView):
             request: 裡面需要有photoId和custom_tag
 
         Returns:
-            Success: status.HTTP_200_OK
-            Failed: status.HTTP_500_INTERNAL_SERVER_ERROR
+            剩下的tag
 
         """
         photo_id = request.data["photoId"]
