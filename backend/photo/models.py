@@ -26,8 +26,7 @@ class Photo(Document):
     tag = fields.EmbeddedDocumentField(Tag)
     location = fields.StringField()
     createTime = fields.DateTimeField()  # 拍照的時間
-    time = fields.DateTimeField()  # 上傳到後端的照片
-    updateTime = fields.DateTimeField(default=datetime.utcnow())
+    updateTime = fields.DateTimeField(default=datetime.utcnow())  # 上傳到後端的照片
     isDeleted = fields.BooleanField(default=False)
 
     @classmethod
