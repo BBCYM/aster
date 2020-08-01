@@ -4,13 +4,16 @@ from auth.customResponse import simpleMessage
 from datetime import datetime
 import json
 from mongoengine import connect
+from mongoengine.queryset.visitor import Q
 from .models import Photo, Tag
+
 connect('aster')
 
 
 class PhotoView(APIView):
     def get(self, request):
-        photo_id = request.query_params["photoId"]
+        # photo_id = request.query_params["photoId"]
+        photo_id = request.data["photoId"]
         try:
             photo = Photo.objects(photoId__exact=photo_id).all_fields()
             print(photo.to_json())
@@ -86,7 +89,8 @@ class PhotoView(APIView):
         Returns:
             None
         """
-        photo_id = request.query_params["photoId"]
+        # photo_id = request.query_params["photoId"]
+        photo_id = request.data["photoId"]
 
         try:
 
@@ -111,16 +115,13 @@ class EmotionView(APIView):
 
         try:
             # photo = Photo.objects(userId__exact=user_id, )
-            photo = Photo.objects(tag__emotion_tag__exact=emotion_tag).update(
+            update_rows = Photo.objects(userId=user_id, tag__emotion_tag__exact=emotion_tag).update(
                 tag__emotion_tag='bobo')
-            print("photo", photo)
-
-            for i in photo:
-                print(i.photoId, end="\n")
+            print(f'Photo/View: EmotionView.post, db:{update_rows} rows')
 
         except Exception as e:
             print(e)
-            return Response("PhotoViewError", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response("EmotionViewError", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         return Response(simpleMessage('PUT/PhotoView'), status=status.HTTP_200_OK)
 
@@ -208,23 +209,13 @@ class TagView(APIView):
         }
 
         try:
-            photo = Photo.objects(photoId__exact=photo_id)
+            update_rows = Photo.objects(photoId__exact=photo_id).update(
+                add_to_set__tag__custom_tag=tag)
 
-            array_field = photo.tag.custom_tag
+            print(f'Photo/View: TagView.put, db:{update_rows} rows')
 
-            custom_tag_array = photo.tag["custom_tag"]
-
-            # Search in the tag_array, if exist a same tag, return error
-            for cus_tag_db in custom_tag_array:
-                if cus_tag_db["tag"] == custom_tag:
-                    return Response(simpleMessage("Put/TagView: error: Same Tag, plz insert a unique tag"), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-            custom_tag_array.append(tag)
-
-            photo.save()  # Djongo does not really do a update to MongoDB
-
-        except Exception:
-
+        except Exception as e:
+            print('error: ', e)
             return Response(simpleMessage("Put/TagView: error"), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         return Response(simpleMessage('Put/TagView'), status=status.HTTP_201_CREATED)
@@ -246,16 +237,31 @@ class TagView(APIView):
         custom_tag = request.data["custom_tag"]
 
         try:
-            photo = Photo.objects.get(
-                photoId=photo_id)
 
-            custom_tag_array = photo.tag["custom_tag"]
+            # photo = Photo.objects().update({'photoId': '1'}, {'$set': {'tag.custom_tag.$[element].tag': 'bobo'}}, {
+            #     'arrayFilters': [{'element.tag': 'custom3'}], 'upsert': True})
+            # custom_tag_list = Photo.objects(photoId=photo_id).get().tag.custom_tag
+            photo = Photo.objects(
+                photoId=photo_id, tag__custom_tag__match={'tag': custom_tag, 'is_deleted': False}).first()
+            print(photo.to_json())
+            # photo = photo.update(**{'tag__custom_tag__': 'apple'})
 
-            for cus_tag_db in custom_tag_array:
-                if cus_tag_db["tag"] == custom_tag:
-                    cus_tag_db["is_deleted"] = True
+            # print(custom_tag_list)
+            for single_tag in photo.tag.custom_tag:
 
+                if single_tag.tag == custom_tag:
+                    print('same')
+                    single_tag.is_deleted = True
+            print(photo.to_json())
             photo.save()
+
+            # custom_tag_array = photo.tag["custom_tag"]
+
+            # for cus_tag_db in custom_tag_array:
+            #     if cus_tag_db["tag"] == custom_tag:
+            #         cus_tag_db["is_deleted"] = True
+
+            # photo.save()
         except Exception as e:
             print(e)
             return Response(simpleMessage("DELETE/TagView: error"), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
