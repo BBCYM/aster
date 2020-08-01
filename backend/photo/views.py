@@ -208,8 +208,9 @@ class TagView(APIView):
         }
 
         try:
-            photo = Photo.objects.get(
-                photoId=photo_id)
+            photo = Photo.objects(photoId__exact=photo_id)
+
+            array_field = photo.tag.custom_tag
 
             custom_tag_array = photo.tag["custom_tag"]
 
