@@ -1,6 +1,6 @@
 from rest_framework.views import APIView, status
 from rest_framework.response import Response
-from .models import Album, Tag
+# from .models import Album, Tag
 from datetime import datetime
 from django.forms.models import model_to_dict
 
