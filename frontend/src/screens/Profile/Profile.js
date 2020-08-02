@@ -50,11 +50,10 @@ export default function personalScreen(props) {
                             </TouchableOpacity>
                         </View>
 
+
                         {/* 這邊結束 */}
                     </View>
 
-                    <View>
-                    </View>
                 </View>
             </View>
         </View>

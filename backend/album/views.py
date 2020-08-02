@@ -1,98 +1,206 @@
 from rest_framework.views import APIView, status
 from rest_framework.response import Response
-# from .models import Album, Tag
+from auth.customResponse import simpleMessage
+from .models import Album, Tag
 from datetime import datetime
+import json
 from django.forms.models import model_to_dict
+from mongoengine import connect
+connect('aster')
 
 
 class AlbumView(APIView):
 
+    def get(self, request):
+        albumId = request.data["albumId"]
+        try:
+            album = Album.objects(albumId__exact=albumId).all_fields()
+            print(album.to_json())
+
+            return_txt = {"result": 'GET/AlbumView',
+                          'album_object': album.to_json()}
+        except Exception as e:
+            print('AlbumViewError:', e)
+        return Response(return_txt, status=status.HTTP_200_OK)
+
     # CREATE
+
     def post(self, request):
-        Album.objects.create(
 
-            userId=request.data['userId'],
-            albumName=request.data['albumName'],
-            albumId=request.data['albumId'],
-            photo=request.data['photo'],
-            tag=request.data['tag'],
-            # time=datetime.utcnow()
-            time=request.data['time'],
+        album = Album(albumId=request.data['albumId'],
+                      coverPhotoId=request.data['coverPhotoId'],
+                      albumName=request.data['albumName'],
+                      userId=request.data['userId'],
+                      albumPhoto=request.data['albumPhoto'],
+                      albumTag=request.data['albumTag'],
+                      createTime=request.data['time'])
+        album.save()
 
-
-        )
-
-        return Response('hello,CREATE', status=status.HTTP_201_CREATED)
+        return Response(simpleMessage('POST/AlbumView'), status=status.HTTP_201_CREATED)
 
     # # CREATE 測試建立資料
+
     # def post(self, request):
-    #     Album.objects.create(
-    #         userId='a1234sdf',
-    #         albumName='kowaicat10',
-    #         albumId='test10_old',
-    #         photo={'userId': 'skdfnsdf',
-    #                'photoId': 'ovbienrpj',
-    #                'tag': {
-    #                    'main_tag': 'cat',
-    #                    'emotion_tag': 'cute',
-    #                    'top3_tag': [
-    #                        {
-    #                            'tag': 'cat1',
-    #                            'precision': '99'
-    #                        },
-    #                        {
-    #                            'tag': 'cat122',
-    #                            'precision': '88'
-    #                        }
-    #                    ],
-    #                    'all_tag': [
-    #                        {
-    #                            'tag': 'cat1',
-    #                            'precision': '99'
-    #                        },
-    #                        {
-    #                            'tag': 'cat122',
-    #                            'precision': '88'
-    #                        },
-    #                        {
-    #                            'tag': 'catmeme',
-    #                            'precision': '898'
-    #                        }
-    #                    ]
-    #                },
-    #                'location': 'Taipei',
-    #                'time': datetime.utcnow()},
-    #         tag=[{'tag': 'cats'}, {'tag': 'kittens'}],
-    #         time=datetime.utcnow()
-    #     )
-    #     return Response('hello,CREATE', status=status.HTTP_201_CREATED)
+    #     """
+    #     (測試用)
+    #     產生一筆假資料
+    #     Args:
+    #         None
+    #     Returns:
+    #         None
+    #     """
+    #     album = Album(albumId='5',
+    #                   coverPhotoId='12345',
+    #                   albumName='michelle5',
+    #                   userId='abc5',
+    #                   albumPhoto=[{'photoId': 'asdfklkajhsl',
+    #                                'isDeleted': False},
+    #                               {'photoId': 'aagdzzkajhsl',
+    #                                'isDeleted': False}],
+    #                   albumTag=[{'tag': 'michellealbum5', 'isDeleted': False}, {
+    #                       'tag': 'michellealbum2345', 'isDeleted': False}],
+    #                   createTime=datetime.utcnow())
+    #     album.save()
 
-    # GET
-    def get(self, request):
-        albumId = request.data['albumId']
-        album = Album.objects.get(albumId=albumId)
+    #     return Response(simpleMessage('POST/AlbumView'), status=status.HTTP_201_CREATED)
 
-        return Response(model_to_dict(album))
-
-    # UPDATE
     def put(self, request):
-        # postman test
-        # albumId = request.POST.get('albumId')
-        # albumName = request.POST.get('albumName')
 
-        albumId = request.data['albumId']
-        albumName = request.data['albumName']
+        albumId = request.data["albumId"]
+        albumName = request.data["albumName"]
 
-        print(request)
-        album = Album.objects.get(albumId=albumId)
-        album.albumName = albumName
-        album.save()
-        return Response('hello,UPDATE', status=status.HTTP_201_CREATED)
+        try:
+            update_rows = Album.objects(albumId=albumId).update(
+                albumName=albumName)
+            print(f'Album/View: AlbumView.put, db:{update_rows} rows')
+        except Exception as e:
+            print(e)
+            return Response("AlbumViewError", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    # DELETE
+        return Response(simpleMessage('PUT/AlbumView'), status=status.HTTP_200_OK)
+
     def delete(self, request):
+        """
+        刪除相簿
+        把albumId的is_delete欄位改成true
 
-        albumId = request.data['albumId']
-        Album.objects.filter(albumId=albumId).delete()
+        Args:
+            request: 裡面需要有albumId
 
-        return Response('hello,DELETE', status=status.HTTP_201_CREATED)
+        Returns:
+            None
+        """
+        albumId = request.data["albumId"]
+
+        try:
+
+            update_rows = Album.objects(albumId__exact=albumId).update(
+                isDeleted=True)
+            print(f'Album/View: AlbumView.delete, db:{update_rows} rows')
+
+        except Exception as e:
+            print(e)
+            return Response("AlbumViewError", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(simpleMessage('DELETE/AlbumView'), status=status.HTTP_201_CREATED)
+
+
+class AlbumTagView(APIView):
+
+    def get(self, request):
+        """
+        取得相簿的albumTag
+        根據albumId去更改資料庫的albumTag欄位
+        要過濾掉is_delete=true
+        Args:
+            request: albumId
+        Returns:
+            該album全部的albumTag
+        """
+        album_id = request.data["albumId"]
+        album_tag_array = []
+
+        try:
+            album = Album.objects(albumId=album_id).get()
+
+            array_field = album.albumTag
+
+            if len(array_field) == 0:
+                print(len(array_field))
+                return Response(simpleMessage("zero"), status=status.HTTP_200_OK)
+
+            for single_tag in array_field:
+                if single_tag.isDeleted == False:
+                    album_tag_array.append(single_tag.tag)
+                    print(single_tag.tag)
+
+        except Exception as e:
+            print(e)
+            return Response(simpleMessage("Get/AlbumTagView: error"), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        response_str = json.dumps({"result": "Get/AlbumTagView",
+                                   "album_tag": album_tag_array})
+
+        return Response(response_str, status=status.HTTP_201_CREATED)
+
+    def post(self, request):
+        """
+        新增tag時
+        根據albumId去新增相簿的tag
+        會檢查tag是否獨一無二
+        Args:
+            request: 裡面需要有albumId和albumTag
+        Returns:
+            更改過後的tag
+        """
+        album_id = request.data["albumId"]
+        album_tag = request.data["albumTag"]
+        print(album_tag)
+        tag = {
+            'tag': album_tag,
+            'isDeleted': False
+        }
+
+        try:
+            update_rows = Album.objects(albumId=album_id).update(
+                add_to_set__albumTag=tag)
+
+            print(f'Album/View: TagView.post, db:{update_rows} rows')
+
+        except Exception as e:
+            print('error: ', e)
+            return Response(simpleMessage("Post/AlbumTagView: error"), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response(simpleMessage('Post/AlbumTagView'), status=status.HTTP_201_CREATED)
+
+    def delete(self, request):
+        """
+        刪除tag
+        根據albumId和albumTag刪掉指定的albumTag
+        tag不存在或是成功刪除都會還傳成功
+        Args:
+            request: 裡面需要有albumId和albumTag
+        Returns:
+            剩下的tag
+        """
+        album_id = request.data["albumId"]
+        album_tag = request.data["albumTag"]
+
+        try:
+
+            album = Album.objects(
+                albumId=album_id, albumTag__match={'tag': album_tag, 'isDeleted': False}).first()
+            print(album.to_json())
+
+            for single_tag in album.albumTag:
+
+                if single_tag.tag == album_tag:
+                    print('same')
+                    single_tag.isDeleted = True
+            print(album.to_json())
+            album.save()
+
+        except Exception as e:
+            print(e)
+            return Response(simpleMessage("DELETE/AlbumTagView: error"), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response(simpleMessage('DELETE/AlbumTagView'), status=status.HTTP_201_CREATED)

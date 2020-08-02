@@ -6,73 +6,83 @@ from datetime import datetime
 import json
 
 
-
 class PhotoView(APIView):
     def get(self, request):
-        """
-        (測試用)
-        單張照片顯示頁面，更改emotion時
-        根據photoId去更改資料庫的emotion欄位
+        # """
+        # (測試用)
+        # 單張照片顯示頁面，更改emotion時
+        # 根據photoId去更改資料庫的emotion欄位
 
-        Args:
-            request: 裡面需要有photoId和emotion
+        # Args:
+        #     request: 裡面需要有photoId和emotion
 
-        Returns:
-            Success: status.HTTP_200_OK
-            Failed: status.HTTP_500_INTERNAL_SERVER_ERROR
+        # Returns:
+        #     Success: status.HTTP_200_OK
+        #     Failed: status.HTTP_500_INTERNAL_SERVER_ERROR
 
-        """
-        p = Photo.objects.values('tag').filter(tag__main_tag__in='天空')
-        print(p)
-        # Photo.objects.create(
-        #     userId='bobo',
-        #     photoId='234234324',
-        #     tag={
-        #         'main_tag': 'dog',
-        #         'emotion_tag': 'baby',
-        #         # 'custom_tag': [
-        #         #     {
-        #         #         'tag': 'custom1',
-        #         #         'is_deleted': False
-        #         #     },
-        #         #     {
-        #         #         'tag': 'custom2',
-        #         #         'is_deleted': False
-        #         #     }
+        # """
+        # p = Photo.objects.values('tag').filter(tag__main_tag__in='天空')
+        # print(p)
+        # # Photo.objects.create(
+        # #     userId='bobo',
+        # #     photoId='234234324',
+        # #     tag={
+        # #         'main_tag': 'dog',
+        # #         'emotion_tag': 'baby',
+        # #         # 'custom_tag': [
+        # #         #     {
+        # #         #         'tag': 'custom1',
+        # #         #         'is_deleted': False
+        # #         #     },
+        # #         #     {
+        # #         #         'tag': 'custom2',
+        # #         #         'is_deleted': False
+        # #         #     }
 
-        #         # ],
-        #         'custom_tag': [],
-        #         'top3_tag': [
-        #             {
-        #                 'tag': 'cat1',
-        #                 'precision': '99'
-        #             },
-        #             {
-        #                 'tag': 'cat122',
-        #                 'precision': '88'
-        #             }
-        #         ],
-        #         'all_tag': [
-        #             {
-        #                 'tag': 'cat1',
-        #                 'precision': '99'
-        #             },
-        #             {
-        #                 'tag': 'cat122',
-        #                 'precision': '88'
-        #             },
-        #             {
-        #                 'tag': 'catmeme',
-        #                 'precision': '898'
-        #             }
-        #         ]
-        #     },
-        #     location='Japan',
-        #     upload_time=datetime.now(),
-        #     create_time=datetime.now()
-        # )
-        # print(f"datatime.utcnow() = {datetime.now()}")
-        return Response('hello', status=status.HTTP_201_CREATED)
+        # #         # ],
+        # #         'custom_tag': [],
+        # #         'top3_tag': [
+        # #             {
+        # #                 'tag': 'cat1',
+        # #                 'precision': '99'
+        # #             },
+        # #             {
+        # #                 'tag': 'cat122',
+        # #                 'precision': '88'
+        # #             }
+        # #         ],
+        # #         'all_tag': [
+        # #             {
+        # #                 'tag': 'cat1',
+        # #                 'precision': '99'
+        # #             },
+        # #             {
+        # #                 'tag': 'cat122',
+        # #                 'precision': '88'
+        # #             },
+        # #             {
+        # #                 'tag': 'catmeme',
+        # #                 'precision': '898'
+        # #             }
+        # #         ]
+        # #     },
+        # #     location='Japan',
+        # #     upload_time=datetime.now(),
+        # #     create_time=datetime.now()
+        # # )
+        # # print(f"datatime.utcnow() = {datetime.now()}")
+        # return Response('hello', status=status.HTTP_201_CREATED)
+
+        photo_id = request.query_params["photoId"]
+        try:
+            photo = Photo.objects(photoId__exact=photo_id).all_fields()
+            print(photo.to_json())
+
+            return_txt = {"result": 'GET/PhotoView',
+                          'photo_object': photo.to_json()}
+        except Exception as e:
+            print('PhotoViewError:', e)
+        return Response(return_txt, status=status.HTTP_200_OK)
 
     def delete(self, request):
         """
@@ -88,6 +98,57 @@ class PhotoView(APIView):
 
         """
         return Response('hello', status=status.HTTP_201_CREATED)
+
+    def post(self, request):
+        """
+        (測試用)
+        產生一筆假資料
+        Args:
+            None
+        Returns:
+            None
+        """
+        photo = Photo(photoId='12345', userId='abc', tag={
+            'main_tag': 'dog',
+            'emotion_tag': 'cute',
+            'custom_tag': [
+                {
+                    'tag': 'custom1',
+                    'is_deleted': False
+                },
+                {
+                    'tag': 'custom2',
+                    'is_deleted': False
+                }
+            ],
+            'top3_tag': [
+                {
+                    'tag': 'cat1',
+                    'precision': '99'
+                },
+                {
+                    'tag': 'cat2',
+                    'precision': '88'
+                }
+            ],
+            'all_tag': [
+                {
+                    'tag': 'cat1',
+                    'precision': '99'
+                },
+                {
+                    'tag': 'cat2',
+                    'precision': '88'
+                },
+                {
+                    'tag': 'cat3',
+                    'precision': '898'
+                }
+            ]},
+            location='TPE', createTime=datetime.utcnow())
+        photo.save()
+
+        return Response(simpleMessage('POST/PhotoView'), status=status.HTTP_201_CREATED)
 
 
 class EmotionView(APIView):

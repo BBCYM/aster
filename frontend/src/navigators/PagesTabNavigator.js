@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/stack'
 import ChatbotScreen from '../screens/Chatbot/Chatbot'
 import HomeScreen from '../screens/Home/Home'
-import ProfileScreen from '../screens/Profile/Profile'
+import ProfileScreen from '../screens/Profile/test3'
 import GalleryHome from '../screens/Gallery/PhotoGallery copy'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import SomeGallery from '../screens/Gallery/SomeGallery'
@@ -12,7 +12,7 @@ const PagesTab = createBottomTabNavigator()
 const PagesStack = createStackNavigator()
 
 export function PagesTabNavigator(props) {
-	
+
 	function index() {
 		return (
 			<PagesTab.Navigator
@@ -73,8 +73,8 @@ export function PagesTabNavigator(props) {
 			</PagesTab.Navigator>
 		)
 	}
-	
-	
+
+
 	return (
 		<PagesStack.Navigator
 			initialRouteName='index'
