@@ -7,7 +7,7 @@ from mongoengine import connect
 from mongoengine.queryset.visitor import Q
 from .models import Photo, Tag
 
-connect('aster') #write by bobo
+connect('aster') #write by bobo through teaviewer 
 
 class PhotoView(APIView):
     def get(self, request):
@@ -252,6 +252,10 @@ class TagView(APIView):
         Returns:
             更改過後的tag
         """
+        #i like bobo
+        #i am bobo
+        # i like bobo
+        #go eat hambuger
         photo_id = request.data["photoId"]
         custom_tag = request.data["custom_tag"]
         tag = {
