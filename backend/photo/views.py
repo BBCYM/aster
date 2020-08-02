@@ -9,9 +9,9 @@ from .models import Photo, Tag
 
 connect('aster')
 
-
 class PhotoView(APIView):
     def get(self, request):
+
         # photo_id = request.query_params["photoId"]
         photo_id = request.data["photoId"]
         try:
@@ -103,6 +103,57 @@ class PhotoView(APIView):
             print(e)
             return Response("PhotoViewError", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(simpleMessage('DELETE/PhotoView'), status=status.HTTP_201_CREATED)
+
+    def post(self, request):
+        """
+        (測試用)
+        產生一筆假資料
+        Args:
+            None
+        Returns:
+            None
+        """
+        photo = Photo(photoId='12345', userId='abc', tag={
+            'main_tag': 'dog',
+            'emotion_tag': 'cute',
+            'custom_tag': [
+                {
+                    'tag': 'custom1',
+                    'is_deleted': False
+                },
+                {
+                    'tag': 'custom2',
+                    'is_deleted': False
+                }
+            ],
+            'top3_tag': [
+                {
+                    'tag': 'cat1',
+                    'precision': '99'
+                },
+                {
+                    'tag': 'cat2',
+                    'precision': '88'
+                }
+            ],
+            'all_tag': [
+                {
+                    'tag': 'cat1',
+                    'precision': '99'
+                },
+                {
+                    'tag': 'cat2',
+                    'precision': '88'
+                },
+                {
+                    'tag': 'cat3',
+                    'precision': '898'
+                }
+            ]},
+            location='TPE', createTime=datetime.utcnow())
+        photo.save()
+
+        return Response(simpleMessage('POST/PhotoView'), status=status.HTTP_201_CREATED)
 
 
 class EmotionView(APIView):
