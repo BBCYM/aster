@@ -7,7 +7,7 @@ from mongoengine import connect
 from mongoengine.queryset.visitor import Q
 from .models import Photo, Tag
 
-connect('aster')  # write by bobo in bobo's workspace
+connect('aster')  # 好像不用這一行
 
 class PhotoView(APIView):
     def get(self, request):
@@ -281,7 +281,7 @@ class TagView(APIView):
             request: 裡面需要有photoId和custom_tag
 
         Returns:
-            剩下的tag
+            剩下的tag 
 
         """
         photo_id = request.data["photoId"]
@@ -303,7 +303,7 @@ class TagView(APIView):
                     single_tag.is_deleted = True
             # print(photo.to_json())
             photo.save()
-
+            # 終於成估了
             # custom_tag_array = photo.tag["custom_tag"]
 
             # for cus_tag_db in custom_tag_array:
