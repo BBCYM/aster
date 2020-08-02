@@ -14,10 +14,11 @@ from django.utils.timezone import make_aware
 import os
 from google.cloud.vision import ImageAnnotatorClient, types
 import time
-from photo.models import Photo
+from photo.models import Photo, Tag, ATag
 from aster import settings
 import shutil
 import pytz
+from googletrans import Translator as g_translator
 
 
 def afterAll(userId, q, thread):
@@ -27,18 +28,20 @@ def afterAll(userId, q, thread):
     # delete images
     shutil.rmtree(userId)
     print('process done')
-    user = User.objects.get(userId=userId)
-    user.isSync = True
-    user.lastSync = make_aware(datetime.datetime.utcnow(
-    ), timezone=pytz.timezone(settings.TIME_ZONE))
-    user.save()
+    user = User.objects(userId=userId)
+    user.update(
+        isSync=True,
+        lastSync=make_aware(datetime.datetime.utcnow(),
+                            timezone=pytz.timezone(settings.TIME_ZONE))
+    )
     print('User isSync')
 
 
 def toVisionApiLabel(userId, q):
     credent = service_account.Credentials.from_service_account_file(
-        'Anster-4bf921cd3b7b.json')
+        'anster-1593361678608.json')
     client = ImageAnnotatorClient(credentials=credent)
+    translator = g_translator()
     while True:
         mediaItem = q.get()
         filename = mediaItem['filename']
@@ -55,21 +58,37 @@ def toVisionApiLabel(userId, q):
         sliceTime = datetime.datetime.strptime(sliceTime, "%Y-%m-%dT%H:%M:%S")
         print(sliceTime)
         # 這個才是正確的
-        Photo.objects.create(
-            userId=userId,
-            photoId=mediaItem['id'],
-            tag={
-                'main_tag': 'temp',
-                'emotion_tag': 'temp',
-                'custom_tag': [{'tag': 'bobo', 'is_deleted': False}],
-                'top3_tag': [{'tag': l.description, 'precision': str(l.score)}for l in labels[:3]],
-                'all_tag': [{'tag': l.description, 'precision': str(l.score)}for l in labels[4:]]
-            },
-            location="invalid",
-            time=make_aware(
-                sliceTime, timezone=pytz.timezone(settings.TIME_ZONE)),
-
+        t = Tag(
+            main_tag=translator.translate(
+                labels[0].description.lower(), dest="zh-tw").text
         )
+        for l in labels[:3]:
+            t.top3_tag.append(ATag(tag=l.description, precision=str(l.score)))
+        for l in labels[4:]:
+            t.all_tag.append(ATag(tag=l.description, precision=str(l.score)))
+        pho = Photo(
+            photoId=mediaItem['id'],
+            userId=userId,
+            tag=t,
+            createTime=make_aware(
+                sliceTime, timezone=pytz.timezone(settings.TIME_ZONE)),
+        )
+        pho.save()
+        # Photo.objects.create(
+        #     userId=userId,
+        #     photoId=mediaItem['id'],
+        #     tag={
+        #         'main_tag': translator.translate(labels[0].description.lower(), dest="zh-tw").text, #暫時用vision api
+        #         'emotion_tag': 'temp',
+        #         'custom_tag': [{'tag': 'bobo', 'is_deleted': False}],
+        #         'top3_tag': [{'tag': l.description, 'precision': str(l.score)}for l in labels[:3]],
+        #         'all_tag': [{'tag': l.description, 'precision': str(l.score)}for l in labels[4:]]
+        #     },
+        #     location="invalid",
+        #     time=make_aware(
+        #         sliceTime, timezone=pytz.timezone(settings.TIME_ZONE)),
+
+        # )
         q.task_done()
         print('done one')
         if res.error.message:
@@ -81,7 +100,7 @@ def toVisionApiLabel(userId, q):
 def downloadImage(session, userId, q):
     photoRes = session.get(
         'https://photoslibrary.googleapis.com/v1/mediaItems?pageSize=100').json()
-    mediaItems = photoRes['mediaItems'][:3]
+    mediaItems = photoRes['mediaItems'][:10]
     # while photoRes.get('nextPageToken') != None:
     for mediaItem in mediaItems:
         q.put(mediaItem)
@@ -114,10 +133,10 @@ def checkUserToSession(data, req):
         'token_uri'
     )(appSecret)
     print('Hello')
-    user = User.objects.filter(userId=data['sub'])
-
+    # user = User.objects.filter(userId=data['sub'])
+    user = User.objects(userId=data['sub'])
     access_token = ''
-    if not user.exists():
+    if not user:
         oauth = OAuth2Session(
             client_id=CLIENT_ID,
             client_secret=CLIENT_SECRET,
@@ -132,24 +151,35 @@ def checkUserToSession(data, req):
         print('Hello')
         print(token)
         access_token = token['access_token']
-        newUser = User.objects.create(
+        # newUser = User.objects.create(
+        #     userId=data['sub'],
+        #     expiresAt=datetime.datetime.utcnow() + datetime.timedelta(0,
+        #                                                               token['expires_in']),
+        #     refreshToken=token['refresh_token']
+        # )
+        newUser = User(
             userId=data['sub'],
             expiresAt=datetime.datetime.utcnow() + datetime.timedelta(0,
                                                                       token['expires_in']),
             refreshToken=token['refresh_token']
         )
+        newUser.save()
         print('new user created')
-        user = User.objects.filter(userId=data['sub'])
+        # user = User.objects.filter(userId=data['sub'])
+        user = User.objects(userId=data['sub'])
         print('create new user')
-    userData = user.values()[0]
+    # userData = user.values()[0]
+    userData = user[0]
     credent = credentials.Credentials(
         access_token,
         token_uri=TOKEN_URI,
         client_id=CLIENT_ID,
         client_secret=CLIENT_SECRET,
-        refresh_token=userData['refreshToken']
+        refresh_token=userData.refreshToken
+        # refresh_token=userData['refreshToken']
     )
-    credent.expiry = userData['expiresAt'].replace(tzinfo=None)
+    # credent.expiry = userData['expiresAt'].replace(tzinfo=None)
+    credent.expiry = userData.expiresAt.replace(tzinfo=None)
     now = datetime.datetime.utcnow()
     print(credent.expiry)
     print(now)
@@ -157,8 +187,10 @@ def checkUserToSession(data, req):
         print('refreshing accessToken')
         try:
             credent.refresh(Request())
-            user.update(expiresAt=make_aware(credent.expiry),
-                        refreshToken=credent.refresh_token)
+            # user.update(expiresAt=make_aware(credent.expiry),
+            #             refreshToken=credent.refresh_token)
+            user.update(set__expiresAt=make_aware(credent.expiry),
+                        set__refreshToken=credent.refresh_token)
         except RefreshError as e:
             return Response(e, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     print('auth done')
