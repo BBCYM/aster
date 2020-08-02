@@ -9,6 +9,7 @@ import json
 from google.api_core.exceptions import InvalidArgument
 from google.protobuf.json_format import MessageToJson
 from photo.models import Photo
+from mongoengine.queryset.visitor import Q
 
 class BotView(views.APIView):
     # global uri
@@ -62,32 +63,30 @@ class BotView(views.APIView):
         # datetime = parameters.fields['date-time'].list_value.values[0].string_value
         # vision = parameters.fields['visionAPI_1000'].list_value.values[0].string_value
         
-        photo = parameters.fields['photo'].list_value
+        # photo = parameters.fields['photo'].list_value
         datetime = parameters.fields['date-time'].list_value
         vision = parameters.fields['visionAPI_1000'].list_value
         location = parameters.fields['location'].list_value
         pid = []
-        pictures = Photo.objects.filter(userId = '113073984862808105932')
-        
+
         def getpid(key):
             try:
-                for i in pictures:
-                    # print(i)
-                    # print(type(i))
-                    # print('main:',i.tag['main_tag'])
-                    # print('type:',type(i.tag['main_tag']))
-                    if(i.tag['main_tag'] == key):
-                        print('main:',i.tag['main_tag'])
-                        print('photoid:',i.photoId)
-                        pid.append(i.photoId)
-                        print('pid:',pid)
-                    
+                # main = Photo.objects(tag__main_tag='天空')
+                main = Photo.objects(Q(userId='113073984862808105932') & Q(tag__main_tag=key))
+                print('main:',main)
+                for i in main:
+                    photoid = i.photoId
+                    print('photoid:',photoid)
+                    pid.append(photoid)
+                print('pid:',pid)
+                top3 = Photo.objects(Q(userId='113073984862808105932') & Q(tag__all_tag__tag=key))
+                print('top3',top3)  
             except Exception as e:
                 print(e)
 
-        if len(photo) is not 0:
-            photokey = photo.values[0].string_value
-            getpid(photokey)
+        # if len(photo) is not 0:
+        #     photokey = photo.values[0].string_value
+        #     getpid(photokey)
 
         if len(datetime) is not 0:
             datetimekey = datetime.values[0].string_value
@@ -138,9 +137,9 @@ class BotView(views.APIView):
                 getpid(zip_codekey)
 
         re = MessageToJson(res.query_result)
-        vivi = {"dialog" : re, "pid" : pid}
-        vivi = json.dumps(vivi)
+        res = {"dialog" : re, "pid" : pid}
+        res = json.dumps(res)
  
-        return response.Response(vivi)
+        return response.Response(res)
     
 
