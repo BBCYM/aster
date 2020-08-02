@@ -285,7 +285,7 @@ class TagView(APIView):
             request: 裡面需要有photoId和custom_tag
 
         Returns:
-            剩下的tag
+            剩下的tag 
 
         """
         photo_id = request.data["photoId"]
@@ -307,7 +307,7 @@ class TagView(APIView):
                     single_tag.is_deleted = True
             # print(photo.to_json())
             photo.save()
-
+            # 終於成估了
             # custom_tag_array = photo.tag["custom_tag"]
 
             # for cus_tag_db in custom_tag_array:
