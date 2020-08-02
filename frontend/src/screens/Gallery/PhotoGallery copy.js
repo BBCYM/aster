@@ -83,21 +83,21 @@ export default function GalleryScreen() {
 					console.log(err)
 				}
 			} while (pageToken)
-		} 
+		}
 		callback(isLoaded)
 	}
 	React.useEffect(() => {
 		fetchImageSource(async (isLoaded) => {
 			console.log(isLoaded)
-			if (isLoaded==='false'){
+			if (isLoaded === 'false') {
 				// first time
-				let fSource = ['fSource',JSON.stringify(status.fastSource)]
-				let mSource = ['mSource',JSON.stringify(status.modalSource)]
+				let fSource = ['fSource', JSON.stringify(status.fastSource)]
+				let mSource = ['mSource', JSON.stringify(status.modalSource)]
 				let GalleryLoaded = ['GalleryLoaded', 'true']
-				await AsyncStorage.multiSet([fSource,mSource,GalleryLoaded])
+				await AsyncStorage.multiSet([fSource, mSource, GalleryLoaded])
 			} else {
-				let temp = await AsyncStorage.multiGet(['fSource','mSource'])
-				setStatus({fastSource:JSON.parse(temp[0][1]),modalSource:JSON.parse(temp[1][1])})
+				let temp = await AsyncStorage.multiGet(['fSource', 'mSource'])
+				setStatus({ fastSource: JSON.parse(temp[0][1]), modalSource: JSON.parse(temp[1][1]) })
 			}
 		})
 		console.log('hello')

@@ -32,18 +32,8 @@ export default function personalScreen(props) {
                         </TouchableOpacity>
 
 
-                        <View>
-                            <TouchableOpacity style={styles.heartBtn} activeOpacity={0.2}
-                                focusedOpacity={0.5} >
-                                <Ionicons name='heart' color={'red'} size={50} />
-                            </TouchableOpacity>
-                        </View>
-
-                        {/* 這邊結束 */}
                     </View>
 
-                    <View>
-                    </View>
                 </View>
             </View>
         </View>

@@ -12,7 +12,7 @@ const PagesTab = createBottomTabNavigator()
 const PagesStack = createStackNavigator()
 
 export function PagesTabNavigator(props) {
-	
+
 	function index() {
 		return (
 			<PagesTab.Navigator
@@ -73,8 +73,8 @@ export function PagesTabNavigator(props) {
 			</PagesTab.Navigator>
 		)
 	}
-	
-	
+
+
 	return (
 		<PagesStack.Navigator
 			initialRouteName='index'

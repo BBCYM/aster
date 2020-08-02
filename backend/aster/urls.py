@@ -39,4 +39,6 @@ urlpatterns = [
     path('photo', include(photo_patterns)),
 
     path('album', AlbumView.as_view()),
+    path('album/tag', AlbumTagView.as_view()),
+
 ]
