@@ -7,7 +7,6 @@ import {
 	Modal,
 	TouchableOpacity,
 	Dimensions,
-	Text
 } from 'react-native'
 import { Overlay, SearchBar } from 'react-native-elements'
 import FastImage from 'react-native-fast-image'
@@ -27,14 +26,11 @@ export default function SomeGalleryScreen(props) {
 	const [status, setStatus] = useMergeState({
 		isVisible: false,
 		currendId: 0,
-		//isTagModalVisi: false,
-		//inputTag: '',
+		isTagModalVisi: false,
+		inputTag: '',
 		fastSource: [],
 		modalSource: [],
-		//tag: [],
-		albumName: '',
-		//image:'',
-		photoId: 0
+		tag: []
 	})
 	const { auth } = React.useContext(AuthContext)
 	async function fetchImageSource(callback) {
@@ -42,8 +38,7 @@ export default function SomeGalleryScreen(props) {
 		const accessToken = await auth.getAccessToken()
 		let fSource = []
 		// v = id
-		for (const [i, v] of temp.entries()){
-		  Axios.get(`https://photoslibrary.googleapis.com/v1/mediaItems/${v}`, {
+		Axios.get(`https://photoslibrary.googleapis.com/v1/mediaItems/${v}`, {
 			headers: {
 				'Authorization': `Bearer ${accessToken}`,
 				'Content-type': 'application/json'
@@ -54,7 +49,7 @@ export default function SomeGalleryScreen(props) {
 			var height = 400
 			var img = {
 				id: i,
-				albumId: item['id'] ,
+				//albumId: ,
 				imgsrc: `${item['baseUrl']}=w${width}-h${height}`,
 				imgsArr: [],
 				headers: { Authorization: `Bearer ${accessToken}` }
@@ -69,47 +64,20 @@ export default function SomeGalleryScreen(props) {
 			setStatus({ fastSource: fSource})
 		})
 		// for (const [i, v] of temp.entries()) {
-		}
+		// }
 	}
 	async function fetchAlbums(){
-		const response = await fetch("http://172.20.10.8:3000/album", {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json',
-				'X-Requested-With': "com.rnexparea"
-			},
-		})
-		var albumId = await response.json()
-		var photoId = await response.json()
-		var albumName = await response.json()
-		//var data = JSON.parse(data)
-		//console.log(data)
-        fetchImageSource = () => {
-			this.setState({photoId: this.state.photoId})
-
-		}
-		
-		this.setState({ albumName: albumName })
-		//this.setState({image: photoId   })
-
-		
 		// fetch albums from back end
 		// get album id and photo ids
 		// pass 1 image id to fetchImageSource()
 		// set state to show image
 	}
-	
 	React.useEffect(() => {
-		 fetchAlbums()
+		// fetchAlbums()
 		console.log('hello from some screen')
 	}, [])
 
 	function showAlbum(item) {
-		navigation.navigate('SomeGallery',{
-			albumId: item.id,
-			imgsArr: [] 
-
-		})
 		// navigagte to SomeGallery, also pass album details to it
 		// albumid
 		// imgArr
@@ -132,7 +100,6 @@ export default function SomeGalleryScreen(props) {
 									priority: FastImage.priority.high,
 								}}
 							/>
-							<Text style={{ marginLeft: 30, fontSize: 18 }}>{this.state.albumName}</Text>
 						</TouchableOpacity>
 					</View>
 				)}
