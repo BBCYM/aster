@@ -20,7 +20,7 @@ class Tag(EmbeddedDocument):
     all_tag = fields.EmbeddedDocumentListField(ATag)
 
 
-class Photo(EmbeddedDocument):
+class Photo(Document):
     photoId = fields.StringField()
     userId = fields.StringField()
     tag = fields.EmbeddedDocumentField(Tag)
