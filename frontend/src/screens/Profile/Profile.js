@@ -2,7 +2,7 @@ import * as React from 'react'
 import { AuthContext } from '../../contexts/AuthContext'
 import { StyleSheet, Text, View, Modal, Image, TouchableOpacity, Button } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons'
-import { ipv4 } from '../../utils/dev';
+import { ipv4 } from '../../utils/dev'
 // import moment from 'moment';
 
 
@@ -30,17 +30,6 @@ export default function personalScreen(props) {
                         <TouchableOpacity style={styles.Btn} onPress={() => { auth.signOut() }}>
                             <Text>LOG OUT</Text>
                         </TouchableOpacity>
-
-                        {/* 這邊開始 */}
-                        {/* <View >
-                            <Modal
-                                transparent={true}
-                                visible={true}>
-
-                                <View style={{ backgroundColor: "blue" }}></View>
-                            </Modal>
-
-                        </View> */}
 
 
                         <View>

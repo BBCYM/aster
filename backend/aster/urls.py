@@ -20,7 +20,7 @@ from bot.views import BotView
 from home.views import HomeView
 from photo.views import PhotoView, EmotionView, TagView
 from personal.views import personalView
-from album.views import AlbumView
+from album.views import AlbumView, AlbumTagView
 
 
 photo_patterns = [
