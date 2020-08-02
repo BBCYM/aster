@@ -5,8 +5,6 @@ from .models import Album, Tag
 from datetime import datetime
 import json
 from django.forms.models import model_to_dict
-from mongoengine import connect
-connect('aster')
 
 
 class AlbumView(APIView):
