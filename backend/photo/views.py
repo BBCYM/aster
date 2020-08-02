@@ -7,7 +7,7 @@ from mongoengine import connect
 from mongoengine.queryset.visitor import Q
 from .models import Photo, Tag
 
-connect('aster')
+connect('aster')  # write by bobo in bobo's workspace
 
 class PhotoView(APIView):
     def get(self, request):
