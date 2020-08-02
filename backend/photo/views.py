@@ -243,16 +243,14 @@ class TagView(APIView):
             # custom_tag_list = Photo.objects(photoId=photo_id).get().tag.custom_tag
             photo = Photo.objects(
                 photoId=photo_id, tag__custom_tag__match={'tag': custom_tag, 'is_deleted': False}).first()
-            print(photo.to_json())
-            # photo = photo.update(**{'tag__custom_tag__': 'apple'})
+            # print(photo.to_json())
 
-            # print(custom_tag_list)
             for single_tag in photo.tag.custom_tag:
 
                 if single_tag.tag == custom_tag:
                     print('same')
                     single_tag.is_deleted = True
-            print(photo.to_json())
+            # print(photo.to_json())
             photo.save()
 
             # custom_tag_array = photo.tag["custom_tag"]
