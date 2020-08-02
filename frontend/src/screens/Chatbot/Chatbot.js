@@ -50,6 +50,7 @@ export default function RoomScreen({navigation}) {
 			createdAt: new Date().getTime(),
 			system: true,
 		}]);
+		await AsyncStorage.removeItem('msg');
 	}
 	// helper method that is sends a message
 	// const [messages, setMessages]  = React.useState([])
@@ -126,9 +127,9 @@ export default function RoomScreen({navigation}) {
 			console.log('filtered',filtered);
 			//若無相同pid
 			if(!filtered.length){
-				// tempid.push(newpid);
+				tempid.push(element);
 				console.log('in if!!!!')
-				tempid = GiftedChat.append(tempid, [element]);
+				// tempid = GiftedChat.append(tempid, [element]);
 				console.log('tempid',tempid);
 				// setimgIDs(tempid);
 				// AsyncStorage.setItem(
