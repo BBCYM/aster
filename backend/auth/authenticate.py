@@ -1,6 +1,6 @@
 from rest_framework import status
 from rest_framework.response import Response
-from .customResponse import simpleMessage
+from .utils import simpleMessage, toMandarin, getLabelDescription
 from .models import User
 import json
 from operator import itemgetter
@@ -17,7 +17,6 @@ from photo.models import Photo, Tag, ATag
 from aster import settings
 import shutil
 import pytz
-from googletrans import Translator as g_translator
 from mongoengine.queryset.visitor import Q
 
 
@@ -77,7 +76,6 @@ def toVisionApiLabel(userId, q):
     credent = service_account.Credentials.from_service_account_file(
         'anster-1593361678608.json')
     client = ImageAnnotatorClient(credentials=credent)
-    translator = g_translator()
     while True:
         mediaItem = q.get()
         filename = mediaItem['filename']
@@ -94,14 +92,20 @@ def toVisionApiLabel(userId, q):
         sliceTime = datetime.datetime.strptime(sliceTime, "%Y-%m-%dT%H:%M:%S")
         print(sliceTime)
         # 這個才是正確的
+        ltemp = map(getLabelDescription, labels)
+        mLabels = toMandarin(ltemp)
         t = Tag(
-            main_tag=translator.translate(
-                labels[0].description.lower(), dest="zh-tw").text
+            main_tag=toMandarin(mLabels[0])
         )
-        for l in labels[:3]:
-            t.top3_tag.append(ATag(tag=l.description, precision=str(l.score)))
-        for l in labels[4:]:
-            t.all_tag.append(ATag(tag=l.description, precision=str(l.score)))
+        for ml, l in zip(mLabels[:3],labels[:3]):
+            t.top3_tag.append(ATag(tag=ml, precision=str(l.score)))
+        for ml, l in zip(mLabels[4:],labels[4:]):
+            t.all_tag.append(ATag(tag=ml, precision=str(l.score)))
+
+        # for l in labels[:3]:
+            # t.top3_tag.append(ATag(tag=l.description, precision=str(l.score)))
+        # for l in labels[4:]:
+            # t.all_tag.append(ATag(tag=l.description, precision=str(l.score)))
         pho = Photo(
             photoId=mediaItem['id'],
             userId=userId,
