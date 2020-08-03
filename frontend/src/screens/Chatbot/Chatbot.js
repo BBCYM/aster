@@ -65,6 +65,7 @@ export default function RoomScreen({navigation}) {
 		console.log(newMessage[0].text);
 		var user = await AsyncStorage.getItem('user');
 		user = JSON.parse(user);
+		console.log('userid',user.id);
 		//從後端拿到response
 		const response = await fetch(`http://${ipv4}:3000/bot`, {
 			method: 'POST',
@@ -74,7 +75,7 @@ export default function RoomScreen({navigation}) {
 			},
 			body: JSON.stringify({
 				usermsg: newMessage[0].text,
-				uerid: user.id,
+				userid: user.id,
 			}),
 		});
 		var data = await response.json();
