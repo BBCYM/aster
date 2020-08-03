@@ -63,6 +63,8 @@ export default function RoomScreen({navigation}) {
 		//設定給全域變數messages
 		setMessages(combine);
 		console.log(newMessage[0].text);
+		var user = await AsyncStorage.getItem('user');
+		user = JSON.parse(user);
 		//從後端拿到response
 		const response = await fetch(`http://${ipv4}:3000/bot`, {
 			method: 'POST',
@@ -72,6 +74,7 @@ export default function RoomScreen({navigation}) {
 			},
 			body: JSON.stringify({
 				usermsg: newMessage[0].text,
+				uerid: user.id,
 			}),
 		});
 		var data = await response.json();
@@ -108,18 +111,13 @@ export default function RoomScreen({navigation}) {
 		//抓取後端傳來的pid
 		var newpid = message.pid;
 		console.log('newpid',newpid);
-		// setimgIDs(message.pid);
-		console.log('imgIDs',imgIDs);
-		console.log('imgIDstype',typeof(imgIDs));
+		// console.log('imgIDs',imgIDs);
+		// console.log('imgIDstype',typeof(imgIDs));
 		//用filter找有無相同的pid，若無則回傳空陣列
 		var tempid = imgIDs;
 		// var tempid = await AsyncStorage.getItem('pid');
 		// tempid = JSON.parse(tempid);
 		// console.log('tempid out',tempid);
-		// await AsyncStorage.setItem(
-		// 	'pid',
-		// 	JSON.stringify(tempid),
-		// );
 		newpid.forEach(element=>{
 			var filtered = imgIDs.filter(function(value) {
 				return value === element;
@@ -128,16 +126,11 @@ export default function RoomScreen({navigation}) {
 			//若無相同pid
 			if(!filtered.length){
 				tempid.push(element);
-				console.log('in if!!!!')
-				// tempid = GiftedChat.append(tempid, [element]);
 				console.log('tempid',tempid);
-				// setimgIDs(tempid);
 				// AsyncStorage.setItem(
 				// 	'pid',
 				// 	JSON.stringify(tempid),
 				// );
-				// tempid = await AsyncStorage.getItem('pid');
-				// tempid = JSON.parse(tempid);
 				setimgIDs(tempid);
 			}
 		})
@@ -170,9 +163,6 @@ export default function RoomScreen({navigation}) {
 					style: { color: "white", textDecorationLine: "underline" },
 					onPress: (tag) => {
 						reset()
-						// navigation.navigate('SomeGallery',{
-						// 	pid:[]
-						// })
 					},
 				},
 			]}
