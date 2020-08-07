@@ -74,21 +74,6 @@ def toVisionApiLabel(userId, q):
                 sliceTime, timezone=pytz.timezone(settings.TIME_ZONE)),
         )
         pho.save()
-        # Photo.objects.create(
-        #     userId=userId,
-        #     photoId=mediaItem['id'],
-        #     tag={
-        #         'main_tag': translator.translate(labels[0].description.lower(), dest="zh-tw").text, #暫時用vision api
-        #         'emotion_tag': 'temp',
-        #         'custom_tag': [{'tag': 'bobo', 'is_deleted': False}],
-        #         'top3_tag': [{'tag': l.description, 'precision': str(l.score)}for l in labels[:3]],
-        #         'all_tag': [{'tag': l.description, 'precision': str(l.score)}for l in labels[4:]]
-        #     },
-        #     location="invalid",
-        #     time=make_aware(
-        #         sliceTime, timezone=pytz.timezone(settings.TIME_ZONE)),
-
-        # )
         q.task_done()
         print('done one')
         if res.error.message:
