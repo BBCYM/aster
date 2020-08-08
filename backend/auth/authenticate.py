@@ -1,8 +1,7 @@
 from rest_framework import status
 from rest_framework.response import Response
-from .customResponse import simpleMessage
+from .utils import simpleMessage, toMandarin, getLabelDescription
 from .models import User
-from .serializer import UserSerializer
 import json
 from operator import itemgetter
 from google.oauth2 import id_token, credentials, service_account
@@ -18,7 +17,43 @@ from photo.models import Photo, Tag, ATag
 from aster import settings
 import shutil
 import pytz
-from googletrans import Translator as g_translator
+from mongoengine.queryset.visitor import Q
+
+
+def fetchNewImage(session, userId, q):
+    nPT = ''
+    params = {'pageSize': '15'}
+    while True:
+        if nPT:
+            params['nextPageToken'] = nPT
+        photoRes = session.get(
+            'https://photoslibrary.googleapis.com/v1/mediaItems', params=params).json()
+        mediaItems = photoRes['mediaItems']
+        for mediaItem in mediaItems:
+            # can do better using time
+            dbRes = Photo.objects(
+                Q(userId=userId) & Q(photoId=mediaItem['id']))
+            if not dbRes:
+                mimeType = mediaItem['mimeType'].split('/')
+                if not os.path.isdir(f'./{userId}'):
+                    try:
+                        os.mkdir(userId)
+                    except OSError:
+                        print("Creation of the directory failed")
+                # only download images
+                if mimeType[0] == 'image':
+                    # get the image data
+                    filename = mediaItem['filename']
+                    res = session.get(mediaItem['baseUrl']+'=d').content
+                    print(f'{filename} downloaded')
+                    with open(f'{userId}/{filename}', mode='wb') as handler:
+                        handler.write(res)
+                    q.put(mediaItem)
+        # if not photoRes['nextPageToken']:
+        if photoRes['nextPageToken']:
+            break
+        else:
+            nPT = photoRes['nextPageToken']
 
 
 def afterAll(userId, q, thread):
@@ -41,7 +76,6 @@ def toVisionApiLabel(userId, q):
     credent = service_account.Credentials.from_service_account_file(
         'anster-1593361678608.json')
     client = ImageAnnotatorClient(credentials=credent)
-    translator = g_translator()
     while True:
         mediaItem = q.get()
         filename = mediaItem['filename']
@@ -58,14 +92,20 @@ def toVisionApiLabel(userId, q):
         sliceTime = datetime.datetime.strptime(sliceTime, "%Y-%m-%dT%H:%M:%S")
         print(sliceTime)
         # 這個才是正確的
+        ltemp = map(getLabelDescription, labels)
+        mLabels = toMandarin(ltemp)
         t = Tag(
-            main_tag=translator.translate(
-                labels[0].description.lower(), dest="zh-tw").text
+            main_tag=toMandarin(mLabels[0])
         )
-        for l in labels[:3]:
-            t.top3_tag.append(ATag(tag=l.description, precision=str(l.score)))
-        for l in labels[4:]:
-            t.all_tag.append(ATag(tag=l.description, precision=str(l.score)))
+        for ml, l in zip(mLabels[:3], labels[:3]):
+            t.top3_tag.append(ATag(tag=ml, precision=str(l.score)))
+        for ml, l in zip(mLabels[4:], labels[4:]):
+            t.all_tag.append(ATag(tag=ml, precision=str(l.score)))
+
+        # for l in labels[:3]:
+            # t.top3_tag.append(ATag(tag=l.description, precision=str(l.score)))
+        # for l in labels[4:]:
+            # t.all_tag.append(ATag(tag=l.description, precision=str(l.score)))
         pho = Photo(
             photoId=mediaItem['id'],
             userId=userId,
@@ -83,26 +123,54 @@ def toVisionApiLabel(userId, q):
 
 
 def downloadImage(session, userId, q):
-    photoRes = session.get(
-        'https://photoslibrary.googleapis.com/v1/mediaItems?pageSize=100').json()
-    mediaItems = photoRes['mediaItems'][:10]
-    # while photoRes.get('nextPageToken') != None:
-    for mediaItem in mediaItems:
-        q.put(mediaItem)
-        mimeType = mediaItem['mimeType'].split('/')
-        if not os.path.isdir(f'./{userId}'):
-            try:
-                os.mkdir(userId)
-            except OSError:
-                print("Creation of the directory failed")
-        # only download images
-        if mimeType[0] == 'image':
-            # get the image data
-            filename = mediaItem['filename']
-            res = session.get(mediaItem['baseUrl']+'=d').content
-            print(f'{filename} downloaded')
-            with open(f'{userId}/{filename}', mode='wb') as handler:
-                handler.write(res)
+    nPT = ''
+    params = {'pageSize': '8'}
+    while True:
+        if nPT:
+            params['nextPageToken'] = nPT
+        photoRes = session.get(
+            'https://photoslibrary.googleapis.com/v1/mediaItems', params=params).json()
+        mediaItems = photoRes['mediaItems']
+        for mediaItem in mediaItems:
+            mimeType = mediaItem['mimeType'].split('/')
+            if not os.path.isdir(f'./{userId}'):
+                try:
+                    os.mkdir(userId)
+                except OSError:
+                    print("Creation of the directory failed")
+            # only download images
+            if mimeType[0] == 'image':
+                # get the image data
+                filename = mediaItem['filename']
+                res = session.get(mediaItem['baseUrl']+'=d').content
+                print(f'{filename} downloaded')
+                with open(f'{userId}/{filename}', mode='wb') as handler:
+                    handler.write(res)
+                q.put(mediaItem)
+        # if not photoRes['nextPageToken']:
+        if photoRes['nextPageToken']:
+            break
+        else:
+            nPT = photoRes['nextPageToken']
+    # photoRes = session.get('https://photoslibrary.googleapis.com/v1/mediaItems?pageSize=100').json()
+    # mediaItems = photoRes['mediaItems'][:10]
+    # # while photoRes.get('nextPageToken') != None:
+    # for mediaItem in mediaItems:
+    #     q.put(mediaItem)
+    #     mimeType = mediaItem['mimeType'].split('/')
+    #     if not os.path.isdir(f'./{userId}'):
+    #         try:
+    #             os.mkdir(userId)
+    #         except OSError:
+    #             print("Creation of the directory failed")
+    #     # only download images
+    #     if mimeType[0] == 'image':
+    #         # get the image data
+    #         filename = mediaItem['filename']
+    #         res = session.get(mediaItem['baseUrl']+'=d').content
+    #         print(f'{filename} downloaded')
+    #         with open(f'{userId}/{filename}', mode='wb') as handler:
+    #             handler.write(res)
 
 
 def checkUserToSession(data, req):
