@@ -30,15 +30,15 @@ class BotView(views.APIView):
         data = request.data['usermsg']
         # print('這是request=',request)
         # print('這是data=',data)
+        userid = request.data['userid']
+        # print('userid',userid)
 
-        # print('這是response.data=',request.data)
-        #return response.Response("ok")
 
         credentials = service_account.Credentials.from_service_account_file('dfcredentials.json').with_scopes(['https://www.googleapis.com/auth/dialogflow'])
 
         with open('dfcredentials.json', encoding='utf-8') as f:
             appSecret = json.load(f)
-            print(appSecret)
+            # print(appSecret)
             PROJECT_ID = itemgetter("project_id")(appSecret)
         session_id = 'userforDemo12345'
         text = data   #這裡改成在RN輸入的字串
@@ -64,6 +64,7 @@ class BotView(views.APIView):
         # vision = parameters.fields['visionAPI_1000'].list_value.values[0].string_value
         
         # photo = parameters.fields['photo'].list_value
+        emotion = parameters.fields['emotion'].list_value
         datetime = parameters.fields['date-time'].list_value
         vision = parameters.fields['visionAPI_1000'].list_value
         location = parameters.fields['location'].list_value
@@ -72,21 +73,46 @@ class BotView(views.APIView):
         def getpid(key):
             try:
                 # main = Photo.objects(tag__main_tag='天空')
-                main = Photo.objects(Q(userId='113073984862808105932') & Q(tag__main_tag=key))
+                def addpid(pidarr):
+                    for i in pidarr:
+                        photoid = i.photoId
+                        print('photoid:',photoid)
+                        pid.append(photoid)
+
+                print('key',key)
+
+                emo = Photo.objects(Q(userId=userid) & Q(tag__emotion_tag=key))
+                print('emotion:',emo)
+                addpid(emo)
+
+                main = Photo.objects(Q(userId=userid) & Q(tag__main_tag=key))
                 print('main:',main)
-                for i in main:
-                    photoid = i.photoId
-                    print('photoid:',photoid)
-                    pid.append(photoid)
+                addpid(main)
+
+                top3 = Photo.objects(Q(userId=userid) & Q(tag__top3_tag__tag=key))
+                print('top3:',top3)
+                addpid(top3)
+
+                alltag = Photo.objects(Q(userId=userid) & Q(tag__all_tag__tag=key))
+                print('alltag:',alltag)
+                addpid(alltag)
+
+                custom = Photo.objects(Q(userId=userid) & Q(tag__custom_tag__is_deleted=False) & Q(tag__custom_tag__tag=key))
+                print('custom:',custom)
+                addpid(custom)
+
                 print('pid:',pid)
-                top3 = Photo.objects(Q(userId='113073984862808105932') & Q(tag__all_tag__tag=key))
-                print('top3',top3)  
+
             except Exception as e:
                 print(e)
 
         # if len(photo) is not 0:
         #     photokey = photo.values[0].string_value
         #     getpid(photokey)
+
+        if len(emotion) is not 0:
+            emokey = emotion.values[0].string_value
+            getpid(emokey)
 
         if len(datetime) is not 0:
             datetimekey = datetime.values[0].string_value
