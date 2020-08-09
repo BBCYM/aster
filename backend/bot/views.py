@@ -69,39 +69,47 @@ class BotView(views.APIView):
         vision = parameters.fields['visionAPI_1000'].list_value
         location = parameters.fields['location'].list_value
         pid = []
-
+        # tag = []
+        pid_tag = []
         def getpid(key):
             try:
                 # main = Photo.objects(tag__main_tag='天空')
-                def addpid(pidarr):
+                def addpid(pidarr, key):
                     for i in pidarr:
+                        tag = []
                         photoid = i.photoId
-                        print('photoid:',photoid)
+                        # print('photoid:',photoid)
                         pid.append(photoid)
+                        print('key in add:',key)
+                        tag.append(key)
+                        temptag = tag
+                        print('tag:',tag)
+                        pid_tag.append({"pid":photoid, "tag":temptag})
+                        print('pid_tag',pid_tag)
 
                 print('key',key)
 
                 emo = Photo.objects(Q(userId=userid) & Q(tag__emotion_tag=key))
                 print('emotion:',emo)
-                addpid(emo)
+                addpid(emo, key)
 
                 main = Photo.objects(Q(userId=userid) & Q(tag__main_tag=key))
                 print('main:',main)
-                addpid(main)
+                addpid(main, key)
 
                 top3 = Photo.objects(Q(userId=userid) & Q(tag__top3_tag__tag=key))
                 print('top3:',top3)
-                addpid(top3)
+                addpid(top3, key)
 
                 alltag = Photo.objects(Q(userId=userid) & Q(tag__all_tag__tag=key))
                 print('alltag:',alltag)
-                addpid(alltag)
+                addpid(alltag, key)
 
                 custom = Photo.objects(Q(userId=userid) & Q(tag__custom_tag__is_deleted=False) & Q(tag__custom_tag__tag=key))
                 print('custom:',custom)
-                addpid(custom)
+                addpid(custom, key)
 
-                print('pid:',pid)
+                # print('pid:',pid)
 
             except Exception as e:
                 print(e)
@@ -119,10 +127,15 @@ class BotView(views.APIView):
             getpid(datetimekey)
 
         if len(vision) is not 0:
-            for i in range(len(vision.values)):
-                vikey = vision.values[i].string_value
-                # print(vikey)
-                getpid(vikey)
+            vikeyArray = map(lambda k: k.string_value,vision.values)
+            vikeyArray = set(vikeyArray)
+            vikeyArray = list(vikeyArray)
+            for i in vikeyArray:
+                getpid(i)
+            # for i in range(len(vision.values)):
+            #     vikey = vision.values[i].string_value
+            #     # print(vikey)
+            #     getpid(vikey)
 
         if len(location) is not 0:
             admin_areakey = location.values[0].struct_value.fields['admin-area'].string_value
@@ -161,9 +174,10 @@ class BotView(views.APIView):
             if(zip_codekey != ''):
                 # print(zip_codekey)
                 getpid(zip_codekey)
-
+        # print('lastpid',pid)
         re = MessageToJson(res.query_result)
-        res = {"dialog" : re, "pid" : pid}
+        res = {"dialog" : re, "pid" : pid, "pid_tag" : pid_tag}
+        # print('res:',res)
         res = json.dumps(res)
  
         return response.Response(res)
