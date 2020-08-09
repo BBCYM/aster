@@ -40,9 +40,15 @@ export default function RoomScreen({navigation}) {
 		},
 	]);
 	const [imgIDs, setimgIDs] = React.useState([]);
+	const [imgIDtags, setimgIDtags] = React.useState([]);
+	const [ID, setID] = React.useState([]);
+	const [Tag, setTag] = React.useState([]);
+
 	async function reset(){
 		var empty = [];
 		setimgIDs(empty);
+		setimgIDtags(empty);
+		setID(empty);
 		// console.log('inreset:',imgIDs);
 		setMessages([{
 			_id: 0,
@@ -111,34 +117,74 @@ export default function RoomScreen({navigation}) {
 		
 		//抓取後端傳來的pid
 		var newpid = message.pid;
-		console.log('newpid',newpid);
+		// console.log('newpid',newpid);
 		// console.log('imgIDs',imgIDs);
 		// console.log('imgIDstype',typeof(imgIDs));
+		var newpid_tag = message.pid_tag;
+		console.log('newpid_tag',newpid_tag);
 		//用filter找有無相同的pid，若無則回傳空陣列
 		var tempid = imgIDs;
-		// var tempid = await AsyncStorage.getItem('pid');
-		// tempid = JSON.parse(tempid);
-		// console.log('tempid out',tempid);
+		var tempid_tag = imgIDtags;
+		var id = ID;
+		var tag = Tag;
+
 		newpid.forEach(element=>{
 			var filtered = imgIDs.filter(function(value) {
 				return value === element;
 			});
-			console.log('filtered',filtered);
 			//若無相同pid
 			if(!filtered.length){
 				tempid.push(element);
-				console.log('tempid',tempid);
-				// AsyncStorage.setItem(
-				// 	'pid',
-				// 	JSON.stringify(tempid),
-				// );
 				setimgIDs(tempid);
+			}	
+		})
+		newpid_tag.forEach(element=>{
+			// console.log('elepid:',element.pid);
+			// console.log('eletag:',element.tag);
+			// console.log('imgIDtags:',imgIDtags);
+			// tempid_tag.push(element);
+			// console.log('tempid_tag:',tempid_tag);
+			// setimgIDtags(tempid_tag);
+			
+			imgIDtags.forEach(element=>{
+				// console.log('imIDtags_pid:',element.pid);
+				id.push(element.pid);
+				tag.push(element.tag);
+			})
+			// console.log('id:',id);
+			setID(id);
+			// console.log('tag:',tag);
+			setTag(tag);
+			var filterid = ID.filter(function(value) {
+				return value === element.pid;
+			});
+			// console.log('filterid',filterid);
+			//若無相同pid就將該pid加入array
+			if(!filterid.length){
+				tempid_tag.push(element);
+				// console.log('tempid_tag',tempid_tag);
+				setimgIDtags(tempid_tag);
+			}
+			else{ //若有相同pid進而去判斷是否有相同的tag
+				var filtertag = Tag.filter(function(value) {
+					return value === element.tag;
+				});
+				// console.log('filtertag',filtertag);
+				//若無相同tag，進而去找到該照片並將new tag加入array
+				if(!filtertag.length){
+					var photoid = element.pid;
+					var photo = imgIDtags.find(element => {
+						return element.pid === photoid;
+					});
+					console.log('用pid抓tempid_tag',photo.tag);
+					var phototag = element.tag.toString();
+					photo.tag.push(phototag);
+					// console.log('last',photo.tag);
+				}
 			}
 		})
-		
-		
-		console.log('setimgIDS',imgIDs);
-		// imgIDs = GiftedChat.append(imgIDs, [message.pid])
+		console.log('setimgIDtags',imgIDtags);
+		// console.log('setimgIDS',imgIDs);
 	}
 
 	return (
@@ -155,7 +201,8 @@ export default function RoomScreen({navigation}) {
 					style: { color: "white", textDecorationLine: "underline" },
 					onPress: (tag) => {
 						navigation.navigate('SomeGallery',{
-							pid:imgIDs
+							pid:imgIDs,
+							pid_tag: imgIDtags
 						})
 					},
 				},
