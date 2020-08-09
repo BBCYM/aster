@@ -26,8 +26,8 @@ from album.views import AlbumView, AlbumTagView
 photo_patterns = [
     path('<int:pk>', PhotoView.as_view()),
     path('', PhotoView.as_view()),
-    path('/emotion', EmotionView.as_view()),
-    path('/tag', TagView.as_view()),
+    path('emotion', EmotionView.as_view()),
+    path('tag', TagView.as_view()),
 ]
 
 urlpatterns = [
@@ -36,7 +36,7 @@ urlpatterns = [
     path('bot', BotView.as_view()),
     path('home', HomeView.as_view()),
 
-    path('photo', include(photo_patterns)),
+    path('photo/', include(photo_patterns)),
 
     path('album', AlbumView.as_view()),
     path('album/tag', AlbumTagView.as_view()),

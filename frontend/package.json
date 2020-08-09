@@ -32,8 +32,7 @@
     "react-native-screens": "^2.9.0",
     "react-native-swipe-list-view": "^3.2.3",
     "react-native-uuid": "^1.4.9",
-    "react-native-vector-icons": "^7.0.0",
-    "rn-sliding-up-panel": "^2.4.3"
+    "react-native-vector-icons": "^7.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.10.4",

@@ -10,7 +10,7 @@ import {
 import { Overlay, SearchBar } from 'react-native-elements'
 import FastImage from 'react-native-fast-image'
 import ImageViewer from 'react-native-image-zoom-viewer'
-import { photoFooter, TagList } from '../../components/photoComponent copy'
+import { photoFooter, TagList } from '../../components/photoComponent'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import Axios from 'axios'
 import { AuthContext } from '../../contexts/AuthContext'
