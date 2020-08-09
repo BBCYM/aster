@@ -70,7 +70,7 @@ MONGODB_DATABASES = {
         'name': 'aster',
         'host': 'localhost',
         'port': 27017,
-        'tz_aware': USE_TZ, # if you use timezones in django (USE_TZ = True)
+        'tz_aware': USE_TZ,  # if you use timezones in django (USE_TZ = True)
     }
 }
 
@@ -91,8 +91,6 @@ mongoengine.connect(
 #         'ENFORCE_SCHEMA': False,
 #     }
 # }
-
-
 
 
 # Static files (CSS, JavaScript, Images)

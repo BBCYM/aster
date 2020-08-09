@@ -54,11 +54,11 @@ export function TagList([status, setStatus]) {
 
 
 export function photoFooter([status, setStatus], currentIndex) {
-	
-	function fetchTags(currentIndex){
+
+	function fetchTags(currentIndex) {
 		console.log(currentIndex)
 		setStatus({
-			tag: Array(20).fill('').map((_, i) => ({ key: `${20-i-1}`, text: `item #${i}` })),
+			tag: Array(20).fill('').map((_, i) => ({ key: `${20 - i - 1}`, text: `item #${i}` })),
 			isTagModalVisi: true
 		})
 	}

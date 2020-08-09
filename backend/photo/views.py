@@ -252,10 +252,6 @@ class TagView(APIView):
         Returns:
             更改過後的tag
         """
-        #i like bobo
-        #i am bobo
-        # i like bobo
-        #go eat hambuger
         photo_id = request.data["photoId"]
         custom_tag = request.data["custom_tag"]
         tag = {
