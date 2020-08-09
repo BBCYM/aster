@@ -25,14 +25,15 @@ class AlbumView(APIView):
 
     def post(self, request):
 
-        album = Album(albumId=request.data['albumId'],
-                      coverPhotoId=request.data['coverPhotoId'],
-                      albumName=request.data['albumName'],
-                      userId=request.data['userId'],
-                      albumPhoto=request.data['albumPhoto'],
-                      albumTag=request.data['albumTag'],
-                      createTime=request.data['time'])
-        album.save()
+        album = Album(
+            albumId=request.data['albumId'],
+            coverPhotoId=request.data['coverPhotoId'],
+            albumName=request.data['albumName'],
+            userId=request.data['userId'],
+            albumPhoto=request.data['albumPhoto'],
+            albumTag=request.data['albumTag'],
+            createTime=request.data['time']
+        )
 
         return Response(simpleMessage('POST/AlbumView'), status=status.HTTP_201_CREATED)
 
@@ -47,9 +48,9 @@ class AlbumView(APIView):
     #     Returns:
     #         None
     #     """
-    #     album = Album(albumId='5',
-    #                   coverPhotoId='12345',
-    #                   albumName='michelle5',
+    #     album = Album(albumId='2',
+    #                   coverPhotoId='1234579',
+    #                   albumName='michelle9',
     #                   userId='abc5',
     #                   albumPhoto=[{'photoId': 'asdfklkajhsl',
     #                                'isDeleted': False},
@@ -202,3 +203,70 @@ class AlbumTagView(APIView):
             return Response(simpleMessage("DELETE/AlbumTagView: error"), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         return Response(simpleMessage('DELETE/AlbumTagView'), status=status.HTTP_201_CREATED)
+
+
+class AlbumPhotoView(APIView):
+
+    # 刪除相簿中的相片
+    def delete(self, request):
+        """
+        刪除相簿中的相片
+        根據albumId和photoId刪掉指定的相片
+        photo不存在或是成功刪除都會還傳成功
+        Args:
+            request: 裡面需要有albumId和photoId
+        Returns:
+            相簿剩下的photo
+        """
+        album_id = request.data["albumId"]
+        album_photo = request.data["albumPhoto"]
+
+        try:
+
+            album = Album.objects(
+                albumId=album_id, albumPhoto__match={'photoId': album_photo, 'isDeleted': False}).first()
+            print(album.to_json())
+
+            for single_photo in album.albumPhoto:
+
+                if single_photo.photoId == album_photo:
+                    print('same')
+                    single_photo.isDeleted = True
+            print(album.to_json())
+            album.save()
+
+        except Exception as e:
+            print(e)
+            return Response(simpleMessage("DELETE/AlbumPhotoView: error"), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response(simpleMessage('DELETE/AlbumPhotoView'), status=status.HTTP_201_CREATED)
+
+    # 新增相片到相簿中
+    def post(self, request):
+        """
+        新增photo時
+        根據albumId去新增相簿的photo
+        會檢查photo是否獨一無二
+        Args:
+            request: 裡面需要有albumId和photoId
+        Returns:
+            更改過後的photo
+        """
+        album_id = request.data["albumId"]
+        album_photo = request.data["albumPhoto"]
+        photoId = {
+            'photoId': album_photo,
+            'isDeleted': False
+        }
+
+        try:
+            update_rows = Album.objects(albumId=album_id).update(
+                add_to_set__albumPhoto=photoId)
+
+            print(f'Album/View: AlbumPhotoView.post, db:{update_rows} rows')
+
+        except Exception as e:
+            print('error: ', e)
+            return Response(simpleMessage("Post/AlbumPhotoView: error"), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response(simpleMessage('Post/AlbumPhotoView'), status=status.HTTP_201_CREATED)

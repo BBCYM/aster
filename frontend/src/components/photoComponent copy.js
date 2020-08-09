@@ -57,6 +57,7 @@ export function TagList([status, setStatus]) {
 }
 
 
+
 export function photoFooter(that, [status, setStatus], currentIndex) {
 
 	async function fetchTags(currentIndex) {

@@ -33,7 +33,7 @@ class Album(Document):
     userId = fields.StringField()
     albumPhoto = fields.EmbeddedDocumentListField(AlbumPhoto)
     albumTag = fields.EmbeddedDocumentListField(AlbumTag)
-    createTime = fields.DateTimeField()  # 建相簿的時間
+    createTime = fields.DateTimeField(default=datetime.utcnow())  # 建相簿的時間
     updateTime = fields.DateTimeField(default=datetime.utcnow())
     isDeleted = fields.BooleanField(default=False)
 
