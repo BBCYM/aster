@@ -6,6 +6,7 @@ import {
 	Modal,
 	TouchableOpacity,
 	Dimensions,
+	Image
 } from 'react-native'
 import { Overlay, SearchBar } from 'react-native-elements'
 import FastImage from 'react-native-fast-image'
@@ -15,8 +16,9 @@ import Ionicons from 'react-native-vector-icons/Ionicons'
 import Axios from 'axios'
 import { AuthContext } from '../../contexts/AuthContext'
 import AsyncStorage from '@react-native-community/async-storage'
+import {checkEmotion} from '../../utils/utils'
 
-export default function GalleryScreen() {
+export default function GalleryScreen(that) {
 	function useMergeState(initialState) {
 		const [state, setState] = React.useState(initialState)
 		const setStatus = newState =>
@@ -25,14 +27,21 @@ export default function GalleryScreen() {
 	}
 	const [status, setStatus] = useMergeState({
 		isVisible: false,
-		currendId: 0,
+		currentId: 0,
 		isTagModalVisi: false,
+		isEmotionModalVisi:false,
 		inputTag: '',
 		fastSource: [],
 		modalSource: [],
-		tag: []
+		tag: [],
+		emotionStatus:Array(6).fill(false), 
 	})
 	const { auth } = React.useContext(AuthContext)
+	function setEmotion(n){
+		let newEmotion = checkEmotion(status.emotionStatus,n)
+		console.log(newEmotion)
+		setStatus({emotionStatus:newEmotion,isEmotionModalVisi:false})
+	}
 	async function fetchImageSource(callback) {
 		const isLoaded = await AsyncStorage.getItem('GalleryLoaded')
 		if (isLoaded === 'false') {
@@ -111,6 +120,8 @@ export default function GalleryScreen() {
 			isVisible: true,
 		})
 	}
+
+	
 	function addTag() {
 		console.log(status.inputTag.length !== 0)
 		console.log(status.inputTag.trim())
@@ -131,8 +142,6 @@ export default function GalleryScreen() {
 			// this.search.clear()
 		}
 	}
-
-
 	return (
 		<View style={{ flex: 1 }}>
 			<Overlay
@@ -158,14 +167,67 @@ export default function GalleryScreen() {
 					{TagList([status, setStatus])}
 				</View>
 			</Overlay>
+			<Overlay isVisible={status.isEmotionModalVisi}
+				onBackdropPress={() => { setStatus({ isEmotionModalVisi: false }) }}
+				overlayStyle={styles.overlayStyle2}>
+
+				<View style={{ flexDirection: 'row' }}>
+					<TouchableOpacity activeOpacity={0.4} focusedOpacity={0.5} onPress={()=> setEmotion(0)}>
+						<Image style={styles.emotion}
+							source={require('../../emotionIcon/like.gif')}
+						/>
+					</TouchableOpacity>
+
+					<TouchableOpacity activeOpacity={0.4} focusedOpacity={0.5} onPress={()=> setEmotion(1)}>
+						<Image style={styles.emotion}
+							source={require('../../emotionIcon/love.gif')}
+						/>
+					</TouchableOpacity>
+
+					<TouchableOpacity activeOpacity={0.4} focusedOpacity={0.5} onPress={()=> setEmotion(2)}>
+						<Image style={styles.emotion}
+							source={require('../../emotionIcon/haha.gif')}
+						/>
+					</TouchableOpacity>
+
+					<TouchableOpacity activeOpacity={0.4} focusedOpacity={0.5} onPress={()=> setEmotion(3)}>
+						<Image style={styles.emotion}
+							source={require('../../emotionIcon/wow.gif')}
+						/>
+					</TouchableOpacity>
+
+					<TouchableOpacity activeOpacity={0.4} focusedOpacity={0.5} onPress={()=> setEmotion(4)}>
+						<Image style={styles.emotion}
+							source={require('../../emotionIcon/sad.gif')}
+						/>
+					</TouchableOpacity>
+					<TouchableOpacity activeOpacity={0.4} focusedOpacity={0.5} onPress={()=> setEmotion(5)}>
+						<Image style={styles.emotion}
+							source={require('../../emotionIcon/angry.gif')}
+						/>
+					</TouchableOpacity>
+				</View>
+			</Overlay>
 			<Modal visible={status.isVisible} transparent={false} onRequestClose={() => { setStatus({ isVisible: false, isTagModalVisi: false }) }}>
 				<ImageViewer
+					backgroundColor='#d7d7cb'
 					imageUrls={status.modalSource}
 					index={status.currentId}
 					enablePreload={true}
 					renderIndicator={() => null}
-					renderFooter={(currentIndex) => photoFooter([status, setStatus], currentIndex)}
-					footerContainerStyle={{ bottom: 0, position: 'absolute', zIndex: 1000 }}
+					// onChange={(index)=>fetchTags(index)}
+					// onShowModal={() => fetchTags(status.currentId)}
+					renderFooter={(currentIndex) => photoFooter(that, [status, setStatus], currentIndex)}
+					footerContainerStyle={{
+						flex:1,
+						alignSelf:'flex-end',
+						flexDirection:'row',
+						width: 140,
+						height: 200,
+						borderColor: 'black',
+						borderWidth: 1,
+						zIndex:1
+					}}
 				/>
 			</Modal>
 			<FlatList
@@ -210,5 +272,18 @@ const styles = StyleSheet.create({
 		paddingRight: 5,
 		fontSize: 17,
 		color: '#63CCC8',
-	}
+	},
+	overlayStyle2: {
+		height: 55,
+		width: 313,
+		justifyContent:'center',
+		padding:0,
+		borderRadius:15,
+		backgroundColor:'#63CCC8'
+	},
+	emotion: {
+		width: 50,
+		height: 50,
+		margin: 1
+	},
 })

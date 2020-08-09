@@ -2,14 +2,18 @@ import * as React from 'react'
 import {
 	View,
 	StyleSheet,
-	Dimensions,
+	// Dimensions,
 	TouchableOpacity,
 } from 'react-native'
 import { ListItem } from 'react-native-elements'
+// import SlidingUpPanel from 'rn-sliding-up-panel';
 import ActionButton from 'react-native-action-button'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import { SwipeListView } from 'react-native-swipe-list-view'
-
+// import { Footer, FooterTab, Button, Container } from 'native-base'
+// import {SearchBar} from 'react-native-elements'
+// const screenWidth = Math.round(Dimensions.get('window').width)
+// const screenHeight = Math.round(Dimensions.get('window').height)
 
 export function TagList([status, setStatus]) {
 	function deleteTag(id) {
@@ -53,63 +57,61 @@ export function TagList([status, setStatus]) {
 }
 
 
-export function photoFooter([status, setStatus], currentIndex) {
 
-	function fetchTags(currentIndex) {
+export function photoFooter(that, [status, setStatus], currentIndex) {
+
+	async function fetchTags(currentIndex) {
 		console.log(currentIndex)
 		setStatus({
-			tag: Array(20).fill('').map((_, i) => ({ key: `${20 - i - 1}`, text: `item #${i}` })),
-			isTagModalVisi: true
+			tag: Array(20).fill('').map((_, i) => ({ key: `${20 - i - 1}`, text: `item: ${currentIndex} #${i}` })),
 		})
 	}
+	async function fetchEmotion(currentIndex){
 
+	}
+	// console.log(screenHeight)
 	return (
 		<View style={styles.root}>
 			<ActionButton
 				buttonColor="rgba(231,76,60,1)"
 				position='right'
-				offsetX={20}
-				offsetY={20}
+				offsetX={10}
+				offsetY={10}
 				fixNativeFeedbackRadius={true}
 				spacing={10}
+				onPress={()=>fetchTags(currentIndex)}
 			>
+				<ActionButton.Item
+					buttonColor='#F5B19C'
+					title="Emotion"
+					spaceBetween={8}
+					onPress={() => setStatus({isEmotionModalVisi: true})}
+				>
+					<Ionicons name="happy-outline" style={styles.actionButtonIcon} />
+				</ActionButton.Item>
 				<ActionButton.Item
 					buttonColor='#63CCC8'
 					title="New Tag"
-					spaceBetween={5}
-					onPress={() => fetchTags(currentIndex)}
+					spaceBetween={8}
+					onPress={() => setStatus({isTagModalVisi: true})}
 				>
 					<Ionicons name="pricetags-outline" style={styles.actionButtonIcon} />
 				</ActionButton.Item>
-				{/* <ActionButton.Item
-					buttonColor='#63CCC8'
-					title="Description"
-					spaceBetween={5}
-					// onPress={()=>{that.setState({isTagModalVisi:true, tag:Array(20).fill('').map((_, i) => ({ key: `${20 - i - 1}`, text: `item #${i}` }))})}}
-				>
-					<Ionicons name="clipboard-outline" style={styles.actionButtonIcon} />
-				</ActionButton.Item> */}
 			</ActionButton>
 		</View>
 	)
 }
-const screenWidth = Math.round(Dimensions.get('window').width)
-const screenHeight = Math.round(Dimensions.get('window').height)
+
 const styles = StyleSheet.create({
 	root: {
 		flex: 1,
-		flexDirection: 'row',
+		flexDirection:'row',
 		alignItems: 'center',
-		justifyContent: 'center',
-		width: screenWidth,
-		height: screenHeight * 0.2,
-		borderTopColor: '#FFFFFF',
-		borderTopWidth: 1
+		justifyContent:'center'	
 	},
 	actionButtonIcon: {
-		fontSize: 20,
-		height: 22,
-		color: 'white',
-	},
-
+		fontSize: 25,
+		height: 25,
+		color: '#303960',
+	}
 })
