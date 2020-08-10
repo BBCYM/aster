@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import User
 from rest_framework import status
-from .customResponse import simpleMessage
+from .utils import simpleMessage
 from .authenticate import checkUserToSession, downloadImage, toVisionApiLabel, afterAll
 import threading
 import queue
