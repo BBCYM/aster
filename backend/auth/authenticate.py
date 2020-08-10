@@ -92,15 +92,16 @@ def toVisionApiLabel(userId, q):
         sliceTime = datetime.datetime.strptime(sliceTime, "%Y-%m-%dT%H:%M:%S")
         print(sliceTime)
         # 這個才是正確的
-        ltemp = map(getLabelDescription, labels)
+        ltemp = list(map(getLabelDescription, labels))
         mLabels = toMandarin(ltemp)
+        print(mLabels[0].text)
         t = Tag(
-            main_tag=toMandarin(mLabels[0])
+            main_tag=mLabels[0].text
         )
         for ml, l in zip(mLabels[:3], labels[:3]):
-            t.top3_tag.append(ATag(tag=ml, precision=str(l.score)))
+            t.top3_tag.append(ATag(tag=ml.text, precision=str(l.score)))
         for ml, l in zip(mLabels[4:], labels[4:]):
-            t.all_tag.append(ATag(tag=ml, precision=str(l.score)))
+            t.all_tag.append(ATag(tag=ml.text, precision=str(l.score)))
         pho = Photo(
             photoId=mediaItem['id'],
             userId=userId,

@@ -8,7 +8,7 @@ def getLabelDescription(data):
 
 def toMandarin(data):
     translator = Translator()
-    return translator.translate(data, dest='zh-tW').text
+    return translator.translate(data, dest='zh-tW')
 
 
 def stringify(data: dict):
@@ -28,6 +28,6 @@ def randLocation():
             '花蓮市', '鳳林鎮', '玉里鎮', '新城鄉', '吉安鄉', '壽豐鄉', '秀林鄉', '光復鄉', '豐濱鄉', '瑞穗鄉', '萬榮鄉', '富里鄉', '卓溪鄉'
         ],
     }
-    rand1 = random.choice(location.keys())
-    rand2 = random.choice(location[rand1].values())
+    rand1 = random.choice(list(location.keys()))
+    rand2 = random.choice(location[rand1])
     return rand2
