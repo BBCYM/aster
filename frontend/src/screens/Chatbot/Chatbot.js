@@ -46,8 +46,8 @@ export default function RoomScreen({navigation}) {
 	async function reset(){
 		var empty = [];
 		setimgIDs(empty);
-		setimgIDtags(empty);
-		setID(empty);
+		setimgIDtags([]);
+		setID([]);
 		// console.log('inreset:',imgIDs);
 		setMessages([{
 			_id: 0,
@@ -58,7 +58,6 @@ export default function RoomScreen({navigation}) {
 		await AsyncStorage.removeItem('msg');
 	}
 	// helper method that is sends a message
-	// const [messages, setMessages]  = React.useState([])
 	async function handleSend(newMessage = []) {
 		// GiftedChat.append(array1,array2)
 		//append array2 into array1 return array
@@ -71,6 +70,7 @@ export default function RoomScreen({navigation}) {
 		var user = await AsyncStorage.getItem('user');
 		user = JSON.parse(user);
 		console.log('userid',user.id);
+		
 		//從後端拿到response
 		const response = await fetch(`http://${ipv4}:3000/bot`, {
 			method: 'POST',
@@ -86,24 +86,41 @@ export default function RoomScreen({navigation}) {
 		var data = await response.json();
 		var message = JSON.parse(data);
 		var json_message = JSON.parse(message.dialog);
+
+		//////////////拿回應//////////////
 		//將所有response message都拿出來，並用成giftedchat的msg format
-		json_message.fulfillmentMessages.forEach(element => {
-			var resmsg = element.text.text[0];
-			console.log(resmsg);
-			//給random id
+		try { // statements to try
+			json_message.fulfillmentMessages.forEach(element => {
+				var resmsg = element.text.text[0];
+				// console.log(resmsg);
+				//給random id
+				var temp = uuid.v1();
+				let msg = {
+					_id: temp,
+					text: resmsg,
+					createdAt: new Date(),
+					user: {
+						_id: 0,
+						name: 'Aster',
+					},
+				};
+				//將回應訊息也append到combine中
+				combine = GiftedChat.append(combine, [msg]);
+			});
+		}
+		catch (e) {
 			var temp = uuid.v1();
-			let msg = {
-				_id: temp,
-				text: resmsg,
-				createdAt: new Date(),
-				user: {
-					_id: 0,
-					name: 'Aster',
-				},
-			};
-			//將回應訊息也append到combine中
-			combine = GiftedChat.append(combine, [msg])
-		});
+				let msg = {
+					_id: temp,
+					text: 'Please enter something else, or reset?',
+					createdAt: new Date(),
+					user: {
+						_id: 0,
+						name: 'Aster',
+					},
+				};
+			combine = GiftedChat.append(combine, [msg]);
+		}
 		//存msg於前端
 		await AsyncStorage.setItem(
 			'msg',
@@ -114,10 +131,10 @@ export default function RoomScreen({navigation}) {
 		// console.log(newMessage);
 		// setMessages(GiftedChat.append(messages, [msg1, msg, newMessage[0]]));
 		
-		//抓取後端傳來的pid
+		//////////////抓取後端傳來的pid//////////////
 		var newpid = message.pid;
 		var newpid_tag = message.pid_tag;
-		console.log('newpid_tag',newpid_tag);
+		// console.log('newpid_tag',newpid_tag);
 		var tempid = imgIDs;
 
 		//用來存每回合的id+tag
@@ -139,21 +156,17 @@ export default function RoomScreen({navigation}) {
 
 		newpid_tag.forEach(element=>{
 			//將pid取出存於id array
-			console.log('imIDtags:',imgIDtags);
+			// console.log('imIDtags:',imgIDtags);
 			imgIDtags.forEach(element=>{
-				console.log('imIDtags_pid:',element.pid);
-				// console.log('imIDtags:',element);
 				id.push(element.pid);
 			})
 			//設定給全域變數ID
 			setID(id);
 			//用filterid判斷是否有重複的id
 			var filterid = ID.filter(function(value) {
-				console.log('value:',value);
-				console.log('elepid:',element.pid);
 				return value === element.pid;
 			});
-			//若無相同pid就將該pid加入array
+			//若無相同pid就將該張照片加入array
 			if(!filterid.length){
 				tempid_tag.push(element);
 				//設定給全域變數imgIDtags
@@ -168,12 +181,8 @@ export default function RoomScreen({navigation}) {
 
 				//將該張相片原本有的tag取出
 				//並與新的tag做比較看是否已存在
-				// console.log('photo.tag:',photo.tag);
 				var filtertag = photo.tag.filter(function(value) {
-					console.log('value:',value);
-					console.log('element.tag:',element.tag);
 					var tempeletag = element.tag.toString();
-					console.log('tempeletag:',tempeletag);
 					return value === tempeletag;
 				});
 				// console.log('filtertag:',filtertag);
