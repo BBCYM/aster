@@ -9,30 +9,49 @@ from django.forms.models import model_to_dict
 
 class AlbumView(APIView):
 
+    #抓使用者的所有相簿，還沒有寫好
     def get(self, request):
-        albumId = request.data["albumId"]
-        try:
-            album = Album.objects(albumId__exact=albumId).all_fields()
-            print(album.to_json())
 
-            return_txt = {"result": 'GET/AlbumView',
-                          'album_object': album.to_json()}
-        except Exception as e:
-            print('AlbumViewError:', e)
-        return Response(return_txt, status=status.HTTP_200_OK)
+        userId = request.data["userId"]
+        user_album_array = []
 
-    # CREATE
+        album = Album.objects(userId=userId).get()
+        print(album.to_json())
 
+
+        return ('GET/AlbumView')
+
+        
+
+            # if len(array_field) == 0:
+            #     print(len(array_field))
+            #     return Response(simpleMessage("zero"), status=status.HTTP_200_OK)
+
+            # for single_album in array_field:
+            #     if single_album.albumPhoto.isDeleted == False:
+            #         user_album_array.append(single_album.albumPhoto.photoId)
+            #         print(single_album.albumPhoto.photoId)
+
+        # except Exception as e:
+        #     print(e)
+        #     return Response(simpleMessage("Get/AlbumView: error"), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        # response_str = json.dumps({"result": "Get/AlbumView",
+        #                            "user_album": user_album_array})
+
+        # return Response(response_str, status=status.HTTP_201_CREATED)
+
+
+    # CREATE  一鍵建相簿
     def post(self, request):
 
         album = Album(
-            albumId=request.data['albumId'],
             coverPhotoId=request.data['coverPhotoId'],
             albumName=request.data['albumName'],
             userId=request.data['userId'],
             albumPhoto=request.data['albumPhoto'],
             albumTag=request.data['albumTag'],
-            createTime=request.data['time']
+            # createTime=request.data['time']
         )
 
         return Response(simpleMessage('POST/AlbumView'), status=status.HTTP_201_CREATED)
@@ -63,6 +82,8 @@ class AlbumView(APIView):
 
     #     return Response(simpleMessage('POST/AlbumView'), status=status.HTTP_201_CREATED)
 
+
+    #更改相簿名稱
     def put(self, request):
 
         albumId = request.data["albumId"]
@@ -78,6 +99,7 @@ class AlbumView(APIView):
 
         return Response(simpleMessage('PUT/AlbumView'), status=status.HTTP_200_OK)
 
+    #刪除相簿
     def delete(self, request):
         """
         刪除相簿
@@ -105,6 +127,7 @@ class AlbumView(APIView):
 
 class AlbumTagView(APIView):
 
+    #取得相簿TAG
     def get(self, request):
         """
         取得相簿的albumTag
@@ -141,6 +164,7 @@ class AlbumTagView(APIView):
 
         return Response(response_str, status=status.HTTP_201_CREATED)
 
+    #新增相簿TAG
     def post(self, request):
         """
         新增tag時
@@ -171,6 +195,7 @@ class AlbumTagView(APIView):
 
         return Response(simpleMessage('Post/AlbumTagView'), status=status.HTTP_201_CREATED)
 
+    #刪除相簿TAG
     def delete(self, request):
         """
         刪除tag
@@ -207,6 +232,19 @@ class AlbumTagView(APIView):
 
 class AlbumPhotoView(APIView):
 
+    #抓相簿中的所有照片
+    def get(self, request):
+        albumId = request.data["albumId"]
+        try:
+            album = Album.objects(albumId__exact=albumId).all_fields()
+            print(album.to_json())
+
+            return_txt = {"result": 'GET/AlbumView',
+                          'album_object': album.to_json()}
+        except Exception as e:
+            print('AlbumViewError:', e)
+        return Response(return_txt, status=status.HTTP_200_OK)
+
     # 刪除相簿中的相片
     def delete(self, request):
         """
@@ -241,7 +279,7 @@ class AlbumPhotoView(APIView):
 
         return Response(simpleMessage('DELETE/AlbumPhotoView'), status=status.HTTP_201_CREATED)
 
-    # 新增相片到相簿中
+    # 新增相片到相簿中(現在先不用這個，只有一鍵建相簿)
     def post(self, request):
         """
         新增photo時
