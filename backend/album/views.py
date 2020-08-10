@@ -1,7 +1,7 @@
 from rest_framework.views import APIView, status
 from rest_framework.response import Response
 from auth.utils import simpleMessage
-from .models import Album, Tag
+from .models import Album, AlbumPhoto, AlbumTag
 from datetime import datetime
 import json
 from django.forms.models import model_to_dict
@@ -44,16 +44,19 @@ class AlbumView(APIView):
 
     # CREATE  一鍵建相簿
     def post(self, request):
+       
 
         album = Album(
             coverPhotoId=request.data['coverPhotoId'],
             albumName=request.data['albumName'],
             userId=request.data['userId'],
-            albumPhoto=request.data['albumPhoto'],
-            albumTag=request.data['albumTag'],
-            # createTime=request.data['time']
-        )
 
+        )
+        for p in request.data['albumPhoto']:
+            album.albumPhoto.append(AlbumPhoto(photoId=p))
+        for t in request.data['albumTag']:
+            album.albumTag.append(AlbumTag(tag=t))
+        album.save()
         return Response(simpleMessage('POST/AlbumView'), status=status.HTTP_201_CREATED)
 
     # # CREATE 測試建立資料
