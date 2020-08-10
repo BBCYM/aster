@@ -239,15 +239,15 @@ class AlbumTagView(APIView):
 
 class AlbumPhotoView(APIView):
 
-    #抓相簿中的所有照片
+    #
     def get(self, request):
         albumId = request.data["albumId"]
         _id = request.data["_id"]
-        print('_id:', _id)
+        print('_id:', id)
         print('albumId:', albumId)
 
         try:
-            album = Album.objects(_id__exact=_id).all_fields()
+            album = Album.objects(albumId__exact=albumId).all_fields()
             print(album.to_json())
 
             return_txt = {"result": 'GET/AlbumView',
@@ -255,6 +255,23 @@ class AlbumPhotoView(APIView):
         except Exception as e:
             print('AlbumViewError:', e)
         return Response(return_txt, status=status.HTTP_200_OK)
+
+    # #抓相簿中的所有照片
+    # def get(self, request):
+    #     albumId = request.data["albumId"]
+    #     _id = request.data["_id"]
+    #     print('_id:',id)
+    #     print('albumId:', albumId)
+
+    #     try:
+    #         album = Album.objects(albumId__exact=albumId).all_fields()
+    #         print(album.to_json())
+
+    #         return_txt = {"result": 'GET/AlbumView',
+    #                       'album_object': album.to_json()}
+    #     except Exception as e:
+    #         print('AlbumViewError:', e)
+    #     return Response(return_txt, status=status.HTTP_200_OK)
 
     # 刪除相簿中的相片
     def delete(self, request):
