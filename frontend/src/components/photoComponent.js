@@ -13,16 +13,26 @@ import { ipv4 } from '../utils/dev'
 import {resToEmotionStatus} from '../utils/utils'
 
 
-export function TagList([status, setStatus]) {
-	function deleteTag(id) {
-		console.log(`deleting tag id:${id}`)
-		let slicedTag = [...status.tag]
-		var result = slicedTag.findIndex((v, i) => {
-			return v.key === id
+export function TagList([status, setStatus],state) {
+	function deleteTag(id,text) {
+		Axios.delete(`http://${ipv4}:3000/photo/tag`,{
+			params:{
+				userId: state.user.id,
+				photoId: status.currentPhotoId,
+				custom_tag: text
+			}
+		}).then(()=>{
+			console.log(`deleting tag id:${id}`)
+			let slicedTag = [...status.tag]
+			var result = slicedTag.findIndex((v, i) => {
+				return v.key === id
+			})
+			slicedTag.splice(result, 1)
+			// dispatch(action(actionType.SET.TAG, slicedTag))
+			setStatus({ tag: slicedTag })
+		}).catch((err)=>{
+			console.log(err)
 		})
-		slicedTag.splice(result, 1)
-		// dispatch(action(actionType.SET.TAG, slicedTag))
-		setStatus({ tag: slicedTag })
 	}
 	return (
 		<SwipeListView
@@ -37,7 +47,7 @@ export function TagList([status, setStatus]) {
 				</View>
 			)}
 			renderHiddenItem={(data, rowMap) => (
-				<TouchableOpacity onPress={() => deleteTag(data.item.key)}>
+				<TouchableOpacity onPress={() => deleteTag(data.item.key, data.item.text)}>
 					<ListItem
 						key={data.item.key}
 						rightElement={

@@ -187,7 +187,7 @@ export default function GalleryScreen(that) {
 							containerStyle={{ padding: 5 }}
 						/>
 					</View>
-					{TagList([status, setStatus])}
+					{TagList([status, setStatus],state)}
 				</View>
 			</Overlay>
 			<Overlay isVisible={status.isEmotionModalVisi}
@@ -228,7 +228,6 @@ export default function GalleryScreen(that) {
 					enablePreload={true}
 					useNativeDriver={true}
 					renderIndicator={() => null}
-					// onChange={(index)=>changeViewer(index)}
 					renderFooter={(currentIndex) => photoFooter(that, [status, setStatus], currentIndex, state)}
 					footerContainerStyle={{
 						flex: 1,

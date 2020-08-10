@@ -1,3 +1,4 @@
+import _ from 'lodash'
 export function checkEmotion(eState, want) {
 	let eCopy = [...eState]
 	let now = eCopy.indexOf(true)
@@ -24,4 +25,15 @@ export function resToEmotionStatus(eState, want){
 		eCopy[temp] = true
 	}
 	return eCopy
+}
+
+export function preCleanPid(pids){
+	let temp = pids.map((v, i)=>{
+		return {
+			pid: v.pid,
+			tag: new Set(v.tag)
+		}
+	})
+	temp = _.sortBy(temp,[function(o){return len(o.tag)}])
+	
 }

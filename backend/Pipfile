@@ -21,6 +21,7 @@ django-rest-framework-mongoengine = "*"
 mongoengine = "*"
 blinker = "*"
 pandas = "*"
+owlready2 = "*"
 
 [requires]
 python_version = "3.7"
