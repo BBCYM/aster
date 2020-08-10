@@ -16,7 +16,11 @@ class AlbumView(APIView):
         user_album_array = []
 
         album = Album.objects(userId=userId).get()
-        print(album.to_json())
+        
+        for z in album:
+            user_album_array.append(single_album.albumPhoto.photoId)
+
+        print(user_album_array.to_json())
 
 
         return ('GET/AlbumView')
@@ -238,8 +242,12 @@ class AlbumPhotoView(APIView):
     #抓相簿中的所有照片
     def get(self, request):
         albumId = request.data["albumId"]
+        _id = request.data["_id"]
+        print('_id:', _id)
+        print('albumId:', albumId)
+
         try:
-            album = Album.objects(albumId__exact=albumId).all_fields()
+            album = Album.objects(_id__exact=_id).all_fields()
             print(album.to_json())
 
             return_txt = {"result": 'GET/AlbumView',
