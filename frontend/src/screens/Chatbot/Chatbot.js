@@ -89,23 +89,38 @@ export default function RoomScreen({navigation}) {
 
 		//////////////拿回應//////////////
 		//將所有response message都拿出來，並用成giftedchat的msg format
-		json_message.fulfillmentMessages.forEach(element => {
-			var resmsg = element.text.text[0];
-			// console.log(resmsg);
-			//給random id
+		try { // statements to try
+			json_message.fulfillmentMessages.forEach(element => {
+				var resmsg = element.text.text[0];
+				// console.log(resmsg);
+				//給random id
+				var temp = uuid.v1();
+				let msg = {
+					_id: temp,
+					text: resmsg,
+					createdAt: new Date(),
+					user: {
+						_id: 0,
+						name: 'Aster',
+					},
+				};
+				//將回應訊息也append到combine中
+				combine = GiftedChat.append(combine, [msg]);
+			});
+		}
+		catch (e) {
 			var temp = uuid.v1();
-			let msg = {
-				_id: temp,
-				text: resmsg,
-				createdAt: new Date(),
-				user: {
-					_id: 0,
-					name: 'Aster',
-				},
-			};
-			//將回應訊息也append到combine中
-			combine = GiftedChat.append(combine, [msg])
-		});
+				let msg = {
+					_id: temp,
+					text: 'Please enter something else, or reset?',
+					createdAt: new Date(),
+					user: {
+						_id: 0,
+						name: 'Aster',
+					},
+				};
+			combine = GiftedChat.append(combine, [msg]);
+		}
 		//存msg於前端
 		await AsyncStorage.setItem(
 			'msg',
