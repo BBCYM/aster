@@ -175,7 +175,6 @@ export default function GalleryScreen(that) {
 				<View style={{ flex: 1 }} >
 					<View>
 						<SearchBar
-							// ref={search => this.search = search}
 							placeholder="Add Tag"
 							onChangeText={(inputTag) => { setStatus({ inputTag: inputTag }) }}
 							onSubmitEditing={() => addTag()}
