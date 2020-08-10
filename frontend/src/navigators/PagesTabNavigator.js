@@ -4,7 +4,7 @@ import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/
 import ChatbotScreen from '../screens/Chatbot/Chatbot'
 import HomeScreen from '../screens/Home/Home'
 import ProfileScreen from '../screens/Profile/Profile'
-import GalleryHome from '../screens/Gallery/PhotoGallery copy'
+import GalleryHome from '../screens/Gallery/PhotoGallery'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import SomeGallery from '../screens/Gallery/SomeGallery'
 import SomeAlbumGallery from '../screens/Gallery/SomeAlbumGallery'

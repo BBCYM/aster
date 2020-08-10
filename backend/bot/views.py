@@ -9,6 +9,7 @@ import json
 from google.api_core.exceptions import InvalidArgument
 from google.protobuf.json_format import MessageToJson
 from photo.models import Photo
+from mongoengine.queryset.visitor import Q
 
 class BotView(views.APIView):
     # global uri
@@ -29,15 +30,15 @@ class BotView(views.APIView):
         data = request.data['usermsg']
         # print('這是request=',request)
         # print('這是data=',data)
+        userid = request.data['userid']
+        # print('userid',userid)
 
-        # print('這是response.data=',request.data)
-        #return response.Response("ok")
 
         credentials = service_account.Credentials.from_service_account_file('dfcredentials.json').with_scopes(['https://www.googleapis.com/auth/dialogflow'])
 
         with open('dfcredentials.json', encoding='utf-8') as f:
             appSecret = json.load(f)
-            print(appSecret)
+            # print(appSecret)
             PROJECT_ID = itemgetter("project_id")(appSecret)
         session_id = 'userforDemo12345'
         text = data   #這裡改成在RN輸入的字串
@@ -62,42 +63,75 @@ class BotView(views.APIView):
         # datetime = parameters.fields['date-time'].list_value.values[0].string_value
         # vision = parameters.fields['visionAPI_1000'].list_value.values[0].string_value
         
-        photo = parameters.fields['photo'].list_value
+        # photo = parameters.fields['photo'].list_value
+        emotion = parameters.fields['emotion'].list_value
         datetime = parameters.fields['date-time'].list_value
         vision = parameters.fields['visionAPI_1000'].list_value
         location = parameters.fields['location'].list_value
         pid = []
-        pictures = Photo.objects.filter(userId = '113073984862808105932')
-        
+        # tag = []
+        pid_tag = []
         def getpid(key):
             try:
-                for i in pictures:
-                    # print(i)
-                    # print(type(i))
-                    # print('main:',i.tag['main_tag'])
-                    # print('type:',type(i.tag['main_tag']))
-                    if(i.tag['main_tag'] == key):
-                        print('main:',i.tag['main_tag'])
-                        print('photoid:',i.photoId)
-                        pid.append(i.photoId)
-                        print('pid:',pid)
-                    
+                # main = Photo.objects(tag__main_tag='天空')
+                def addpid(pidarr, key):
+                    for i in pidarr:
+                        tag = []
+                        photoid = i.photoId
+                        # print('photoid:',photoid)
+                        pid.append(photoid)
+                        print('key in add:',key)
+                        tag.append(key)
+                        temptag = tag
+                        print('tag:',tag)
+                        pid_tag.append({"pid":photoid, "tag":temptag})
+                        print('pid_tag',pid_tag)
+
+                print('key',key)
+
+                emo = Photo.objects(Q(userId=userid) & Q(tag__emotion_tag=key))
+                print('emotion:',emo)
+                addpid(emo, key)
+
+                main = Photo.objects(Q(userId=userid) & Q(tag__main_tag=key))
+                print('main:',main)
+                addpid(main, key)
+
+                top3 = Photo.objects(Q(userId=userid) & Q(tag__top3_tag__tag=key))
+                print('top3:',top3)
+                addpid(top3, key)
+
+                alltag = Photo.objects(Q(userId=userid) & Q(tag__all_tag__tag=key))
+                print('alltag:',alltag)
+                addpid(alltag, key)
+
+                custom = Photo.objects(Q(userId=userid) & Q(tag__custom_tag__is_deleted=False) & Q(tag__custom_tag__tag=key))
+                print('custom:',custom)
+                addpid(custom, key)
+
+                loctag = Photo.objects(Q(userId=userid) & Q(location=key))
+                print('loctag:',loctag)
+                addpid(loctag, key)
+                # print('pid:',pid)
+
             except Exception as e:
                 print(e)
 
-        if len(photo) is not 0:
-            photokey = photo.values[0].string_value
-            getpid(photokey)
+
+        if len(emotion) is not 0:
+            emokey = emotion.values[0].string_value
+            getpid(emokey)
 
         if len(datetime) is not 0:
             datetimekey = datetime.values[0].string_value
             getpid(datetimekey)
 
         if len(vision) is not 0:
-            for i in range(len(vision.values)):
-                vikey = vision.values[i].string_value
-                # print(vikey)
-                getpid(vikey)
+            vikeyArray = map(lambda k: k.string_value,vision.values)
+            vikeyArray = set(vikeyArray)
+            vikeyArray = list(vikeyArray)
+            for i in vikeyArray:
+                getpid(i)
 
         if len(location) is not 0:
             admin_areakey = location.values[0].struct_value.fields['admin-area'].string_value
@@ -136,11 +170,12 @@ class BotView(views.APIView):
             if(zip_codekey != ''):
                 # print(zip_codekey)
                 getpid(zip_codekey)
-
+        # print('lastpid',pid)
         re = MessageToJson(res.query_result)
-        vivi = {"dialog" : re, "pid" : pid}
-        vivi = json.dumps(vivi)
+        res = {"dialog" : re, "pid" : pid, "pid_tag" : pid_tag}
+        # print('res:',res)
+        res = json.dumps(res)
  
-        return response.Response(vivi)
+        return response.Response(res)
     
 

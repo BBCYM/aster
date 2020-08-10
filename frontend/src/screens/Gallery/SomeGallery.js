@@ -6,14 +6,18 @@ import {
 	Modal,
 	TouchableOpacity,
 	Dimensions,
+	Image
 } from 'react-native'
 import { Overlay, SearchBar } from 'react-native-elements'
 import FastImage from 'react-native-fast-image'
 import ImageViewer from 'react-native-image-zoom-viewer'
-import { photoFooter, TagList } from '../../components/photoComponent copy'
+import { photoFooter, TagList } from '../../components/photoComponent'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import Axios from 'axios'
 import { AuthContext } from '../../contexts/AuthContext'
+import { checkEmotion, preCleanPid } from '../../utils/utils'
+import { ipv4 } from '../../utils/dev'
+
 
 export default function SomeGalleryScreen(props) {
 	function useMergeState(initialState) {
@@ -24,16 +28,36 @@ export default function SomeGalleryScreen(props) {
 	}
 	const [status, setStatus] = useMergeState({
 		isVisible: false,
-		currendId: 0,
+		currentId: 0,
+		currentPhotoId: '',
 		isTagModalVisi: false,
+		isEmotionModalVisi: false,
 		inputTag: '',
 		fastSource: [],
 		modalSource: [],
-		tag: []
+		tag: [],
+		emotionStatus: Array(6).fill(false),
 	})
-	const { auth } = React.useContext(AuthContext)
+	const { auth,state } = React.useContext(AuthContext)
+	function setEmotion(n) {
+		let newEmotion = checkEmotion(status.emotionStatus, n).indexOf(true)
+		Axios.put(`http://${ipv4}:3000/photo/emotion`, JSON.stringify({
+			userId: state.user.id,
+			photoId: status.currentPhotoId,
+			emotion_tag: newEmotion
+		}), {
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		}).then((res) => {
+			setStatus({ emotionStatus: newEmotion, isEmotionModalVisi: false })
+		})
+	}
+
 	async function fetchImageSource(callback) {
 		console.log('Loading photo')
+		// const cleanImgnTag = preCleanPid(props.route.params.pid_tag)
+		// console.log(cleanImgnTag)
 		const temp = props.route.params.pid
 		const accessToken = await auth.getAccessToken()
 		let fSource = []
@@ -71,18 +95,15 @@ export default function SomeGalleryScreen(props) {
 	}, [])
 
 	function showImage(item) {
-		// load tag of the item
 		setStatus({
 			currentImg: item.src,
 			currentId: item.id,
 			isVisible: true,
+			currentPhotoId: item.imgId,
 		})
 	}
 	function addTag() {
-		console.log(status.inputTag.length !== 0)
-		console.log(status.inputTag.trim())
 		if (status.inputTag.length !== 0 && status.inputTag.trim()) {
-			console.log('adding tag')
 			let tags = [...status.tag]
 			let l = tags.length
 			let t
@@ -93,12 +114,30 @@ export default function SomeGalleryScreen(props) {
 			}
 			tags.unshift({ key: String(t), text: status.inputTag })
 			setStatus({ tag: tags, inputTag: '' })
+			Axios.put(`http://${ipv4}:3000/photo/tag`, JSON.stringify({
+				userId: state.user.id,
+				photoId: status.currentPhotoId,
+				customTag: status.inputTag
+			}), {
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			})
 		} else {
 			setStatus({ inputTag: '' })
-			// this.search.clear()
 		}
 	}
-
+	function EmotionGroup() {
+		let temp = [
+			{ source: require('../../emotionIcon/like.gif'), index: 0 },
+			{ source: require('../../emotionIcon/love.gif'), index: 1 },
+			{ source: require('../../emotionIcon/haha.gif'), index: 2 },
+			{ source: require('../../emotionIcon/wow.gif'), index: 3 },
+			{ source: require('../../emotionIcon/sad.gif'), index: 4 },
+			{ source: require('../../emotionIcon/angry.gif'), index: 5 },
+		]
+		return temp
+	}
 
 	return (
 		<View style={{ flex: 1 }}>
@@ -125,14 +164,54 @@ export default function SomeGalleryScreen(props) {
 					{TagList([status, setStatus])}
 				</View>
 			</Overlay>
+			<Overlay isVisible={status.isEmotionModalVisi}
+				onBackdropPress={() => { setStatus({ isEmotionModalVisi: false }) }}
+				overlayStyle={styles.overlayStyle2}>
+				<View style={{ flexDirection: 'row' }}>
+					{
+						EmotionGroup().map((item, i) => {
+							return status.emotionStatus[i] === true ? (
+								<TouchableOpacity key={i} activeOpacity={0.4} focusedOpacity={0.5} onPress={() => setEmotion(item.index)} style={{
+									borderColor:'black',
+									borderWidth:1
+								}}>
+									<Image
+										style={styles.emotion}
+										source={item.source}
+									/>
+								</TouchableOpacity>
+							) : (
+								<TouchableOpacity key={i} activeOpacity={0.4} focusedOpacity={0.5} onPress={() => setEmotion(item.index)}>
+									<Image
+										style={styles.emotion}
+										source={item.source}
+									/>
+								</TouchableOpacity>
+							)
+						})
+					}
+				</View>
+			</Overlay>
 			<Modal visible={status.isVisible} transparent={false} onRequestClose={() => { setStatus({ isVisible: false, isTagModalVisi: false }) }}>
 				<ImageViewer
+					backgroundColor='#d7d7cb'
 					imageUrls={status.modalSource}
 					index={status.currentId}
+					enableImageZoom={true}
 					enablePreload={true}
+					useNativeDriver={true}
 					renderIndicator={() => null}
-					renderFooter={(currentIndex) => photoFooter([status, setStatus], currentIndex)}
-					footerContainerStyle={{ bottom: 0, position: 'absolute', zIndex: 1000 }}
+					renderFooter={(currentIndex) => photoFooter(that, [status, setStatus], currentIndex, state)}
+					footerContainerStyle={{
+						flex: 1,
+						alignSelf: 'flex-end',
+						flexDirection: 'row',
+						width: 140,
+						height: 200,
+						borderColor: 'black',
+						borderWidth: 1,
+						zIndex: 1
+					}}
 				/>
 			</Modal>
 			<FlatList
@@ -177,5 +256,19 @@ const styles = StyleSheet.create({
 		paddingRight: 5,
 		fontSize: 17,
 		color: '#63CCC8',
+	},
+	overlayStyle2: {
+		height: 55,
+		width: 313,
+		alignItems: 'center',
+		justifyContent: 'center',
+		padding: 0,
+		margin: 0,
+		borderRadius: 15,
+		backgroundColor: '#63CCC8'
+	},
+	emotion:{
+		width: 50,
+		height: 50,
 	}
 })
