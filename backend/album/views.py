@@ -10,9 +10,9 @@ from django.forms.models import model_to_dict
 class AlbumView(APIView):
 
     def get(self, request):
-        albumId = request.data["albumId"]
+        # albumId = request.data["albumId"]
         try:
-            album = Album.objects(albumId__exact=albumId).all_fields()
+            album = Album.objects.all_fields()
             print(album.to_json())
 
             return_txt = {"result": 'GET/AlbumView',
@@ -21,46 +21,46 @@ class AlbumView(APIView):
             print('AlbumViewError:', e)
         return Response(return_txt, status=status.HTTP_200_OK)
 
-    # CREATE
-
-    def post(self, request):
-
-        album = Album(albumId=request.data['albumId'],
-                      coverPhotoId=request.data['coverPhotoId'],
-                      albumName=request.data['albumName'],
-                      userId=request.data['userId'],
-                      albumPhoto=request.data['albumPhoto'],
-                      albumTag=request.data['albumTag'],
-                      createTime=request.data['time'])
-        album.save()
-
-        return Response(simpleMessage('POST/AlbumView'), status=status.HTTP_201_CREATED)
-
-    # # CREATE 測試建立資料
+    # # CREATE
 
     # def post(self, request):
-    #     """
-    #     (測試用)
-    #     產生一筆假資料
-    #     Args:
-    #         None
-    #     Returns:
-    #         None
-    #     """
-    #     album = Album(albumId='5',
-    #                   coverPhotoId='12345',
-    #                   albumName='michelle5',
-    #                   userId='abc5',
-    #                   albumPhoto=[{'photoId': 'asdfklkajhsl',
-    #                                'isDeleted': False},
-    #                               {'photoId': 'aagdzzkajhsl',
-    #                                'isDeleted': False}],
-    #                   albumTag=[{'tag': 'michellealbum5', 'isDeleted': False}, {
-    #                       'tag': 'michellealbum2345', 'isDeleted': False}],
-    #                   createTime=datetime.utcnow())
+
+    #     album = Album(albumId=request.data['albumId'],
+    #                   coverPhotoId=request.data['coverPhotoId'],
+    #                   albumName=request.data['albumName'],
+    #                   userId=request.data['userId'],
+    #                   albumPhoto=request.data['albumPhoto'],
+    #                   albumTag=request.data['albumTag'],
+    #                   createTime=request.data['time'])
     #     album.save()
 
     #     return Response(simpleMessage('POST/AlbumView'), status=status.HTTP_201_CREATED)
+
+    # CREATE 測試建立資料
+
+    def post(self, request):
+        """
+        (測試用)
+        產生一筆假資料
+        Args:
+            None
+        Returns:
+            None
+        """
+        album = Album(albumId='5',
+                      coverPhotoId='12345',
+                      albumName='michelle5',
+                      userId='abc5',
+                      albumPhoto=[{'photoId': 'asdfklkajhsl',
+                                   'isDeleted': False},
+                                  {'photoId': 'aagdzzkajhsl',
+                                   'isDeleted': False}],
+                      albumTag=[{'tag': 'michellealbum5', 'isDeleted': False}, {
+                          'tag': 'michellealbum2345', 'isDeleted': False}],
+                      createTime=datetime.utcnow())
+        album.save()
+
+        return Response(simpleMessage('POST/AlbumView'), status=status.HTTP_201_CREATED)
 
     def put(self, request):
 
