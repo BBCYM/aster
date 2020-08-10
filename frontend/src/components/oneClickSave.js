@@ -22,6 +22,11 @@ export function AlbumModal([status, setStatus], state, props) {
         let coverPhotoId = _.sample(imgIDRes)
         let albumPhoto = imgIDRes
         let albumTag = status.doubleCheese.map((v, i) => { return v.text })
+        console.log(albumName)
+        console.log(userId)
+        console.log(coverPhotoId)
+        console.log(albumPhoto)
+        console.log(albumTag)
         // try{
         //     let albumName = status.aName
         //     let userId = state.user.id
@@ -64,7 +69,7 @@ export function AlbumModal([status, setStatus], state, props) {
                     <Text h1 style={{ fontSize: 30, color: '#ffffff' }}>建立相簿</Text>
                 </View>
                 <View style={styles.AlbumTitle}>
-                    <Input label='Album Name' labelStyle={{ color: '#ffffff' }} onChangeText={value => setStatus({ aName: value })} value={status.aName} inputContainerStyle={{ borderBottomColor: '#ffffff' }} />
+                    <Input label='Album Name' labelStyle={{ color: '#ffffff' }} onChangeText={value => setStatus({ aName: value })} value={status.aName?status.aName:''} inputContainerStyle={{ borderBottomColor: '#ffffff' }} />
                 </View>
                 <View style={{ flex: 1 }}>
                     <SwipeListView
