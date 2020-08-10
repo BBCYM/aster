@@ -12,10 +12,11 @@ import { Overlay, SearchBar } from 'react-native-elements'
 import FastImage from 'react-native-fast-image'
 import ImageViewer from 'react-native-image-zoom-viewer'
 import { photoFooter, TagList } from '../../components/photoComponent'
+import {OneClickAction, AlbumModal} from '../../components/oneClickSave'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import Axios from 'axios'
 import { AuthContext } from '../../contexts/AuthContext'
-import { checkEmotion, preCleanPid } from '../../utils/utils'
+import { checkEmotion, preCleanPid, concatLocalTag } from '../../utils/utils'
 import { ipv4 } from '../../utils/dev'
 
 
@@ -36,6 +37,7 @@ export default function SomeGalleryScreen(props) {
 		fastSource: [],
 		modalSource: [],
 		tag: [],
+		aModal:false,
 		emotionStatus: Array(6).fill(false),
 	})
 	const { auth,state } = React.useContext(AuthContext)
@@ -53,17 +55,21 @@ export default function SomeGalleryScreen(props) {
 			setStatus({ emotionStatus: newEmotion, isEmotionModalVisi: false })
 		})
 	}
-
+	React.useEffect(() => {
+		fetchImageSource()
+		console.log('hello from some screen')
+	}, [])
 	async function fetchImageSource(callback) {
 		console.log('Loading photo')
 		// const cleanImgnTag = preCleanPid(props.route.params.pid_tag)
 		// console.log(cleanImgnTag)
 		const temp = props.route.params.pid
+		setStatus({preBuildTag:concatLocalTag(props.route.params.pid_tag)})
 		const accessToken = await auth.getAccessToken()
 		let fSource = []
 		let mSource = []
 		for (const [i, v] of temp.entries()) {
-			Axios.get(`https://photoslibrary.googleapis.com/v1/mediaItems/${v}`, {
+			await Axios.get(`https://photoslibrary.googleapis.com/v1/mediaItems/${v}`, {
 				headers: {
 					'Authorization': `Bearer ${accessToken}`,
 					'Content-type': 'application/json'
@@ -80,19 +86,12 @@ export default function SomeGalleryScreen(props) {
 				}
 				fSource.push(img)
 				mSource.push({
-					url: item['baseUrl'],
-					// props:{
-					// 	headers:{Authorization:`Bearer ${accessToken}`}
-					// }
+					url: item['baseUrl']
 				})
-				setStatus({ fastSource: fSource, modalSource: mSource })
 			})
+			await setStatus({ fastSource: fSource, modalSource: mSource })
 		}
 	}
-	React.useEffect(() => {
-		fetchImageSource()
-		console.log('hello from some screen')
-	}, [])
 
 	function showImage(item) {
 		setStatus({
@@ -149,7 +148,6 @@ export default function SomeGalleryScreen(props) {
 				<View style={{ flex: 1 }} >
 					<View>
 						<SearchBar
-							// ref={search => this.search = search}
 							placeholder="Add Tag"
 							onChangeText={(inputTag) => { setStatus({ inputTag: inputTag }) }}
 							onSubmitEditing={() => addTag()}
@@ -201,7 +199,7 @@ export default function SomeGalleryScreen(props) {
 					enablePreload={true}
 					useNativeDriver={true}
 					renderIndicator={() => null}
-					renderFooter={(currentIndex) => photoFooter(that, [status, setStatus], currentIndex, state)}
+					renderFooter={(currentIndex) => photoFooter(props, [status, setStatus], currentIndex, state)}
 					footerContainerStyle={{
 						flex: 1,
 						alignSelf: 'flex-end',
@@ -234,6 +232,8 @@ export default function SomeGalleryScreen(props) {
 				numColumns={3}
 				keyExtractor={(item, index) => index}
 			/>
+			{AlbumModal([status, setStatus], state, props)}
+			{OneClickAction([status, setStatus])}
 		</View>
 	)
 
