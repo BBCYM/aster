@@ -27,13 +27,21 @@ export function resToEmotionStatus(eState, want){
 	return eCopy
 }
 
-export function preCleanPid(pids){
-	let temp = pids.map((v, i)=>{
-		return {
-			pid: v.pid,
-			tag: new Set(v.tag)
-		}
+export function concatLocalTag(pid_tag){
+	let temp = []
+	pid_tag.forEach((v, i) => {
+		temp = _.concat(temp,v.tag)
 	})
-	temp = _.sortBy(temp,[function(o){return len(o.tag)}])
-	
+	return _.uniq(temp).map((v,i)=>({key:temp.length-i-1,text:v}))
 }
+
+// export function preCleanPid(pids){
+// 	let temp = pids.map((v, i)=>{
+// 		return {
+// 			pid: v.pid,
+// 			tag: new Set(v.tag)
+// 		}
+// 	})
+// 	temp = _.sortBy(temp,[function(o){return len(o.tag)}])
+	
+// }

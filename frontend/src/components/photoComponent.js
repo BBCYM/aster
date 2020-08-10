@@ -28,7 +28,6 @@ export function TagList([status, setStatus],state) {
 				return v.key === id
 			})
 			slicedTag.splice(result, 1)
-			// dispatch(action(actionType.SET.TAG, slicedTag))
 			setStatus({ tag: slicedTag })
 		}).catch((err)=>{
 			console.log(err)

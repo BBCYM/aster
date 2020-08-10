@@ -11,7 +11,7 @@ import {
 import { Overlay, SearchBar } from 'react-native-elements'
 import FastImage from 'react-native-fast-image'
 import ImageViewer from 'react-native-image-zoom-viewer'
-import { photoFooter, TagList } from '../../components/photoComponent copy'
+//import { photoFooter, TagList } from '../../components/photoComponent copy'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import Axios from 'axios'
 import { AuthContext } from '../../contexts/AuthContext'
@@ -60,7 +60,7 @@ export default function SomeAlbumGalleryScreen(props) {
 	
 	React.useEffect(() => {
 		 fetchAlbums()
-		console.log('hello from some screen')
+		console.log('hello photo')
 	}, [])
 
 	function showPhoto(item) {
@@ -104,14 +104,51 @@ async function deletePhoto(){
 		})
 	}
 }
-
-	return (
-		<TouchableOpacity>
-			
+return(
+	<Modal
+		transparent={false}
+		nimationType={'fade'}
+		visible={status.isVisible}
+		onRequestClose={() => { setStatus({ isVisible: false, isTagModalVisi: false }) }}
+	>
+	<View style={styles.container}>
+		<TouchableOpacity style={styles.title}
+			//style={{//fontSize: 20,
+			//color: 'black',
+			//backgroundColor: 'white',}}
+			onLongPress={() => editAlbumName(albumName)}
+		>
+			<Text style={{fontSize:20,color:'black'}}>{this.state.albumName}</Text>
 		</TouchableOpacity>
-	)
+	</View>
+	<FlatList
+		data={this.state.dataSource}
+		renderItem={({ item }) => (
+			<View style={{ flex: 1, flexDirection: 'column', margin: 1 }}>
+				<TouchableOpacity
+			  		key={item.id}
+			  		style={{ flex: 1 }}
+			  		onPress={() => showPhoto(item)}
+			  		onLongPress={() => deletePhoto()}
+				/>
 
+				<FastImage
+					style={styles.imagephoto}
+					source={{
+						uri: item.src, //{this.state.photo}
+					}}
+				/>
+
+			</View>
+		)}
+			//Setting the number of column
+		numColumns={3}
+		keyExtractor={(item, index) => index.toString()}
+	/>
+	</Modal>
+)
 }
+
 const screenWidth = Math.round(Dimensions.get('window').width)
 const screenHeight = Math.round(Dimensions.get('window').height)
 const styles = StyleSheet.create({
