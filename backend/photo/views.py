@@ -279,9 +279,9 @@ class TagView(APIView):
             剩下的tag 
 
         """
-        user_id = request.data['userId']
-        photo_id = request.data["photoId"]
-        custom_tag = request.data["custom_tag"]
+        user_id = request.query_params.get('userId',None)
+        photo_id = request.query_params.get("photoId",None)
+        custom_tag = request.query_params.get("custom_tag",None)
 
         try:
 
@@ -289,7 +289,7 @@ class TagView(APIView):
             #     'arrayFilters': [{'element.tag': 'custom3'}], 'upsert': True})
             # custom_tag_list = Photo.objects(photoId=photo_id).get().tag.custom_tag
             photo = Photo.objects(
-                userId=user_id,userphotoId=photo_id, tag__custom_tag__match={'tag': custom_tag, 'is_deleted': False}).first()
+                userId=user_id,photoId=photo_id, tag__custom_tag__match={'tag': custom_tag, 'is_deleted': False}).first()
             # print(photo.to_json())
 
             for single_tag in photo.tag.custom_tag:
