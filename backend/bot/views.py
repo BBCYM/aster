@@ -109,14 +109,14 @@ class BotView(views.APIView):
                 print('custom:',custom)
                 addpid(custom, key)
 
+                loctag = Photo.objects(Q(userId=userid) & Q(location=key))
+                print('loctag:',loctag)
+                addpid(loctag, key)
                 # print('pid:',pid)
 
             except Exception as e:
                 print(e)
 
-        # if len(photo) is not 0:
-        #     photokey = photo.values[0].string_value
-        #     getpid(photokey)
 
         if len(emotion) is not 0:
             emokey = emotion.values[0].string_value
@@ -132,10 +132,6 @@ class BotView(views.APIView):
             vikeyArray = list(vikeyArray)
             for i in vikeyArray:
                 getpid(i)
-            # for i in range(len(vision.values)):
-            #     vikey = vision.values[i].string_value
-            #     # print(vikey)
-            #     getpid(vikey)
 
         if len(location) is not 0:
             admin_areakey = location.values[0].struct_value.fields['admin-area'].string_value

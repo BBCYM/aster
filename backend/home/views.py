@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from auth.customResponse import simpleMessage
+from auth.utils import simpleMessage
 from photo.models import Photo
 #import dialogflow_v2 as dialogflow
 #from google.oauth2 import service_account

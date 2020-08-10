@@ -42,7 +42,6 @@ export default function RoomScreen({navigation}) {
 	const [imgIDs, setimgIDs] = React.useState([]);
 	const [imgIDtags, setimgIDtags] = React.useState([]);
 	const [ID, setID] = React.useState([]);
-	const [Tag, setTag] = React.useState([]);
 
 	async function reset(){
 		var empty = [];
@@ -117,18 +116,17 @@ export default function RoomScreen({navigation}) {
 		
 		//抓取後端傳來的pid
 		var newpid = message.pid;
-		// console.log('newpid',newpid);
-		// console.log('imgIDs',imgIDs);
-		// console.log('imgIDstype',typeof(imgIDs));
 		var newpid_tag = message.pid_tag;
 		console.log('newpid_tag',newpid_tag);
-		//用filter找有無相同的pid，若無則回傳空陣列
 		var tempid = imgIDs;
+
+		//用來存每回合的id+tag
 		var tempid_tag = imgIDtags;
+		//用來判斷是否重複id
 		var id = ID;
-		var tag = Tag;
 
 		newpid.forEach(element=>{
+			//用filter找有無相同的pid，若無則回傳空陣列
 			var filtered = imgIDs.filter(function(value) {
 				return value === element;
 			});
@@ -138,49 +136,53 @@ export default function RoomScreen({navigation}) {
 				setimgIDs(tempid);
 			}	
 		})
+
 		newpid_tag.forEach(element=>{
-			// console.log('elepid:',element.pid);
-			// console.log('eletag:',element.tag);
-			// console.log('imgIDtags:',imgIDtags);
-			// tempid_tag.push(element);
-			// console.log('tempid_tag:',tempid_tag);
-			// setimgIDtags(tempid_tag);
-			
+			//將pid取出存於id array
+			console.log('imIDtags:',imgIDtags);
 			imgIDtags.forEach(element=>{
-				// console.log('imIDtags_pid:',element.pid);
+				console.log('imIDtags_pid:',element.pid);
+				// console.log('imIDtags:',element);
 				id.push(element.pid);
-				tag.push(element.tag);
 			})
-			// console.log('id:',id);
+			//設定給全域變數ID
 			setID(id);
-			// console.log('tag:',tag);
-			setTag(tag);
+			//用filterid判斷是否有重複的id
 			var filterid = ID.filter(function(value) {
+				console.log('value:',value);
+				console.log('elepid:',element.pid);
 				return value === element.pid;
 			});
-			// console.log('filterid',filterid);
 			//若無相同pid就將該pid加入array
 			if(!filterid.length){
 				tempid_tag.push(element);
-				// console.log('tempid_tag',tempid_tag);
+				//設定給全域變數imgIDtags
 				setimgIDtags(tempid_tag);
 			}
 			else{ //若有相同pid進而去判斷是否有相同的tag
-				var filtertag = Tag.filter(function(value) {
-					return value === element.tag;
+				var photoid = element.pid;
+				//用現在的pid去抓出imgIDtags中已存在的該id之相片物件
+				var photo = imgIDtags.find(element => {
+					return element.pid === photoid;
 				});
-				// console.log('filtertag',filtertag);
-				//若無相同tag，進而去找到該照片並將new tag加入array
+
+				//將該張相片原本有的tag取出
+				//並與新的tag做比較看是否已存在
+				// console.log('photo.tag:',photo.tag);
+				var filtertag = photo.tag.filter(function(value) {
+					console.log('value:',value);
+					console.log('element.tag:',element.tag);
+					var tempeletag = element.tag.toString();
+					console.log('tempeletag:',tempeletag);
+					return value === tempeletag;
+				});
+				// console.log('filtertag:',filtertag);
+				//若無相同tag
 				if(!filtertag.length){
-					var photoid = element.pid;
-					var photo = imgIDtags.find(element => {
-						return element.pid === photoid;
-					});
-					console.log('用pid抓tempid_tag',photo.tag);
 					var phototag = element.tag.toString();
 					photo.tag.push(phototag);
-					// console.log('last',photo.tag);
 				}
+				
 			}
 		})
 		console.log('setimgIDtags',imgIDtags);

@@ -1,6 +1,6 @@
 from rest_framework.views import APIView, status
 from rest_framework.response import Response
-from auth.customResponse import simpleMessage
+from auth.utils import simpleMessage
 from .models import Album, Tag
 from datetime import datetime
 import json
