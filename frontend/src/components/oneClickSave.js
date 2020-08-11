@@ -14,6 +14,7 @@ import { SwipeListView } from 'react-native-swipe-list-view'
 import Axios from 'axios'
 import _ from 'lodash'
 import { ipv4 } from '../utils/dev';
+import { ErrorHandling } from '../utils/utils';
 export function AlbumModal([status, setStatus], state, props) {
     function createAlbum() {
         const imgIDRes = status.fastSource.map((v,i)=>{return v.imgId})
@@ -22,35 +23,27 @@ export function AlbumModal([status, setStatus], state, props) {
         let coverPhotoId = _.sample(imgIDRes)
         let albumPhoto = imgIDRes
         let albumTag = status.doubleCheese.map((v, i) => { return v.text })
-        console.log(albumName)
-        console.log(userId)
-        console.log(coverPhotoId)
-        console.log(albumPhoto)
-        console.log(albumTag)
-        // try{
-        //     let albumName = status.aName
-        //     let userId = state.user.id
-        //     let coverPhotoId = _.sample(imgIDRes)
-        //     let albumPhoto = imgIDRes
-        //     let albumTag = status.doubleCheese.map((v,i)=>{return v.text})
-        // }catch(err){
-        //     console.log(err)
-        // }
-        Axios.post(`http://${ipv4}:3000/album`, JSON.stringify({
-            userId: userId,
-            albumName: albumName,
-            coverPhotoId: coverPhotoId,
-            albumPhoto: albumPhoto,
-            albumTag: albumTag
-        }), {
-            headers: {
-                'Content-Type': 'application/json'
+        ErrorHandling(()=>{
+            if(!albumName || _.isEmpty(albumName.trim())){
+                throw "Need a album name"
             }
-        }).then((res) => {
-            console.log(res.data)
-            props.navigation.navigate('Home')
-        }).catch((err) => {
-            console.error(err)
+        },()=>{
+            Axios.post(`http://${ipv4}:3000/album`, JSON.stringify({
+                userId: userId,
+                albumName: albumName,
+                coverPhotoId: coverPhotoId,
+                albumPhoto: albumPhoto,
+                albumTag: albumTag
+            }), {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then((res) => {
+                console.log(res.data)
+                props.navigation.navigate('Home')
+            }).catch((err) => {
+                console.error(err)
+            })
         })
     }
     function deleteTag(id, text) {
