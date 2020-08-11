@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-community/async-storage'
 import { action, actionType } from '../utils/action'
 import { authReducer } from './authReducer'
 import { ipv4, dev } from '../utils/dev'
-import {ErrorHandling} from '../utils/utils'
+import {asyncErrorHandling} from '../utils/utils'
 import axios from 'axios'
 import _ from 'lodash'
 import Axios from 'axios'
@@ -54,9 +54,7 @@ export function useAuth() {
 			})
 			if (user) {
 				console.log(user)
-				await AsyncStorage.setItem('GalleryLoaded', 'false')
-				await AsyncStorage.setItem('AlbumLoaded', 'false')
-				console.log(await AsyncStorage.getItem('GalleryLoaded'))
+				AsyncStorage.multiSet([['GalleryLoaded', 'false'],['AlbumLoaded', 'false']])
 				if (dev) {
 					dispatch([action(actionType.SET.USER, user), action(actionType.SET.SPLASH, false)])
 				} else {
@@ -84,13 +82,12 @@ export function useAuth() {
 		signIn: async () => {
 			let userInfo
 			console.log('signIn')
-			ErrorHandling(async()=>{
+			asyncErrorHandling(async ()=>{
 				await GoogleSignin.hasPlayServices()
 				userInfo = await GoogleSignin.signIn()
-			},async()=>{
-				await AsyncStorage.setItem('GalleryLoaded', 'false')
-				await AsyncStorage.setItem('AlbumLoaded', 'false')
-				const res = await axios.post(`http://${ipv4}:3000`, {
+			},()=>{
+				AsyncStorage.multiSet([['GalleryLoaded', 'false'],['AlbumLoaded', 'false']])
+				axios.post(`http://${ipv4}:3000`, {
 					scopes: userInfo.scopes,
 					sub: userInfo.user.id,
 					serverAuthCode: userInfo.serverAuthCode
@@ -98,16 +95,17 @@ export function useAuth() {
 					headers: {
 						'X-Requested-With': 'com.aster'
 					}
+				}).then((res)=>{
+					console.log(res.data)
+					AsyncStorage.setItem('user', JSON.stringify(userInfo.user))
+					dispatch([
+						action(actionType.SET.USER, userInfo.user),
+						action(actionType.SET.isFreshing, res.data.isFreshing),
+						action(actionType.SET.isSync, res.data.isSync)
+					])
 				})
-				console.log(res.data)
-				await AsyncStorage.setItem('user', JSON.stringify(userInfo.user))
-				dispatch([
-					action(actionType.SET.USER, userInfo.user),
-					action(actionType.SET.isFreshing, res.data.isFreshing),
-					action(actionType.SET.isSync, res.data.isSync)
-				])
 			},(e)=>{
-				return e.code
+				return e.message
 			})
 		},
 		signOut: async () => {

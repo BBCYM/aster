@@ -18,7 +18,7 @@ class AuthView(APIView):
             userSession, _ = checkUserToSession(data, request)
             isSyncState = checkisSync(userSession, userData.userId)
             user.update(set__isSync=isSyncState)
-            r = {'isSync': isSyncState, 'isFreshing':user.isFreshing}
+            r = {'isSync': isSyncState, 'isFreshing':userData.isFreshing}
             return Response(r,status=status.HTTP_200_OK)
         else:
             return Response({},status=status.HTTP_200_OK)
@@ -47,7 +47,7 @@ class AuthView(APIView):
             t2.start()
             t3.start()
             return Response({'isSync': False, 'isFreshing':True},status=status.HTTP_200_OK)
-            
+
     def put(self, request):
         # refresh
         q = queue.Queue()

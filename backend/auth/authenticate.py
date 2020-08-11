@@ -27,6 +27,7 @@ def checkisSync(session,userId):
     for mediaItem in mediaItems:
         dbRes = Photo.objects(Q(userId=userId) & Q(photoId=mediaItem['id']))
         if not dbRes:
+            print('some pic is missing')
             return False
     return True
 
@@ -131,7 +132,7 @@ def toVisionApiLabel(userId, q):
 
 
 def downloadImage(session, userId, q):
-    User.object(userId=userId).update(set__isFreshing=True)
+    User.objects(userId=userId).update(set__isFreshing=True)
     nPT = ''
     params = {'pageSize': 8}
     while True:
@@ -154,7 +155,7 @@ def downloadImage(session, userId, q):
                 filename = mediaItem['filename']
                 res = session.get(mediaItem['baseUrl']+'=d').content
                 print(f'{filename} downloaded')
-                with open(f'{userId}/{filename}', mode='wb') as handler:
+                with open(f'./{userId}/{filename}', mode='wb') as handler:
                     handler.write(res)
                 q.put(mediaItem)
         # if not photoRes['nextPageToken']:
