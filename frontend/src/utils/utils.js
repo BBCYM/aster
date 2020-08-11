@@ -1,7 +1,10 @@
 import _ from 'lodash'
 import Snackbar from 'react-native-snackbar'
 
-export function ErrorHandling(check:Function,after:Function){
+let c = function (e) {
+	return e
+}
+export function ErrorHandling(check:Function,after:Function,code:Function=c){
 	let hasError = false
 	try{
 		check()
@@ -9,7 +12,7 @@ export function ErrorHandling(check:Function,after:Function){
 		console.log(err)
 		hasError = true
 		Snackbar.show({
-			text: err,
+			text: code(err),
 			textColor:'#F6C570',
 			backgroundColor:'#303960',
 			duration:Snackbar.LENGTH_INDEFINITE,

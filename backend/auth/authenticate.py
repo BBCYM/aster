@@ -19,16 +19,26 @@ import shutil
 import pytz
 from mongoengine.queryset.visitor import Q
 
+def checkisSync(session,userId):
+    params = {'pageSize':8}
+    photoRes = session.get('https://photoslibrary.googleapis.com/v1/mediaItems', params=params).json()
+    mediaItems = photoRes['mediaItems']
+    print(f'Checking {len(mediaItems)} pics')
+    for mediaItem in mediaItems:
+        dbRes = Photo.objects(Q(userId=userId) & Q(photoId=mediaItem['id']))
+        if not dbRes:
+            return False
+    return True
 
 def fetchNewImage(session, userId, q):
     nPT = ''
-    params = {'pageSize': '15'}
+    params = {'pageSize': 12}
     while True:
         if nPT:
             params['nextPageToken'] = nPT
-        photoRes = session.get(
-            'https://photoslibrary.googleapis.com/v1/mediaItems', params=params).json()
+        photoRes = session.get('https://photoslibrary.googleapis.com/v1/mediaItems', params=params).json()
         mediaItems = photoRes['mediaItems']
+        print(f'Fetching {len(mediaItems)} pics')
         for mediaItem in mediaItems:
             # can do better using time
             dbRes = Photo.objects(
@@ -65,11 +75,12 @@ def afterAll(userId, q, thread):
     print('process done')
     user = User.objects(userId=userId)
     user.update(
-        isSync=True,
-        lastSync=make_aware(datetime.datetime.utcnow(),
+        set__isSync=True,
+        set__isFreshing=False,
+        set__lastSync=make_aware(datetime.datetime.utcnow(),
                             timezone=pytz.timezone(settings.TIME_ZONE))
     )
-    print('User isSync')
+    print('User isSync, not freshing')
 
 
 def toVisionApiLabel(userId, q):
@@ -120,14 +131,16 @@ def toVisionApiLabel(userId, q):
 
 
 def downloadImage(session, userId, q):
+    User.object(userId=userId).update(set__isFreshing=True)
     nPT = ''
-    params = {'pageSize': '8'}
+    params = {'pageSize': 8}
     while True:
         if nPT:
             params['nextPageToken'] = nPT
         photoRes = session.get(
             'https://photoslibrary.googleapis.com/v1/mediaItems', params=params).json()
         mediaItems = photoRes['mediaItems']
+        print(f'Downloading {len(mediaItems)} pics')
         for mediaItem in mediaItems:
             mimeType = mediaItem['mimeType'].split('/')
             if not os.path.isdir(f'./{userId}'):
@@ -149,30 +162,10 @@ def downloadImage(session, userId, q):
             break
         else:
             nPT = photoRes['nextPageToken']
-    # photoRes = session.get('https://photoslibrary.googleapis.com/v1/mediaItems?pageSize=100').json()
-    # mediaItems = photoRes['mediaItems'][:10]
-    # # while photoRes.get('nextPageToken') != None:
-    # for mediaItem in mediaItems:
-    #     q.put(mediaItem)
-    #     mimeType = mediaItem['mimeType'].split('/')
-    #     if not os.path.isdir(f'./{userId}'):
-    #         try:
-    #             os.mkdir(userId)
-    #         except OSError:
-    #             print("Creation of the directory failed")
-    #     # only download images
-    #     if mimeType[0] == 'image':
-    #         # get the image data
-    #         filename = mediaItem['filename']
-    #         res = session.get(mediaItem['baseUrl']+'=d').content
-    #         print(f'{filename} downloaded')
-    #         with open(f'{userId}/{filename}', mode='wb') as handler:
-    #             handler.write(res)
-
 
 def checkUserToSession(data, req):
 
-    if not req.headers.get('X-Requested-With') and req.headers.get('X-Requested') != 'com.aster':
+    if not req.headers.get('X-Requested-With') or req.headers.get('X-Requested-With') != 'com.aster':
         print('X-R-not-pass')
         return Response('CSRF', status=status.HTTP_403_FORBIDDEN)
     with open('client_secret.json', 'r', encoding='utf-8') as f:
@@ -183,7 +176,6 @@ def checkUserToSession(data, req):
         'token_uri'
     )(appSecret)
     print('Hello')
-    # user = User.objects.filter(userId=data['sub'])
     user = User.objects(userId=data['sub'])
     access_token = ''
     if not user:
@@ -201,12 +193,6 @@ def checkUserToSession(data, req):
         print('Hello')
         print(token)
         access_token = token['access_token']
-        # newUser = User.objects.create(
-        #     userId=data['sub'],
-        #     expiresAt=datetime.datetime.utcnow() + datetime.timedelta(0,
-        #                                                               token['expires_in']),
-        #     refreshToken=token['refresh_token']
-        # )
         newUser = User(
             userId=data['sub'],
             expiresAt=datetime.datetime.utcnow() + datetime.timedelta(0,
@@ -215,20 +201,17 @@ def checkUserToSession(data, req):
         )
         newUser.save()
         print('new user created')
-        # user = User.objects.filter(userId=data['sub'])
         user = User.objects(userId=data['sub'])
         print('create new user')
     # userData = user.values()[0]
-    userData = user[0]
+    userData = user.get()
     credent = credentials.Credentials(
         access_token,
         token_uri=TOKEN_URI,
         client_id=CLIENT_ID,
         client_secret=CLIENT_SECRET,
         refresh_token=userData.refreshToken
-        # refresh_token=userData['refreshToken']
     )
-    # credent.expiry = userData['expiresAt'].replace(tzinfo=None)
     credent.expiry = userData.expiresAt.replace(tzinfo=None)
     now = datetime.datetime.utcnow()
     print(credent.expiry)
@@ -237,8 +220,6 @@ def checkUserToSession(data, req):
         print('refreshing accessToken')
         try:
             credent.refresh(Request())
-            # user.update(expiresAt=make_aware(credent.expiry),
-            #             refreshToken=credent.refresh_token)
             user.update(set__expiresAt=make_aware(credent.expiry),
                         set__refreshToken=credent.refresh_token)
         except RefreshError as e:

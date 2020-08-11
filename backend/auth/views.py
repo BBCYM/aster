@@ -3,29 +3,37 @@ from rest_framework.response import Response
 from .models import User
 from rest_framework import status
 from .utils import simpleMessage
-from .authenticate import checkUserToSession, downloadImage, toVisionApiLabel, afterAll
+from .authenticate import checkUserToSession, downloadImage, toVisionApiLabel, afterAll, checkisSync, fetchNewImage
 import threading
 import queue
 class AuthView(APIView):
     
     def get(self, request):
+        # check if database has user
         temp = request.query_params.get('userid',None)
-        # user = User.objects.filter(userId=temp)
         user = User.objects(userId=temp)
         if user:
-            return Response(simpleMessage(True))
+            userData = user.get()
+            data = {'sub':userData.userId}
+            userSession, _ = checkUserToSession(data, request)
+            isSyncState = checkisSync(userSession, userData.userId)
+            user.update(set__isSync=isSyncState)
+            r = {'isSync': isSyncState, 'isFreshing':user.isFreshing}
+            return Response(r,status=status.HTTP_200_OK)
         else:
-            return Response(simpleMessage(False))
+            return Response({},status=status.HTTP_200_OK)
 
     def post(self, request):
+        # first time checkin
         data = request.data
 
         userSession, user = checkUserToSession(data, request)
         
-        print(user['isSync'])
-        q = queue.Queue()
+        print('Checking Sync')
 
-        if not user['isSync']:
+        if not user.isSync:
+            print('isSync:', user.isSync)
+            q = queue.Queue()
             t = threading.Thread(name='downloading-image',target=downloadImage,args=(userSession,user['userId'],q))
             # don't block main process
             t.setDaemon(True)
@@ -38,9 +46,10 @@ class AuthView(APIView):
             t.start()
             t2.start()
             t3.start()
-        # use threading.enumerate to check thread pool
-        return Response(simpleMessage('good'),status=status.HTTP_200_OK)
+            return Response({'isSync': False, 'isFreshing':True},status=status.HTTP_200_OK)
+            
     def put(self, request):
+        # refresh
         q = queue.Queue()
         data = request.data
         userSession, user = checkUserToSession(data,request)
@@ -53,7 +62,7 @@ class AuthView(APIView):
         t.start()
         t2.start()
         t3.start()
-        return Response(simpleMessage('updateImage good'),status=status.HTTP_200_OK)
+        return Response({'isFreshing':True},status=status.HTTP_200_OK)
 
 
 
