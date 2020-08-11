@@ -9,6 +9,7 @@ import json
 from google.api_core.exceptions import InvalidArgument
 from google.protobuf.json_format import MessageToJson
 from photo.models import Photo
+from album.models import Album
 from mongoengine.queryset.visitor import Q
 
 class BotView(views.APIView):
@@ -59,17 +60,14 @@ class BotView(views.APIView):
         # print("parameters:",parameters)
 
         # location = parameters.fields['location'].list_value.values[0].struct_value.fields['city'].string_value
-        # photo = parameters.fields['photo'].list_value.values[0].string_value
         # datetime = parameters.fields['date-time'].list_value.values[0].string_value
         # vision = parameters.fields['visionAPI_1000'].list_value.values[0].string_value
         
-        # photo = parameters.fields['photo'].list_value
         emotion = parameters.fields['emotion'].list_value
         datetime = parameters.fields['date-time'].list_value
         vision = parameters.fields['visionAPI_1000'].list_value
         location = parameters.fields['location'].list_value
         pid = []
-        # tag = []
         pid_tag = []
         def getpid(key):
             try:
@@ -80,10 +78,10 @@ class BotView(views.APIView):
                         photoid = i.photoId
                         # print('photoid:',photoid)
                         pid.append(photoid)
-                        print('key in add:',key)
+                        # print('key in add:',key)
                         tag.append(key)
                         temptag = tag
-                        print('tag:',tag)
+                        # print('tag:',tag)
                         pid_tag.append({"pid":photoid, "tag":temptag})
                         print('pid_tag',pid_tag)
 
@@ -109,10 +107,25 @@ class BotView(views.APIView):
                 print('custom:',custom)
                 addpid(custom, key)
 
-                loctag = Photo.objects(Q(userId=userid) & Q(location=key))
-                print('loctag:',loctag)
-                addpid(loctag, key)
+                location = Photo.objects(Q(userId=userid) & Q(location=key))
+                print('location:',location)
+                addpid(location, key)
                 # print('pid:',pid)
+
+                album = Album.objects(Q(userId=userid) & Q(albumTag__isDeleted=False) & Q(albumTag__tag=key))
+                # print('album:',album)
+                for i in album:
+                    photos = i.albumPhoto
+                    # print('photos:',photos)
+                    for j in photos:
+                        atag = []
+                        isdeleted = j.isDeleted
+                        if isdeleted is False:
+                            pid.append(j.photoId)
+                            atag.append(key)
+                            atemptag = atag
+                            pid_tag.append({"pid":j.photoId, "tag":atemptag})
+                            print('pid_tag',pid_tag)
 
             except Exception as e:
                 print(e)
