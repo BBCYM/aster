@@ -1,4 +1,33 @@
 import _ from 'lodash'
+import Snackbar from 'react-native-snackbar'
+
+export function ErrorHandling(check:Function,after:Function){
+	let hasError = false
+	try{
+		check()
+	} catch(err){
+		console.log(err)
+		hasError = true
+		Snackbar.show({
+			text: err,
+			textColor:'#F6C570',
+			backgroundColor:'#303960',
+			duration:Snackbar.LENGTH_INDEFINITE,
+			action:{
+				text:'Go Fix',
+				textColor:'#F6C570'
+			}
+		})
+		setTimeout(function(){
+			Snackbar.dismiss()
+		},4000)
+	}
+	if(!hasError) {
+		console.log('Outbound')
+		after()
+	}
+}
+
 export function checkEmotion(eState, want) {
 	let eCopy = [...eState]
 	let now = eCopy.indexOf(true)

@@ -8,11 +8,8 @@ import { SplashScreen } from './screens/Auth/Splash'
 import { useAuth } from './hooks/useAuth'
 import { ThemeProvider } from 'react-native-elements';
 const MainStack = createStackNavigator()
-
 export default function App() {
 	const { auth, state } = useAuth()
-
-
 	return (
 		<AuthContext.Provider value={{ auth, state }} >
 			<ThemeProvider>
@@ -27,15 +24,15 @@ export default function App() {
 							state.splash ? (
 								<MainStack.Screen name='Splash' component={SplashScreen} />
 							) : (
-								state.user ? (
-									console.log('hello user'),
-									<MainStack.Screen name='Pages' component={PagesTabNavigator} />
+									state.user ? (
+										console.log('hello user'),
+										<MainStack.Screen name='Pages' component={PagesTabNavigator} />
 
-								) : (
-									console.log('need auth'),
-									<MainStack.Screen name='Auth' component={AuthStackNavigator} />
+									) : (
+											console.log('need auth'),
+											<MainStack.Screen name='Auth' component={AuthStackNavigator} />
+										)
 								)
-							)
 						}
 					</MainStack.Navigator>
 				</NavigationContainer>
