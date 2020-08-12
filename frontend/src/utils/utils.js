@@ -18,9 +18,6 @@ export async function asyncErrorHandling(check:Function,after:Function){
 				textColor:'#F6C570'
 			}
 		})
-		setTimeout(function(){
-			Snackbar.dismiss()
-		},10000)
 	}
 	if(!hasError) {
 		console.log('Outbound')
@@ -45,9 +42,6 @@ export function ErrorHandling(check:Function,after:Function){
 				textColor:'#F6C570'
 			}
 		})
-		setTimeout(function(){
-			Snackbar.dismiss()
-		},4000)
 	}
 	if(!hasError) {
 		console.log('Outbound')

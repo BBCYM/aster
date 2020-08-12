@@ -51,20 +51,24 @@ class AuthView(APIView):
             return Response({})
     def put(self, request):
         # refresh
+        
         q = queue.Queue()
         data = request.data
-        userSession, user = checkUserToSession(data,request)
-        t = threading.Thread(name='update-image', target=fetchNewImage,args=(userSession,user['userOd'],q))
-        t.setDaemon(True)
-        t2 = threading.Thread(name='toVisionLabel',target=toVisionApiLabel,args=(user['userId'],q))
-        t2.setDaemon(True)
-        t3 = threading.Thread(name='afterAll',target=afterAll, args=(user['userId'],q,t))
-        t3.setDaemon(True)
-        t.start()
-        t2.start()
-        t3.start()
-        return Response({'isFreshing':True},status=status.HTTP_200_OK)
-
+        u = User.objects(userId=data['sub']).get()
+        if not u.isSync:
+            userSession, user = checkUserToSession(data,request)
+            t = threading.Thread(name='update-image', target=fetchNewImage,args=(userSession,user['userOd'],q))
+            t.setDaemon(True)
+            t2 = threading.Thread(name='toVisionLabel',target=toVisionApiLabel,args=(user['userId'],q))
+            t2.setDaemon(True)
+            t3 = threading.Thread(name='afterAll',target=afterAll, args=(user['userId'],q,t))
+            t3.setDaemon(True)
+            t.start()
+            t2.start()
+            t3.start()
+            return Response({'isFreshing':True},status=status.HTTP_200_OK)
+        else: 
+            return Response({'isSync':True})
 
 
 

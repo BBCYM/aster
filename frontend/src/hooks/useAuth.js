@@ -131,6 +131,12 @@ export function useAuth() {
 				console.log(res.data)
 				dispatch(action(actionType.SET.isFreshing, res.data.isFreshing))
 			})
+		},
+		setIs: (isFreshing:Boolean, isSync:Boolean)=>{
+			dispatch([
+				action(actionType.SET.isFreshing,isFreshing),
+				action(actionType.SET.isSync,isSync)
+			])
 		}
 	}), [])
 	return { auth, state }

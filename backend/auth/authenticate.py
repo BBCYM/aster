@@ -20,7 +20,7 @@ import pytz
 from mongoengine.queryset.visitor import Q
 
 def checkisSync(session,userId):
-    params = {'pageSize':8}
+    params = {'pageSize':3}
     photoRes = session.get('https://photoslibrary.googleapis.com/v1/mediaItems', params=params).json()
     mediaItems = photoRes['mediaItems']
     print(f'Checking {len(mediaItems)} pics')
