@@ -126,8 +126,6 @@ export function photoFooter(that, [status, setStatus], currentIndex, state) {
 			}
 		}, ()=>{
 			setStatus({actionBtnVisi:true})
-		},(e)=>{
-			return e.message
 		})
 	}
 	return (
