@@ -1,19 +1,15 @@
 import _ from 'lodash'
 import Snackbar from 'react-native-snackbar'
-
-let c = function (e) {
-	return e
-}
-export async function asyncErrorHandling(check:Function,after:Function,code:Function=c){
+export async function asyncErrorHandling(check:Function,after:Function){
 	let hasError = false
 	try{
 		await check()
 	} catch(err){
 		console.log('has err')
-		console.log(code(err))
+		console.log(err.message)
 		hasError = true
 		Snackbar.show({
-			text: code(err),
+			text: err.message,
 			textColor:'#F6C570',
 			backgroundColor:'#303960',
 			duration:Snackbar.LENGTH_INDEFINITE,
@@ -31,16 +27,16 @@ export async function asyncErrorHandling(check:Function,after:Function,code:Func
 		await after()
 	}
 }
-export function ErrorHandling(check:Function,after:Function,code:Function=c){
+export function ErrorHandling(check:Function,after:Function){
 	let hasError = false
 	try{
 		check()
 	} catch(err){
 		console.log('has err')
-		console.log(code(err))
+		console.log(err.message)
 		hasError = true
 		Snackbar.show({
-			text: code(err),
+			text: err.message,
 			textColor:'#F6C570',
 			backgroundColor:'#303960',
 			duration:Snackbar.LENGTH_INDEFINITE,

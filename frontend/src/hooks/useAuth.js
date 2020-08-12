@@ -104,8 +104,6 @@ export function useAuth() {
 						action(actionType.SET.isSync, res.data.isSync)
 					])
 				})
-			},(e)=>{
-				return e.message
 			})
 		},
 		signOut: async () => {
