@@ -18,6 +18,16 @@ function execSwitch(state, action) {
 			...state,
 			splash: action.payload
 		}
+	case actionType.SET.isFreshing:
+		return {
+			...state,
+			isFreshing:action.payload
+		}
+	case actionType.SET.isSync:
+		return {
+			...state,
+			isSync: action.payload
+		}
 	default:
 		return state
 	}

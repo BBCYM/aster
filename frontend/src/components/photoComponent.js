@@ -10,7 +10,8 @@ import Ionicons from 'react-native-vector-icons/Ionicons'
 import { SwipeListView } from 'react-native-swipe-list-view'
 import Axios from 'axios'
 import { ipv4 } from '../utils/dev'
-import {resToEmotionStatus} from '../utils/utils'
+import _ from 'lodash'
+import {resToEmotionStatus, asyncErrorHandling} from '../utils/utils'
 
 
 export function TagList([status, setStatus],state) {
@@ -100,13 +101,33 @@ export function photoFooter(that, [status, setStatus], currentIndex, state) {
 			}
 		}).then((res) => {
 			let data = JSON.parse(res.data)
-			// console.log(data.message)
 			let emotionState = resToEmotionStatus(status.emotionStatus,data.message)
 			setStatus({emotionStatus:emotionState})
 		}).then(()=>{
 			setStatus({ isEmotionModalVisi: true })
 		}).catch((err)=>{
 			console.error(err)
+		})
+	}
+	function checkImgAvailable(currentIndex){
+		asyncErrorHandling(async()=>{
+			setStatus({actionBtnVisi:true})
+			const now = status.fastSource[currentIndex]
+			let res = await Axios.get(`http://${ipv4}:3000/photo`,{
+				params:{
+					userId:state.user.id,
+					photoId:now.imgId
+				}
+			})
+			let pObject = JSON.parse(res.data.photo_object)
+			if (_.isEmpty(pObject)){
+				setStatus({isBug:true})
+				throw Error('Not in server, need Refresh')
+			}
+		}, ()=>{
+			setStatus({actionBtnVisi:true})
+		},(e)=>{
+			return e.message
 		})
 	}
 	return (
@@ -118,12 +139,24 @@ export function photoFooter(that, [status, setStatus], currentIndex, state) {
 				offsetY={10}
 				fixNativeFeedbackRadius={true}
 				spacing={10}
+				active={status.actionBtnVisi}
+				onPress={()=>{
+					if(!status.actionBtnVisi){
+						checkImgAvailable(currentIndex)
+					} else {
+						setStatus({actionBtnVisi:false})
+					}
+				}}
 			>
 				<ActionButton.Item
 					buttonColor='#F5B19C'
 					title="Emotion"
 					spaceBetween={8}
-					onPress={() => fetchEmotion(currentIndex)}
+					onPress={() => {
+						if(!status.isBug){
+							fetchEmotion(currentIndex)
+						}
+					}}
 				>
 					<Ionicons name="happy-outline" style={styles.actionButtonIcon} />
 				</ActionButton.Item>
@@ -131,7 +164,11 @@ export function photoFooter(that, [status, setStatus], currentIndex, state) {
 					buttonColor='#63CCC8'
 					title="New Tag"
 					spaceBetween={8}
-					onPress={() => fetchTags(currentIndex)}
+					onPress={() => {
+						if(!status.isBug){
+							fetchTags(currentIndex)
+						}
+					}}
 				>
 					<Ionicons name="pricetags-outline" style={styles.actionButtonIcon} />
 				</ActionButton.Item>
