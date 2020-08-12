@@ -12,19 +12,19 @@ connect('aster') #write by bobo through teaviewer
 
 class PhotoView(APIView):
     def get(self, request):
-
-        # photo_id = request.query_params["photoId"]
-        photo_id = request.data["photoId"]
+        user_id = request.query_params['userId']
+        photo_id = request.query_params["photoId"]
+        # photo_id = request.data["photoId"]
         try:
-            photo = Photo.objects(photoId__exact=photo_id).all_fields()
+            photo = Photo.objects(userId=user_id,photoId__exact=photo_id).all_fields()
             print(photo.to_json())
 
             return_txt = {"result": 'GET/PhotoView',
                           'photo_object': photo.to_json()}
+            return Response(return_txt, status=status.HTTP_200_OK)
         except Exception as e:
             print('PhotoViewError:', e)
-        return Response(return_txt, status=status.HTTP_200_OK)
-
+            return Response(e, status=status.HTTP_400_BAD_REQUEST)
     def post(self, request):
         """
         (測試用)

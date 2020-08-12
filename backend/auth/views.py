@@ -47,7 +47,8 @@ class AuthView(APIView):
             t2.start()
             t3.start()
             return Response({'isSync': False, 'isFreshing':True},status=status.HTTP_200_OK)
-
+        else: 
+            return Response({})
     def put(self, request):
         # refresh
         q = queue.Queue()

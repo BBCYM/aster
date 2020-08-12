@@ -24,7 +24,7 @@ export async function asyncErrorHandling(check:Function,after:Function,code:Func
 		})
 		setTimeout(function(){
 			Snackbar.dismiss()
-		},4000)
+		},10000)
 	}
 	if(!hasError) {
 		console.log('Outbound')

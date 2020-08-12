@@ -36,6 +36,7 @@ export default function GalleryScreen(that) {
 		modalSource: [],
 		tag: [],
 		emotionStatus: Array(6).fill(false),
+		actionBtnVisi:false,
 	})
 	const { auth, state } = React.useContext(AuthContext)
 	function setEmotion(n) {
