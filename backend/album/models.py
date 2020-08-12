@@ -27,7 +27,8 @@ class AlbumTag(EmbeddedDocument):
 
 class Album(Document):
 
-    albumId = fields.StringField()
+    # albumId = fields.StringField()
+    _id = fields.ObjectIdField()
     coverPhotoId = fields.StringField()
     albumName = fields.StringField()
     userId = fields.StringField()
