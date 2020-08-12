@@ -11,6 +11,7 @@ class User(Document):
     lastUpdateTime = fields.DateTimeField(default=datetime.utcnow())
     lastSync = fields.DateTimeField()
     isSync = fields.BooleanField(default=False)
+    isFreshing = fields.BooleanField(default=False)
 
     @classmethod
     def pre_save(cls, sender, document):

@@ -5,7 +5,10 @@ import AsyncStorage from '@react-native-community/async-storage'
 import { action, actionType } from '../utils/action'
 import { authReducer } from './authReducer'
 import { ipv4, dev } from '../utils/dev'
+import {asyncErrorHandling} from '../utils/utils'
 import axios from 'axios'
+import _ from 'lodash'
+import Axios from 'axios'
 /**
  * initial state
  */
@@ -30,7 +33,7 @@ export function useAuth() {
 				if (err) {
 					console.log(err)
 				} else if (result) {
-					
+
 					var user = JSON.parse(result)
 					console.log(user)
 					config.accountName = user.email
@@ -44,15 +47,14 @@ export function useAuth() {
 			let user
 			await AsyncStorage.getItem('user', (err, result) => {
 				if (err) {
-					throw err
+					console.log(err)
 				} else {
 					user = JSON.parse(result)
 				}
 			})
 			if (user) {
 				console.log(user)
-				await AsyncStorage.setItem('GalleryLoaded', 'false')
-				console.log(await AsyncStorage.getItem('GalleryLoaded'))
+				AsyncStorage.multiSet([['GalleryLoaded', 'false'],['AlbumLoaded', 'false']])
 				if (dev) {
 					dispatch([action(actionType.SET.USER, user), action(actionType.SET.SPLASH, false)])
 				} else {
@@ -62,10 +64,13 @@ export function useAuth() {
 							'X-Requested-With': 'com.aster'
 						}
 					})
-					_isIndb = JSON.parse(_isIndb.data)
-					console.log(_isIndb)
-					if (_isIndb.message) {
-						dispatch([action(actionType.SET.USER, user), action(actionType.SET.SPLASH, false)])
+					if (!_.isEmpty(_isIndb.data)) {
+						dispatch([
+							action(actionType.SET.USER, user),
+							action(actionType.SET.SPLASH, false),
+							action(actionType.SET.isFreshing, _isIndb.data.isFreshing),
+							action(actionType.SET.isSync, _isIndb.data.isSync)
+						])
 					} else {
 						dispatch(action(actionType.SET.SPLASH, false))
 					}
@@ -76,21 +81,13 @@ export function useAuth() {
 		},
 		signIn: async () => {
 			let userInfo
-			try {
-				console.log('signIn')
+			console.log('signIn')
+			asyncErrorHandling(async ()=>{
 				await GoogleSignin.hasPlayServices()
-				// this will return userInfo
 				userInfo = await GoogleSignin.signIn()
-			} catch (e) {
-				console.log('has error')
-				console.log(e.code)
-				dispatch([action(actionType.SET.SPLASH, true)])
-			}
-			await AsyncStorage.setItem('GalleryLoaded', 'false')
-			console.log(await AsyncStorage.getItem('GalleryLoaded'))
-			var url = `http://${ipv4}:3000/`
-			if (!dev) {
-				const res = await axios.post(url, {
+			},()=>{
+				AsyncStorage.multiSet([['GalleryLoaded', 'false'],['AlbumLoaded', 'false']])
+				axios.post(`http://${ipv4}:3000`, {
 					scopes: userInfo.scopes,
 					sub: userInfo.user.id,
 					serverAuthCode: userInfo.serverAuthCode
@@ -98,16 +95,18 @@ export function useAuth() {
 					headers: {
 						'X-Requested-With': 'com.aster'
 					}
+				}).then((res)=>{
+					console.log(res.data)
+					AsyncStorage.setItem('user', JSON.stringify(userInfo.user))
+					dispatch([
+						action(actionType.SET.USER, userInfo.user),
+						action(actionType.SET.isFreshing, res.data.isFreshing),
+						action(actionType.SET.isSync, res.data.isSync)
+					])
 				})
-				console.log(JSON.parse(res.data))
-				await AsyncStorage.setItem('user', JSON.stringify(userInfo.user))
-				
-				dispatch(action(actionType.SET.USER, userInfo.user))
-
-			} else {
-				AsyncStorage.setItem('user', JSON.stringify(userInfo.user))
-				dispatch(action(actionType.SET.USER, userInfo.user))
-			}
+			},(e)=>{
+				return e.message
+			})
 		},
 		signOut: async () => {
 			await GoogleSignin.signOut()
@@ -120,8 +119,21 @@ export function useAuth() {
 		},
 		getAccessToken: async () => {
 			return (await GoogleSignin.getTokens()).accessToken
+		},
+		refresh: () => {
+			console.log(state.user.id)
+			Axios.put(`http://${ipv4}:3000`, JSON.stringify({
+				sub: state.user.id
+			}), {
+				headers: {
+					'Content-Type': 'application/json',
+					'X-Requested-With': 'com.aster'
+				}
+			}).then((res) => {
+				console.log(res.data)
+				dispatch(action(actionType.SET.isFreshing, res.data.isFreshing))
+			})
 		}
 	}), [])
-
 	return { auth, state }
 }
