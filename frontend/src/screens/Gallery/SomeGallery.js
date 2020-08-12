@@ -68,13 +68,8 @@ export default function SomeGalleryScreen(props) {
 		const accessToken = await auth.getAccessToken()
 		let fSource = []
 		let mSource = []
-<<<<<<< HEAD
-		for (const [i,v] of temp.entries()) {
-			Axios.get(`https://photoslibrary.googleapis.com/v1/mediaItems/${v}`, {
-=======
 		for (const [i, v] of temp.entries()) {
 			await Axios.get(`https://photoslibrary.googleapis.com/v1/mediaItems/${v}`, {
->>>>>>> 84b13ef3eb7a4ad065c53002eebdaca31cd07dab
 				headers: {
 					'Authorization': `Bearer ${accessToken}`,
 					'Content-type': 'application/json'

@@ -34,50 +34,55 @@ export default function HomeScreen(props) {
 		//inputTag: '',
 		fastSource: [],
 		modalSource: [],
+		dataSource: [],
 		//tag: [],
 		albumName: '',
 		//image:'',
-		albumId: 0
+		albumId: 0,
+		aModal:false,
 	})
 	const { auth } = React.useContext(AuthContext)
 	async function fetchAlbumSource(callback) {
 		const accessToken = await auth.getAccessToken()
         //get albumid Name coverPhotoId
 		try {
-			let res = await Axios.get(`http://${ipv4}:3000/album`, {
+			await Axios.get(`http://${ipv4}:3000/album`, {
 				headers: {
-					'Authorization': `Bearer ${accessToken}`,
-					'Content-type': 'application/json'
+					'Content-Type': 'application/json',
+					'X-Requested-With': "com.rnexparea"
 				}
 			})
-			var data = await response.json()
+			var albumId = await response.json()
   			//var data = JSON.parse(data)
-  			console.log(data)
+  			console.log(albumId)
 			
 			//let albumId = res.data['albumId']
 			 let fSource = status.fastSource
-			for (const [i, item] of mediaItems.entries()) {
-				let res = await Axios.get(`https://photoslibrary.googleapis.com/v1/mediaItems/${coverPhotoId}`, {
-					headers: {
-						'Authorization': `Bearer ${accessToken}`,
-						'Content-type': 'application/json'
-					}
-				})
-				let albums = res.data['albums']
-				let fSource = status.fastSource
-				var width = 400
-				var height = 400
-				var img = {
-					id: i,
-					albumId: item['id'],
-					title: item['title'],
-					coverUrl: `${item['BaseUrl']}=w${width}-h${height}`,
-					coverId: item['coverPhotoMediaItemId'],
-					headers: { Authorization: `Bearer ${accessToken}` },
-				}
-				fSource.push(img)
-			}
-			setStatus({ fastSource: fSource })
+			//  let dSource = status.dataSource
+			// for (const [i, item] of mediaItems.entries()) {
+			// 	let res = await Axios.get(`https://photoslibrary.googleapis.com/v1/mediaItems/${id}`, {
+			// 		headers: {
+			// 			'Authorization': `Bearer ${accessToken}`,
+			// 			'Content-type': 'application/json'
+			// 		}
+			// 	})
+			// 	let albums = res.data['albums']
+			// 	let fSource = status.fastSource
+			// 	var width = 400
+			// 	var height = 400
+			// 	var img = {
+			// 		id: i,
+			// 		albumId: item['id'],
+			// 		title: item['title'],
+			// 		coverUrl: `${item['BaseUrl']}=w${width}-h${height}`,
+			// 		coverId: item['coverPhotoMediaItemId'],
+			// 		headers: { Authorization: `Bearer ${accessToken}` },
+			// 	}
+			// 	fSource.push(img)
+			// }
+			dSource.push(data)
+			//setStatus({ fastSource: fSource })
+			setStatus({dataSource: dSource})
 		} catch (err) {
 			console.log('error')
 			console.log(err)
@@ -140,42 +145,45 @@ export default function HomeScreen(props) {
 	//delete album and albumphoto
 	//edit albumName
 	return (
-		<View style={styles.container}>
-			<Text style={styles.title}
-				style={{
-					fontSize: 20,
-					color: 'black',
-					//backgroundColor: 'white',
-				}}>
+		<TouchableOpacity onPress={fetchAlbumSource}>
+			<Text>Press</Text>
+		</TouchableOpacity>
+		// <View style={styles.container}>
+		// 	<Text style={styles.title}
+		// 		style={{
+		// 			fontSize: 20,
+		// 			color: 'black',
+		// 			//backgroundColor: 'white',
+		// 		}}>
 
-			</Text>
-			<FlatList
-				data={status.fastSource}
-				renderItem={({ item }) => (
-					<View style={{ flex: 1, flexDirection: 'column', margin: 1 }}>
-						<TouchableOpacity
-							key={item.id}
-							style={{ flex: 1 }}
-							onPress={() => showAlbum(item)}
-							onLongPress={() => deleteAlbum(albumId)}
-						>
-							<FastImage
-								style={styles.image}
-								source={{
-									uri: item.coverUrl,
-									headers: item.headers,
-									priority: FastImage.priority.high,
-								}}
-							/>
-							<Text style={{ marginLeft: 30, fontSize: 18 }}>{this.state.albumName}</Text>
-						</TouchableOpacity>
-					</View>
-				)}
-				//Setting the number of column
-				numColumns={2}
-				keyExtractor={(item, index) => index.toString()}
-			/>
-		</View>
+		// 	</Text>
+		// 	<FlatList
+		// 		data={status.dataSource}
+		// 		renderItem={({ item }) => (
+		// 			<View style={{ flex: 1, flexDirection: 'column', margin: 1 }}>
+		// 				<TouchableOpacity
+		// 					key={item.id}
+		// 					style={{ flex: 1 }}
+		// 					onPress={() => showAlbum(item)}
+		// 					onLongPress={() => deleteAlbum(albumId)}
+		// 				>
+		// 					<FastImage
+		// 						style={styles.image}
+		// 						source={{
+		// 							uri: item.coverUrl,
+		// 							headers: item.headers,
+		// 							priority: FastImage.priority.high,
+		// 						}}
+		// 					/>
+		// 					<Text style={{ marginLeft: 30, fontSize: 18 }}>{this.state.albumName}</Text>
+		// 				</TouchableOpacity>
+		// 			</View>
+		// 		)}
+		// 		//Setting the number of column
+		// 		numColumns={2}
+		// 		keyExtractor={(item, index) => index.toString()}
+		// 	/>
+		// </View>
 	)
 
 }

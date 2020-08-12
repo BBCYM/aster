@@ -238,7 +238,7 @@ class AlbumPhotoView(APIView):
 
     #抓相簿中的所有照片
     def get(self, request):
-        albumId = request.data["albumId"]
+       # albumId = request.data["albumId"]
         try:
             album = Album.objects(albumId__exact=albumId).all_fields()
             print(album.to_json())
