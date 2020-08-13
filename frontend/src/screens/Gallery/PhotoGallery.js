@@ -60,6 +60,7 @@ export default function GalleryScreen(that) {
 			console.log('Loading photo')
 			const accessToken = await auth.getAccessToken()
 			let pageToken = ''
+			let i = 0
 			do {
 				var params = {
 					pageSize: 100
@@ -80,11 +81,11 @@ export default function GalleryScreen(that) {
 					let mediaItems = res.data['mediaItems']
 					let fSource = status.fastSource
 					let mSource = status.modalSource
-					for (const [i, item] of mediaItems.entries()) {
+					for (const [__, item] of mediaItems.entries()) {
 						var width = 400
 						var height = 400
 						var img = {
-							id: i,
+							id: i++,
 							imgId: item['id'],
 							src: `${item['baseUrl']}=w${width}-h${height}`,
 							headers: { Authorization: `Bearer ${accessToken}` }
@@ -97,7 +98,7 @@ export default function GalleryScreen(that) {
 					setStatus({ fastSource: fSource, modalSource: mSource })
 				} catch (err) {
 					console.log('error')
-					console.log(err)
+					console.log(err.message)
 				}
 			} while (pageToken)
 		}
