@@ -41,8 +41,8 @@ export default function SomeGalleryScreen(props) {
 		tag: [],
 		aModal: false,
 		emotionStatus: Array(6).fill(false),
-		actionBtnVisi:false,
-		isMoving:false
+		actionBtnVisi: false,
+		isMoving: false
 	})
 	const { auth, state } = React.useContext(AuthContext)
 	function setEmotion(n) {
@@ -71,30 +71,34 @@ export default function SomeGalleryScreen(props) {
 		const accessToken = await auth.getAccessToken()
 		let fSource = []
 		let mSource = []
-		await hashTag.forEach(async (v, k) => {
+		let i = 0
+		hashTag.forEach(async (v, k) => {
 			fSource.push({ key: k, tags: v.tag, pics: [] })
-			let m = _.findIndex(fSource,function (o){return o.key === k})
+			let m = _.findIndex(fSource, function (o) { return o.key === k })
 			for (const onePid of v.pid) {
-				await Axios.get(`https://photoslibrary.googleapis.com/v1/mediaItems/${onePid}`, {
-					headers: {
-						'Authorization': `Bearer ${accessToken}`,
-						'Content-type': 'application/json'
-					}
-				}).then(async(res) => {
+				try{
+					let res = await Axios.get(`https://photoslibrary.googleapis.com/v1/mediaItems/${onePid}`, {
+						headers: {
+							'Authorization': `Bearer ${accessToken}`,
+							'Content-type': 'application/json'
+						}
+					})
 					var item = res.data
 					var width = 400
 					var height = 400
 					var img = {
-						id: pids.indexOf(item['id']),
+						id: i++,
 						imgId: item['id'],
 						src: `${item['baseUrl']}=w${width}-h${height}`,
 						headers: { Authorization: `Bearer ${accessToken}` }
 					}
 					fSource[m].pics.push(img)
-					mSource.push({url:item['baseUrl']})
-					await setStatus({ modalSource:mSource, fastSource: fSource})
-				})
-			}	
+					mSource.push({ url: item['baseUrl'] })
+				} catch(err){
+					console.log(err)
+				}
+			}
+			setStatus({ fastSource: fSource, modalSource: mSource})
 		})
 	}
 
@@ -104,8 +108,8 @@ export default function SomeGalleryScreen(props) {
 			currentId: item.id,
 			isVisible: true,
 			currentPhotoId: item.imgId,
-			reset:undefined,
-			actionBtnVisi:false
+			reset: undefined,
+			actionBtnVisi: false
 		})
 	}
 	function addTag() {
@@ -151,7 +155,7 @@ export default function SomeGalleryScreen(props) {
 				data={status.fastSource}
 				extraData={status}
 				renderItem={({ item }) => (
-					<View style={{flex:1, flexDirection: 'row'}}>
+					<View style={{ flex: 1, flexDirection: 'row' }}>
 						<View style={styles.dashContainer}>
 							<View>
 								<View style={styles._innerContainer}>
@@ -164,16 +168,16 @@ export default function SomeGalleryScreen(props) {
 								<Dash dashGap={7} dashLength={5} dashColor="#63CCC8" style={{ width: 1, height: '100%', flexDirection: 'column' }} />
 							</View>
 						</View>
-						<View style={{flex:1,paddingTop:5,paddingBottom:5}}>
-							<View style={{flex:1, flexDirection:'row-reverse', padding:3}}>
+						<View style={{ flex: 1, paddingTop: 5, paddingBottom: 5 }}>
+							<View style={{ flex: 1, flexDirection: 'row-reverse', padding: 3 }}>
 								{
-									item.tags.map((v,i)=>(
-										<View key={i}>
-											<Badge status='error' value={v}/>
+									item.tags.map((v, i) => (
+										<View key={i} style={{ paddingRight: 2, paddingLeft: 2 }}>
+											<Badge status='error' value={v} />
 										</View>
 									))
 								}
-								
+
 							</View>
 							<FlatList
 								data={item.pics}
@@ -193,7 +197,7 @@ export default function SomeGalleryScreen(props) {
 								)}
 								//Setting the number of column
 								numColumns={3}
-								listKey={(item,index)=>item.imgId}
+								listKey={(item, index) => item.imgId}
 							/>
 						</View>
 					</View>
@@ -244,13 +248,13 @@ export default function SomeGalleryScreen(props) {
 									/>
 								</TouchableOpacity>
 							) : (
-								<TouchableOpacity key={i} activeOpacity={0.4} focusedOpacity={0.5} onPress={() => setEmotion(item.index)}>
-									<Image
-										style={styles.emotion}
-										source={item.source}
-									/>
-								</TouchableOpacity>
-							)
+									<TouchableOpacity key={i} activeOpacity={0.4} focusedOpacity={0.5} onPress={() => setEmotion(item.index)}>
+										<Image
+											style={styles.emotion}
+											source={item.source}
+										/>
+									</TouchableOpacity>
+								)
 						})
 					}
 				</View>
@@ -263,13 +267,13 @@ export default function SomeGalleryScreen(props) {
 					enableImageZoom={true}
 					enablePreload={true}
 					useNativeDriver={true}
-					onCancel={()=>setStatus({reset:true, isVisible:false})}
-					onMove={(m)=>{
-						if(m.type==='onPanResponderRelease'){
-							setStatus({isMoving:false, })
+					onCancel={() => setStatus({ reset: true, isVisible: false })}
+					onMove={(m) => {
+						if (m.type === 'onPanResponderRelease') {
+							setStatus({ isMoving: false, })
 						} else {
-							if(status.isMoving===false){
-								setStatus({isMoving:true,actionBtnVisi:false})
+							if (status.isMoving === false) {
+								setStatus({ isMoving: true, actionBtnVisi: false })
 							}
 						}
 					}}

@@ -82,7 +82,7 @@ export default function GalleryScreen(that) {
 					let mediaItems = res.data['mediaItems']
 					let fSource = status.fastSource
 					let mSource = status.modalSource
-					for (const [__, item] of mediaItems.entries()) {
+					for (const item of mediaItems) {
 						var width = 400
 						var height = 400
 						var img = {
