@@ -41,6 +41,7 @@ export default function SomeGalleryScreen(props) {
 		tag: [],
 		aModal: false,
 		emotionStatus: Array(6).fill(false),
+		actionBtnVisi:false,
 		isMoving:false
 	})
 	const { auth, state } = React.useContext(AuthContext)
@@ -103,6 +104,8 @@ export default function SomeGalleryScreen(props) {
 			currentId: item.id,
 			isVisible: true,
 			currentPhotoId: item.imgId,
+			reset:undefined,
+			actionBtnVisi:false
 		})
 	}
 	function addTag() {
@@ -260,6 +263,7 @@ export default function SomeGalleryScreen(props) {
 					enableImageZoom={true}
 					enablePreload={true}
 					useNativeDriver={true}
+					onCancel={()=>setStatus({reset:true, isVisible:false})}
 					onMove={(m)=>{
 						if(m.type==='onPanResponderRelease'){
 							setStatus({isMoving:false, })
