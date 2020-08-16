@@ -64,34 +64,12 @@ export default function SomeGalleryScreen(props) {
 		console.log('Loading photo')
 		let hashTag = preCleanPid(props.route.params.pid_tag)
 		console.log(hashTag)
-		var { pids, temp } = concatLocalTag(hashTag)
-		setStatus({ preBuildTag: temp })
+		const temp = props.route.params.pid
+		setStatus({ preBuildTag: concatLocalTag(props.route.params.pid_tag) })
 		const accessToken = await auth.getAccessToken()
 		let fSource = []
 		let mSource = []
-		hashTag.forEach(async (v, k) => {
-			for (const [i, onePid] of v.pid.entries()) {
-				let groupp = []
-				await Axios.get(`https://photoslibrary.googleapis.com/v1/mediaItems/${onePid}`, {
-					headers: {
-						'Authorization': `Bearer ${accessToken}`,
-						'Content-type': 'application/json'
-					}
-				}).then((res) => {
-					var item = res.data
-					var width = 400
-					var height = 400
-					var img = {
-						id: i,
-						imgId: item['id'],
-						src: `${item['baseUrl']}=w${width}-h${height}`,
-						headers: { Authorization: `Bearer ${accessToken}` }
-					}
-					groupp.push(img)
-				})
-			}
-		})
-		for (const [i, v] of pids.entries()) {
+		for (const [i, v] of temp.entries()) {
 			await Axios.get(`https://photoslibrary.googleapis.com/v1/mediaItems/${v}`, {
 				headers: {
 					'Authorization': `Bearer ${accessToken}`,
@@ -163,9 +141,6 @@ export default function SomeGalleryScreen(props) {
 
 	return (
 		<View style={{ flex: 1, flexDirection: 'row' }}>
-			{/* <FlatList
-				data={}
-			/> */}
 			<View style={styles.dashContainer}>
 				<View>
 					<View style={styles._innerContainer}>
@@ -296,7 +271,7 @@ const styles = StyleSheet.create({
 			width: 0,
 			height: 3
 		},
-		zIndex: 1
+		zIndex:1
 	},
 	outerContainer: {
 		width: 20,

@@ -118,10 +118,12 @@ export function useAuth() {
 		getAccessToken: async () => {
 			return (await GoogleSignin.getTokens()).accessToken
 		},
-		refresh: () => {
+		refresh:async () => {
 			console.log(state.user.id)
+			let user = await AsyncStorage.getItem('user')
+			user = JSON.parse(user)
 			Axios.put(`http://${ipv4}:3000`, JSON.stringify({
-				sub: state.user.id
+				sub: user.id
 			}), {
 				headers: {
 					'Content-Type': 'application/json',

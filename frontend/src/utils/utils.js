@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import hash from 'object-hash'
 import Snackbar from 'react-native-snackbar'
 export async function asyncErrorHandling(check:Function,after:Function){
 	let hasError = false
@@ -77,21 +78,39 @@ export function resToEmotionStatus(eState, want){
 	return eCopy
 }
 
-export function concatLocalTag(pid_tag){
+export function concatLocalTag(hashTag:Map){
+	// console.log(hashTag)
 	let temp = []
-	pid_tag.forEach((v, i) => {
-		temp = _.concat(temp,v.tag)
+	let pids = []
+	hashTag.forEach((v,k)=>{
+		temp = _.concat(temp, v.tag)
+		pids = _.concat(pids,v.pid)
 	})
-	return _.uniq(temp).map((v,i)=>({key:temp.length-i-1,text:v}))
+	temp = _.uniq(temp).map((v,i)=>({key:temp.length-i-1,text:v}))
+	return {pids, temp}
 }
 
-// export function preCleanPid(pids){
-// 	let temp = pids.map((v, i)=>{
-// 		return {
-// 			pid: v.pid,
-// 			tag: new Set(v.tag)
-// 		}
+// export function concatLocalTag(pid_tag){
+// 	let temp = []
+// 	pid_tag.forEach((v, i) => {
+// 		temp = _.concat(temp,v.tag)
 // 	})
-// 	temp = _.sortBy(temp,[function(o){return len(o.tag)}])
-	
+// 	return _.uniq(temp).map((v,i)=>({key:temp.length-i-1,text:v}))
 // }
+
+export function preCleanPid(pids){
+	pids = _.sortBy(pids,[function(o){return o.tag.length}]).reverse()
+	let hashMap = new Map()
+	pids.forEach((v)=>{
+		v.tag.sort()
+		var hashTag = hash.MD5(v.tag)
+		if(hashMap.has(hashTag)){
+			var past = hashMap.get(hashTag)
+			past.pid.push(v.pid)
+			hashMap.set(hashTag, past)
+		} else {
+			hashMap.set(hashTag, {tag:v.tag, pid:[v.pid]})
+		}
+	})
+	return hashMap
+}
