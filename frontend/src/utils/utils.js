@@ -90,14 +90,6 @@ export function concatLocalTag(hashTag:Map){
 	return {pids, temp}
 }
 
-// export function concatLocalTag(pid_tag){
-// 	let temp = []
-// 	pid_tag.forEach((v, i) => {
-// 		temp = _.concat(temp,v.tag)
-// 	})
-// 	return _.uniq(temp).map((v,i)=>({key:temp.length-i-1,text:v}))
-// }
-
 export function preCleanPid(pids){
 	pids = _.sortBy(pids,[function(o){return o.tag.length}]).reverse()
 	let hashMap = new Map()

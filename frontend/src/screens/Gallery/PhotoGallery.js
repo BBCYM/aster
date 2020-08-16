@@ -123,7 +123,6 @@ export default function GalleryScreen(that) {
 	function showImage(item) {
 		// load tag of the item
 		setStatus({
-			currentImg: item.src,
 			currentId: item.id,
 			isVisible: true,
 			currentPhotoId: item.imgId,
@@ -253,6 +252,7 @@ export default function GalleryScreen(that) {
 									uri: item.src,
 									headers: item.headers,
 									priority: FastImage.priority.high,
+									cache: FastImage.cacheControl.web
 								}}
 							/>
 						</TouchableOpacity>
