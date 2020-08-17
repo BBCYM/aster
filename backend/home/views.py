@@ -50,6 +50,6 @@ class HomeView(APIView):
 
         return Response(simpleMessage('PUT/HomeView'), status=status.HTTP_200_OK)
 
-        def delete(self, request):
+    def delete(self, request):
 
-            return Response(simpleMessage('DELETE/HomeView'))
+        return Response(simpleMessage('DELETE/HomeView'))
