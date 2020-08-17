@@ -97,8 +97,8 @@ export default function SomeGalleryScreen(props) {
 				} catch(err){
 					console.log(err)
 				}
+				setStatus({ fastSource: fSource, modalSource: mSource})
 			}
-			setStatus({ fastSource: fSource, modalSource: mSource})
 		})
 	}
 

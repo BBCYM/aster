@@ -1,11 +1,11 @@
 import * as React from 'react'
-import { GoogleSignin} from '@react-native-community/google-signin'
+import { GoogleSignin } from '@react-native-community/google-signin'
 import { web } from '../../android/app/google-services.json'
 import AsyncStorage from '@react-native-community/async-storage'
 import { action, actionType } from '../utils/action'
 import { authReducer } from './authReducer'
 import { ipv4, dev } from '../utils/dev'
-import {asyncErrorHandling} from '../utils/utils'
+import { asyncErrorHandling } from '../utils/utils'
 import axios from 'axios'
 import _ from 'lodash'
 import Axios from 'axios'
@@ -54,7 +54,7 @@ export function useAuth() {
 			})
 			if (user) {
 				console.log(user)
-				AsyncStorage.multiSet([['GalleryLoaded', 'false'],['AlbumLoaded', 'false']])
+				AsyncStorage.multiSet([['GalleryLoaded', 'false'], ['AlbumLoaded', 'false']])
 				if (dev) {
 					dispatch([action(actionType.SET.USER, user), action(actionType.SET.SPLASH, false)])
 				} else {
@@ -82,11 +82,11 @@ export function useAuth() {
 		signIn: async () => {
 			let userInfo
 			console.log('signIn')
-			asyncErrorHandling(async ()=>{
+			asyncErrorHandling(async () => {
 				await GoogleSignin.hasPlayServices()
 				userInfo = await GoogleSignin.signIn()
-			},()=>{
-				AsyncStorage.multiSet([['GalleryLoaded', 'false'],['AlbumLoaded', 'false']])
+			}, () => {
+				AsyncStorage.multiSet([['GalleryLoaded', 'false'], ['AlbumLoaded', 'false']])
 				axios.post(`http://${ipv4}:3000`, {
 					scopes: userInfo.scopes,
 					sub: userInfo.user.id,
@@ -95,7 +95,7 @@ export function useAuth() {
 					headers: {
 						'X-Requested-With': 'com.aster'
 					}
-				}).then((res)=>{
+				}).then((res) => {
 					console.log(res.data)
 					AsyncStorage.setItem('user', JSON.stringify(userInfo.user))
 					dispatch([
@@ -118,7 +118,7 @@ export function useAuth() {
 		getAccessToken: async () => {
 			return (await GoogleSignin.getTokens()).accessToken
 		},
-		refresh:async () => {
+		refresh: async () => {
 			console.log(state.user.id)
 			let user = await AsyncStorage.getItem('user')
 			user = JSON.parse(user)
@@ -134,11 +134,23 @@ export function useAuth() {
 				dispatch(action(actionType.SET.isFreshing, res.data.isFreshing))
 			})
 		},
-		setIs: (isFreshing:Boolean, isSync:Boolean)=>{
+		setIs: (isFreshing: Boolean, isSync: Boolean) => {
 			dispatch([
-				action(actionType.SET.isFreshing,isFreshing),
-				action(actionType.SET.isSync,isSync)
+				action(actionType.SET.isFreshing, isFreshing),
+				action(actionType.SET.isSync, isSync)
 			])
+		},
+		checkisFreshing: async () => {
+			let _isIndb = await axios.get(`http://${ipv4}:3000/?userid=${user.id}`, {
+				headers: {
+					'X-Requested-With': 'com.aster'
+				}
+			})
+			dispatch([
+				action(actionType.SET.isFreshing, _isIndb.data.isFreshing),
+				action(actionType.SET.isSync, )
+			])
+			return [_isIndb.data.isFreshing,_isIndb.data.isSync]
 		}
 	}), [])
 	return { auth, state }
