@@ -9,6 +9,61 @@ import { ipv4 } from '../../utils/dev'
 
 export default function personalScreen(props) {
 	const { auth, state } = React.useContext(AuthContext)
+
+	React.useEffect(() => {
+
+		console.log('isSync:', state.isSync)
+		console.log('isFreshing:', state.isFreshing)
+		console.log('userId:', state.user.id)
+
+
+		// GET isSync isFreshing status first
+		getStatus()
+
+
+	})
+
+	async function getStatus() {
+		const response = await fetch(`http://${ipv4}:3000?userid=${state.user.id}`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+
+				'X-Requested-With': 'com.rnexparea',
+			},
+		})
+		// console.log('for test id:', state.user.id)
+
+		var data = await response.json()
+		console.log('type:', typeof (data))
+
+		console.log('for test:', data)
+
+
+	}
+
+	async function refresh() {
+		const response = await fetch(`http://${ipv4}:3000`, {
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json',
+				'X-Requested-With': 'com.rnexparea'
+			},
+			body: JSON.stringify({
+				sub: state.user.id
+			}),
+
+		})
+		var data = await response
+		// var refreshStatus = JSON.parse(data)
+		console.log(data)
+
+		// console.log('refreshStatus:', refreshStatus)
+
+	}
+
+
+
 	return (
 		<View style={styles.container}>
 			<View style={styles.header}></View>
@@ -21,9 +76,8 @@ export default function personalScreen(props) {
 				<View style={styles.bodyContent}>
 					<Text style={styles.name}>{state.user.name}</Text>
 
-					{/* <Text style={styles.description}>Lorem ipsum dolor sit amet, saepe sapientem eu nam. Qui ne assum electram expetendis, omittam deseruisse consequuntur ius an,</Text> */}
 					<View style={styles.Btncontainer}>
-						<TouchableOpacity style={styles.Btn}>
+						<TouchableOpacity style={styles.Btn} onPress={() => { refresh() }}>
 							<Text>REFRESH</Text>
 						</TouchableOpacity>
 

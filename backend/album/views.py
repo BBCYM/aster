@@ -13,12 +13,15 @@ class AlbumView(APIView):
     # 抓使用者的所有相簿
     def get(self, request):
 
-        userId = request.data["userId"]
+        # userId = request.data["userId"]
+        userId = request.query_params["userId"]
+
         albumNameArray = []
         _idArray = []
         coverPhotoIdArray = []
 
         album = Album.objects(userId=userId).filter()
+        print(album.to_json())
 
         # get albumname
         for a in album:
@@ -30,14 +33,14 @@ class AlbumView(APIView):
             if a.isDeleted == False:
                 data = JSONEncoder().encode(a._id)
                 data2 = eval(data)
-                print('test:', data2)
+                # print('test:', data2)
                 _idArray.append(data2)
         # print(_idArray)
 
         # get coverPhotoId
         for a in album:
             if a.isDeleted == False:
-                print('test2:', a.coverPhotoId)
+                # print('test2:', a.coverPhotoId)
 
                 coverPhotoIdArray.append(a.coverPhotoId)
 
@@ -111,10 +114,8 @@ class AlbumView(APIView):
         """
         刪除相簿
         把_id的is_delete欄位改成true
-
         Args:
             request: 裡面需要有_id
-
         Returns:
             None
         """
@@ -145,7 +146,9 @@ class AlbumTagView(APIView):
         Returns:
             該album全部的albumTag
         """
-        album_id = request.data["_id"]
+        # album_id = request.data["_id"]
+        album_id = request.query_params["_id"]
+
         album_tag_array = []
 
         try:
@@ -166,10 +169,14 @@ class AlbumTagView(APIView):
             print(e)
             return Response(simpleMessage("Get/AlbumTagView: error"), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        response_str = json.dumps({"result": "Get/AlbumTagView",
-                                   "album_tag": album_tag_array})
+        print(album_tag_array)
+        res = {"result": "Get/AlbumTagView",
+               "album_tag": album_tag_array}
 
-        return Response(response_str, status=status.HTTP_201_CREATED)
+        # response_str = json.dumps({"result": "Get/AlbumTagView",
+        #                            "album_tag": album_tag_array})
+
+        return Response(res, status=status.HTTP_201_CREATED)
 
     # 新增相簿TAG
     def post(self, request):
@@ -242,17 +249,42 @@ class AlbumPhotoView(APIView):
     # 抓相簿中的所有照片
     def get(self, request):
 
-        _id = request.data["_id"]
+        # _id = request.data["_id"]
+        _id = request.query_params["_id"]
+        albumNameArray = []
 
-        try:
-            album = Album.objects(_id=_id).all_fields()
-            print(album.to_json())
+        album = Album.objects(_id=_id).filter()
 
-            return_txt = {"result": 'GET/AlbumPhotoView',
-                          'album_object': album.to_json()}
-        except Exception as e:
-            print('AlbumPhotoViewError:', e)
-        return Response(return_txt, status=status.HTTP_200_OK)
+        print(album.to_json())
+
+        # # get albumname
+        # for a in album.albumPhoto:
+        #     if a.isDeleted == False:
+        #         albumNameArray.append(a.albumName)
+        # print(albumNameArray)
+
+        # # get _id
+        # for a in album:
+        #     if a.isDeleted == False:
+        #         data = JSONEncoder().encode(a._id)
+        #         data2 = eval(data)
+        #         print('test:', data2)
+        #         _idArray.append(data2)
+        # # print(_idArray)
+
+        # # get coverPhotoId
+        # for a in album:
+        #     if a.isDeleted == False:
+        #         print('test2:', a.coverPhotoId)
+
+        #         coverPhotoIdArray.append(a.coverPhotoId)
+
+        # res = {"albumNameArray": albumNameArray, "_idArray": _idArray,
+        #        "coverPhotoIdArray": coverPhotoIdArray}
+
+        # return Response(res, status=status.HTTP_200_OK)
+        return Response('OK', status=status.HTTP_200_OK)
+
 
     # 刪除相簿中的相片
 
