@@ -68,10 +68,7 @@ export function TagList([status, setStatus], state) {
 export function photoFooter(that, [status, setStatus], currentIndex, state) {
 
 	function fetchTags(currentIndex) {
-		const temp = _.flatMap(status.fastSource, (v) => {
-			return v.pics.map((v) => { return _.pick(v, ['id', 'imgId']) })
-		})
-		const now = _.find(temp, (o) => { return o.id === currentIndex })
+		const now = status.fastSource[currentIndex]
 		setStatus({ currentPhotoId: now.imgId, currentId: now.id })
 		Axios.get(`http://${ipv4}:3000/photo/tag`, {
 			params: {
@@ -94,10 +91,7 @@ export function photoFooter(that, [status, setStatus], currentIndex, state) {
 		})
 	}
 	function fetchEmotion(currentIndex) {
-		const temp = _.flatMap(status.fastSource, (v) => {
-			return v.pics.map((v) => { return _.pick(v, ['id', 'imgId']) })
-		})
-		const now = _.find(temp, (o) => { return o.id === currentIndex })
+		const now = status.fastSource[currentIndex]
 		setStatus({ currentPhotoId: now.imgId, currentId: now.id })
 		Axios.get(`http://${ipv4}:3000/photo/emotion`, {
 			params: {
@@ -117,10 +111,7 @@ export function photoFooter(that, [status, setStatus], currentIndex, state) {
 	function checkImgAvailable(currentIndex) {
 		asyncErrorHandling(async () => {
 			setStatus({ actionBtnVisi: true })
-			const temp = _.flatMap(status.fastSource, (v) => {
-				return v.pics.map((v) => { return _.pick(v, ['id', 'imgId']) })
-			})
-			const now = _.find(temp, (o) => { return o.id === currentIndex })
+			const now = status.fastSource[currentIndex]
 			console.log(now.imgId)
 			let res = await Axios.get(`http://${ipv4}:3000/photo`, {
 				params: {
@@ -149,7 +140,6 @@ export function photoFooter(that, [status, setStatus], currentIndex, state) {
 						fixNativeFeedbackRadius={true}
 						spacing={10}
 						resetToken={status.reset}
-						active={status.actionBtnVisi}
 						onPress={() => {
 							if (!status.actionBtnVisi) {
 								checkImgAvailable(currentIndex)
