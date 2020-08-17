@@ -8,7 +8,7 @@ import {
 	Dimensions,
 	Image
 } from 'react-native'
-import { Overlay, SearchBar, Badge } from 'react-native-elements'
+import { Overlay, SearchBar } from 'react-native-elements'
 import FastImage from 'react-native-fast-image'
 import ImageViewer from 'react-native-image-zoom-viewer'
 import { photoFooter, TagList } from '../../components/photoComponent'
@@ -19,7 +19,6 @@ import { AuthContext } from '../../contexts/AuthContext'
 import { checkEmotion, preCleanPid, concatLocalTag } from '../../utils/utils'
 import { ipv4 } from '../../utils/dev'
 import Dash from 'react-native-dash'
-import _ from 'lodash'
 
 
 export default function SomeGalleryScreen(props) {
@@ -41,8 +40,6 @@ export default function SomeGalleryScreen(props) {
 		tag: [],
 		aModal: false,
 		emotionStatus: Array(6).fill(false),
-		actionBtnVisi: false,
-		isMoving: false
 	})
 	const { auth, state } = React.useContext(AuthContext)
 	function setEmotion(n) {
@@ -66,50 +63,43 @@ export default function SomeGalleryScreen(props) {
 	async function fetchImageSource(callback) {
 		console.log('Loading photo')
 		let hashTag = preCleanPid(props.route.params.pid_tag)
-		let { pids, temp } = concatLocalTag(hashTag)
-		setStatus({ preBuildTag: temp })
+		console.log(hashTag)
+		const temp = props.route.params.pid
+		setStatus({ preBuildTag: concatLocalTag(props.route.params.pid_tag) })
 		const accessToken = await auth.getAccessToken()
 		let fSource = []
 		let mSource = []
-		let i = 0
-		hashTag.forEach(async (v, k) => {
-			fSource.push({ key: k, tags: v.tag, pics: [] })
-			let m = _.findIndex(fSource, function (o) { return o.key === k })
-			for (const onePid of v.pid) {
-				try{
-					let res = await Axios.get(`https://photoslibrary.googleapis.com/v1/mediaItems/${onePid}`, {
-						headers: {
-							'Authorization': `Bearer ${accessToken}`,
-							'Content-type': 'application/json'
-						}
-					})
-					var item = res.data
-					var width = 400
-					var height = 400
-					var img = {
-						id: i++,
-						imgId: item['id'],
-						src: `${item['baseUrl']}=w${width}-h${height}`,
-						headers: { Authorization: `Bearer ${accessToken}` }
-					}
-					fSource[m].pics.push(img)
-					mSource.push({ url: item['baseUrl'] })
-				} catch(err){
-					console.log(err)
+		for (const [i, v] of temp.entries()) {
+			await Axios.get(`https://photoslibrary.googleapis.com/v1/mediaItems/${v}`, {
+				headers: {
+					'Authorization': `Bearer ${accessToken}`,
+					'Content-type': 'application/json'
 				}
-				setStatus({ fastSource: fSource, modalSource: mSource})
-			}
-		})
+			}).then((res) => {
+				var item = res.data
+				var width = 400
+				var height = 400
+				var img = {
+					id: i,
+					imgId: item['id'],
+					src: `${item['baseUrl']}=w${width}-h${height}`,
+					headers: { Authorization: `Bearer ${accessToken}` }
+				}
+				fSource.push(img)
+				mSource.push({
+					url: item['baseUrl']
+				})
+			})
+			await setStatus({ fastSource: fSource, modalSource: mSource })
+		}
 	}
 
-	async function showImage(item) {
-		console.log(item.id)
-		await setStatus({
+	function showImage(item) {
+		setStatus({
+			currentImg: item.src,
 			currentId: item.id,
 			isVisible: true,
 			currentPhotoId: item.imgId,
-			reset: undefined,
-			actionBtnVisi: false
 		})
 	}
 	function addTag() {
@@ -150,63 +140,39 @@ export default function SomeGalleryScreen(props) {
 	}
 
 	return (
-		<View style={{ flex: 1 }}>
+		<View style={{ flex: 1, flexDirection: 'row' }}>
+			<View style={styles.dashContainer}>
+				<View>
+					<View style={styles._innerContainer}>
+						<View
+							style={styles.outerContainer}
+						/>
+					</View>
+				</View>
+				<View>
+					<Dash dashGap={7} dashLength={5} dashColor="#63CCC8" style={{ width: 1, height: 100, flexDirection: 'column' }} />
+				</View>
+			</View>
 			<FlatList
 				data={status.fastSource}
-				extraData={status}
 				renderItem={({ item }) => (
-					<View style={{ flex: 1, flexDirection: 'row' }}>
-						<View style={styles.dashContainer}>
-							<View>
-								<View style={styles._innerContainer}>
-									<View
-										style={styles.outerContainer}
-									/>
-								</View>
-							</View>
-							<View>
-								<Dash dashGap={7} dashLength={5} dashColor="#63CCC8" style={{ width: 1, height: '100%', flexDirection: 'column' }} />
-							</View>
-						</View>
-						<View style={{ flex: 1, paddingTop: 5, paddingBottom: 5 }}>
-							<View style={{ flex: 1, flexDirection: 'row-reverse', padding: 3 }}>
-								{
-									item.tags.map((v, i) => (
-										<View key={i} style={{ paddingRight: 2, paddingLeft: 2 }}>
-											<Badge status='error' value={v} />
-										</View>
-									))
-								}
-
-							</View>
-							<FlatList
-								data={item.pics}
-								extraData={status}
-								renderItem={(block) => (
-									<View style={{ flex: 1, flexDirection: 'column', margin: 1 }}>
-										<TouchableOpacity onPress={() => showImage(block.item)}>
-											<FastImage
-												style={styles.imageThumbnail}
-												source={{
-													uri: block.item.src,
-													headers: block.item.headers,
-												}}
-											/>
-										</TouchableOpacity>
-									</View>
-								)}
-								//Setting the number of column
-								numColumns={3}
-								listKey={(item, index) => item.imgId}
+					<View style={{ flex: 1, flexDirection: 'column', margin: 1 }}>
+						<TouchableOpacity onPress={() => showImage(item)}>
+							<FastImage
+								style={styles.imageThumbnail}
+								source={{
+									uri: item.src,
+									headers: item.headers,
+									priority: FastImage.priority.high,
+								}}
 							/>
-						</View>
+						</TouchableOpacity>
 					</View>
 				)}
-				keyExtractor={(item, index) => {
-					return item.key
-				}}
+				//Setting the number of column
+				numColumns={3}
+				keyExtractor={(item, index) => index}
 			/>
-
 			{AlbumModal([status, setStatus], state, props)}
 			{OneClickAction([status, setStatus])}
 			<Overlay
@@ -267,16 +233,6 @@ export default function SomeGalleryScreen(props) {
 					enableImageZoom={true}
 					enablePreload={true}
 					useNativeDriver={true}
-					onCancel={() => setStatus({ reset: true, isVisible: false })}
-					onMove={(m) => {
-						if (m.type === 'onPanResponderRelease') {
-							setStatus({ isMoving: false, })
-						} else {
-							if (status.isMoving === false) {
-								setStatus({ isMoving: true, actionBtnVisi: false })
-							}
-						}
-					}}
 					renderIndicator={() => null}
 					renderFooter={(currentIndex) => photoFooter(props, [status, setStatus], currentIndex, state)}
 					footerContainerStyle={{
@@ -285,8 +241,8 @@ export default function SomeGalleryScreen(props) {
 						flexDirection: 'row',
 						width: 140,
 						height: 200,
-						// borderColor: 'black',
-						// borderWidth: 1,
+						borderColor: 'black',
+						borderWidth: 1,
 						zIndex: 1
 					}}
 				/>
@@ -315,7 +271,7 @@ const styles = StyleSheet.create({
 			width: 0,
 			height: 3
 		},
-		zIndex: 1
+		zIndex:1
 	},
 	outerContainer: {
 		width: 20,
