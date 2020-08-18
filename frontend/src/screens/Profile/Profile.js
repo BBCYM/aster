@@ -3,6 +3,7 @@ import { AuthContext } from '../../contexts/AuthContext'
 import { StyleSheet, Text, View, Image, TouchableOpacity, Button } from 'react-native'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import { ipv4 } from '../../utils/dev'
+
 // import moment from 'moment';
 
 
@@ -18,50 +19,11 @@ export default function personalScreen(props) {
 
 
 		// GET isSync isFreshing status first
-		getStatus()
+		auth.checkisFreshing()
+		console.log('FFFcheckisFreshing:', auth._isIndb.data.isFreshing)
 
 
 	})
-
-	async function getStatus() {
-		const response = await fetch(`http://${ipv4}:3000?userid=${state.user.id}`, {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json',
-
-				'X-Requested-With': 'com.rnexparea',
-			},
-		})
-		// console.log('for test id:', state.user.id)
-
-		var data = await response.json()
-		console.log('type:', typeof (data))
-
-		console.log('for test:', data)
-
-
-	}
-
-	async function refresh() {
-		const response = await fetch(`http://${ipv4}:3000`, {
-			method: 'PUT',
-			headers: {
-				'Content-Type': 'application/json',
-				'X-Requested-With': 'com.rnexparea'
-			},
-			body: JSON.stringify({
-				sub: state.user.id
-			}),
-
-		})
-		var data = await response
-		// var refreshStatus = JSON.parse(data)
-		console.log(data)
-
-		// console.log('refreshStatus:', refreshStatus)
-
-	}
-
 
 
 	return (
@@ -77,7 +39,7 @@ export default function personalScreen(props) {
 					<Text style={styles.name}>{state.user.name}</Text>
 
 					<View style={styles.Btncontainer}>
-						<TouchableOpacity style={styles.Btn} onPress={() => { refresh() }}>
+						<TouchableOpacity style={styles.Btn} onPress={() => { auth.refresh() }}>
 							<Text>REFRESH</Text>
 						</TouchableOpacity>
 

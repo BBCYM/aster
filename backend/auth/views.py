@@ -6,6 +6,7 @@ from .utils import simpleMessage
 from .authenticate import checkUserToSession, downloadImage, toVisionApiLabel, afterAll, checkisSync, fetchNewImage
 import threading
 import queue
+import json
 
 
 class AuthView(APIView):

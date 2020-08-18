@@ -92,18 +92,18 @@ export function useAuth() {
 					sub: userInfo.user.id,
 					serverAuthCode: userInfo.serverAuthCode
 				}, {
-					headers: {
-						'X-Requested-With': 'com.aster'
-					}
-				}).then((res) => {
-					console.log(res.data)
-					AsyncStorage.setItem('user', JSON.stringify(userInfo.user))
-					dispatch([
-						action(actionType.SET.USER, userInfo.user),
-						action(actionType.SET.isFreshing, res.data.isFreshing),
-						action(actionType.SET.isSync, res.data.isSync)
-					])
-				})
+						headers: {
+							'X-Requested-With': 'com.aster'
+						}
+					}).then((res) => {
+						console.log(res.data)
+						AsyncStorage.setItem('user', JSON.stringify(userInfo.user))
+						dispatch([
+							action(actionType.SET.USER, userInfo.user),
+							action(actionType.SET.isFreshing, res.data.isFreshing),
+							action(actionType.SET.isSync, res.data.isSync)
+						])
+					})
 			})
 		},
 		signOut: async () => {
@@ -125,16 +125,16 @@ export function useAuth() {
 			Axios.put(`http://${ipv4}:3000`, JSON.stringify({
 				sub: user.id
 			}), {
-				headers: {
-					'Content-Type': 'application/json',
-					'X-Requested-With': 'com.aster'
-				}
-			}).then((res) => {
-				console.log(res.data)
-				dispatch(action(actionType.SET.isFreshing, res.data.isFreshing))
-			})
+					headers: {
+						'Content-Type': 'application/json',
+						'X-Requested-With': 'com.aster'
+					}
+				}).then((res) => {
+					console.log(res.data)
+					dispatch(action(actionType.SET.isFreshing, res.data.isFreshing))
+				})
 		},
-		setIs: (isFreshing: Boolean, isSync: Boolean) => {
+		setIs: (isFreshing, isSync) => {
 			dispatch([
 				action(actionType.SET.isFreshing, isFreshing),
 				action(actionType.SET.isSync, isSync)
@@ -148,9 +148,9 @@ export function useAuth() {
 			})
 			dispatch([
 				action(actionType.SET.isFreshing, _isIndb.data.isFreshing),
-				action(actionType.SET.isSync, )
+				action(actionType.SET.isSync)
 			])
-			return [_isIndb.data.isFreshing,_isIndb.data.isSync]
+			return [_isIndb.data.isFreshing, _isIndb.data.isSync]
 		}
 	}), [])
 	return { auth, state }

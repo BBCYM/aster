@@ -257,11 +257,11 @@ class AlbumPhotoView(APIView):
 
         print(album.to_json())
 
-        # # get albumname
-        # for a in album.albumPhoto:
-        #     if a.isDeleted == False:
-        #         albumNameArray.append(a.albumName)
-        # print(albumNameArray)
+        # get albumname
+        for a in album.albumPhoto:
+            if a.isDeleted == False:
+                albumNameArray.append(a.albumName)
+        print(albumNameArray)
 
         # # get _id
         # for a in album:
