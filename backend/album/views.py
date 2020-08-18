@@ -46,7 +46,7 @@ class AlbumView(APIView):
 
         res = {"albumNameArray": albumNameArray, "_idArray": _idArray,
                "coverPhotoIdArray": coverPhotoIdArray}
-
+        # res = json.dumps(res)
         return Response(res, status=status.HTTP_201_CREATED)
 
     # CREATE  一鍵建相簿
@@ -251,7 +251,6 @@ class AlbumPhotoView(APIView):
 
         # _id = request.data["_id"]
         _id = request.query_params["_id"]
-        albumNameArray = []
 
         album = Album.objects(_id=_id).filter()
 
@@ -286,18 +285,6 @@ class AlbumPhotoView(APIView):
         return Response('OK', status=status.HTTP_200_OK)
 
 
-    # 刪除相簿中的相片
-
-    def delete(self, request):
-        """
-        刪除相簿中的相片
-        根據_id和photoId刪掉指定的相片
-        photo不存在或是成功刪除都會還傳成功
-        Args:
-            request: 裡面需要有_id和photoId
-        Returns:
-            相簿剩下的photo
-        """
         album_id = request.data["_id"]
         album_photo = request.data["albumPhoto"]
 

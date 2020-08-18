@@ -1,186 +1,198 @@
-
-/*This is an Example of Grid Image Gallery in React Native*/
-import React, { Component } from 'react';
+// for cai
+import * as React from 'react'
 import {
 	StyleSheet,
-	Text,
 	View,
-	TouchableOpacity,
 	FlatList,
 	Modal,
-} from 'react-native';
-import FastImage from 'react-native-fast-image';
-// import { Card } from 'react-native-paper';
-// import ImageView from 'react-native-image-view';
+	TouchableOpacity,
+	Dimensions,
+	Text
+} from 'react-native'
+import { Overlay, SearchBar } from 'react-native-elements'
+import FastImage from 'react-native-fast-image'
+import ImageViewer from 'react-native-image-zoom-viewer'
+//import { photoFooter, TagList } from '../../components/photoComponent copy'
+import Ionicons from 'react-native-vector-icons/Ionicons'
+import Axios from 'axios'
+import { AuthContext } from '../../contexts/AuthContext'
+import { ipv4 } from '../../utils/dev';
+import _ from 'lodash'
+import { TextInput } from 'react-native-gesture-handler'
+import { createIconSetFromFontello } from 'react-native-vector-icons'
 
-
-export default class HomeScreen extends Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			imageuri: '',
-			ModalVisibleStatus: false,
-			albumName: ''
-		};
+export default function HomeScreen(props) {
+	function useMergeState(initialState) {
+		const [state, setState] = React.useState(initialState)
+		const setStatus = newState =>
+			setState(prevState => Object.assign({}, prevState, newState))
+		return [state, setStatus]
 	}
-
-	_ping = async () => {
-		// await 必須寫在async函式裡，await makes JavaScript wait until that promise settles and returns its result.
-		// 這邊用法是等fetch的伺服器回應我們後才讓結果等於response
-		// 可以把fetch看成是ajax，真的很像
-		const response = await fetch("http://192.168.43.95:3000/home", {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json',
-				'X-Requested-With': "com.rnexparea"
-			},
-		})
-		// dj back to rn，用到response，一樣先await
-		var data = await response.json()
-		//var data = JSON.parse(data)
-		//var name = JSON.parse(data)
-		console.log(data)
-
-		this.setState({ albumName: data.albumName })
-
-	}
-
-	ShowModalFunction(visible, imageURL) {
-		//handler to handle the click on image of Grid
-		//and close button on modal
-		this.setState({
-			ModalVisibleStatus: visible,
-			imageuri: '',
-		});
-	}
-
-	componentDidMount() { //load album
-		var that = this;
-		let items = Array.apply(null, Array(120)).map((v, i) => {
-			return { id: i, src: 'https://unsplash.it/400/400?image=' + (i + 1) };
-		});
-		that.setState({
-			dataSource: items,
-		});
-	}
-
-	render() {
-		if (this.state.ModalVisibleStatus) { //相簿內容
-			return (
-				<Modal
-					transparent={false}
-					animationType={'fade'}
-					visible={this.state.ModalVisibleStatus}
-					onRequestClose={() => {
-						this.ShowModalFunction(!this.state.ModalVisibleStatus, '');
-					}}>
-					<View style={styles.container}>
-						<Text style={styles.title}
-							style={{
-								//fontSize: 20,
-								color: 'black',
-								//backgroundColor: 'white',
-							}}></Text>
-					</View>
-					<FlatList
-						data={this.state.dataSource}
-						renderItem={({ item }) => (
-							<View style={{ flex: 1, flexDirection: 'column', margin: 1 }}>
-								{/*<TouchableOpacity
-                  key={item.id}
-                  style={{ flex: 1 }}
-                  onPress={() => {
-                    this.ShowModalFunction(true, item.src); 
-                  }}*/}
-
-								<FastImage
-									style={styles.imagephoto}
-									source={{
-										uri: item.src, //{this.state.photo}
-									}}
-								/>
-
-							</View>
-						)}
-						//Setting the number of column
-						numColumns={3}
-						keyExtractor={(item, index) => index.toString()}
-					/>
-					{/*<FastImage
-              data={this.state.dataSource}
-              style={styles.fullImageStyle}
-              source={{ uri: this.state.items}}
-              resizeMode={FastImage.resizeMode.contain}
-            />
-             {/* 單張照片的叉叉按鈕
-            <TouchableOpacity
-              activeOpacity={0.5}
-              style={styles.closeButtonStyle}
-              onPress={() => {
-                this.ShowModalFunction(!this.state.ModalVisibleStatus, '');
-              }}>
-              <FastImage
-                source={{
-                  uri:
-                    'https://raw.githubusercontent.com/AboutReact/sampleresource/master/close.png',
-                }}
-                style={{ width: 35, height: 35, marginTop: 16 }}
-              />
-            </TouchableOpacity>*/}
-				</Modal>
-			);
-		} else {
-			return (
-				<View style={styles.container}>
-					<Text style={styles.title}
-						style={{
-							fontSize: 20,
-							color: 'black',
-							//backgroundColor: 'white',
-						}}>
-
-					</Text>
-					<FlatList
-						data={this.state.dataSource}
-						renderItem={({ item }) => (
-							<View style={{ flex: 1, flexDirection: 'column', margin: 1 }}>
-								<TouchableOpacity
-									key={item.id}
-									style={{ flex: 1 }}
-									onPress={() => {
-										this.ShowModalFunction(true, item.src);  //onPress進去loadalbum裡的photo
-									}}>
-
-									<FastImage
-										style={styles.image}
-										source={{
-											uri: item.src,
-										}}
-									/>
-									<Text style={{ marginLeft: 30, fontSize: 18 }}>hi{this.state.albumName}</Text>
-								</TouchableOpacity>
-							</View>
-						)}
-						//Setting the number of column
-						numColumns={2}
-						keyExtractor={(item, index) => index.toString()}
-					/>
-				</View>
-			);
+	const [status, setStatus] = useMergeState({
+		fastSource: [],
+		//tag: [],
+		albumName: '',
+		//image:'',
+		albumId: 0
+	})
+	const { auth } = React.useContext(AuthContext)
+	async function fetchAlbumSource(callback) {
+		const accessToken = await auth.getAccessToken()
+		//get albumid Name coverPhotoId
+		try {
+			const response = await fetch(`http://${ipv4}:3000/album?userId=113073984862808105932`, {
+				method: 'GET',
+				headers: {
+					'Accept': 'application/json',
+					'Content-Type': 'application/json',
+					'X-Requested-With': "com.rnexparea",
+					//'Authorization': 'Bearer 5f380ee0789056bccfab23ed'	
+				},
+			})
+			var data = await response.json()
+			let fSource = []
+			let i = 0
+			for (const [_id, _title, _coverId] of _.zip(data._idArray, data.albumNameArray, data.coverPhotoIdArray)) {
+				console.log(_id, _title, _coverId)
+				let res = await Axios.get(`https://photoslibrary.googleapis.com/v1/mediaItems/${_coverId}`, {
+					headers: {
+						'Authorization': `Bearer ${accessToken}`,
+						'Content-type': 'application/json'
+					}
+				})
+				var width = 400
+				var height = 400
+				var album = {
+					id: i++,
+					albumId: _id,
+					title: _title,
+					coverUrl: `${res.data['baseUrl']}=w${width}-h${height}`,
+					headers: { Authorization: `Bearer ${accessToken}` },
+				}
+				fSource.push(album)
+				await setStatus({ fastSource: fSource })
+				// fastSource=[{id:, albumId:, title:,coverUrl:,headers:}*n]
+			}
+		} catch (err) {
+			console.log('error')
+			console.log(err)
 		}
 	}
+
+	//get Tag
+	// async function fetchAlbumsTag() {
+	// 	const response = await fetch(`http://${ipv4}:3000/album/tag?_id=5f380ee0789056bccfab23ed`, {
+	// 		method: 'GET',
+	// 		headers: {
+	// 			'Accept': 'application/json',
+	// 			'Content-Type': 'application/json',
+	// 			'X-Requested-With': "com.rnexparea",
+	// 		},
+	// 	})
+	// 	var data = await response.json()
+	// 	var tag = data.result
+	// 	console.log(data)
+
+	// 	console.log(tag)
+
+	// 	//albumPhot albumTag albumName 
+	// 	//var data = JSON.parse(data)
+	// 	//console.log(data)
+	// 	// album_tag_array = []
+	// 	//this.setState({})
+	// 	//this.setState({image: photoId   })
+
+	// }
+
+	React.useEffect(() => {
+		fetchAlbumSource()
+		//fetchAlbumsTag()
+		console.log('hi album')
+	}, [])
+
+	//go to albumphoto
+	function showAlbum(item) {
+		props.navigation.navigate('SomeGallery', {
+			// albumId:string, photoIds:[], albumtitle:string, 
+			albumId: item.albumId,
+			albumTitle: item.title
+		})
+	}
+
+	//delete album
+	// async function deleteAlbum() {
+	// 	var r = alert('Delete?')
+	// 	if (r = true) {
+	// 		const response = await fetch(`http://${ipv4}:3000/album`, {
+	// 			method: 'Delete',
+	// 			hesders: {
+	// 				'Content-Type': 'application/json',
+	// 				'X-Requested-With': "com.rnexparea"
+	// 			},
+	// 			body: {
+	// 				albumId: this.state.albumId,
+	// 			}
+	// 		})
+	// 	}
+	// }
+	return (
+		<View style={styles.container}>
+			<Text style={styles.title}
+				style={{
+					fontSize: 20,
+					color: 'black',
+					//backgroundColor: 'white',
+				}}>
+
+			</Text>
+			<FlatList
+				data={status.fastSource}
+				renderItem={({ item }) => (
+					<View style={{ flex: 1, flexDirection: 'column', margin: 1 }}>
+						<TouchableOpacity
+							key={item.id}
+							style={{ flex: 1 }}
+							onPress={() => showAlbum(item)}
+							onLongPress={() => deleteAlbum(albumId)}
+						>
+							<FastImage
+								style={styles.image}
+								source={{
+									uri: item.coverUrl,
+									headers: item.headers,
+									priority: FastImage.priority.high,
+								}}
+							/>
+							<Text style={{ marginLeft: 30, fontSize: 18 }}>{item.title}</Text>
+						</TouchableOpacity>
+					</View>
+				)}
+				//Setting the number of column
+				numColumns={2}
+				keyExtractor={(item, index) => index}
+			/>
+		</View>
+	)
+
 }
-
+const screenWidth = Math.round(Dimensions.get('window').width)
+const screenHeight = Math.round(Dimensions.get('window').height)
 const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		marginTop: 20,
-
-	},
-	title: {
-		alignItems: 'center',
+	imageThumbnail: {
 		justifyContent: 'center',
-
+		alignItems: 'center',
+		height: 100,
+	},
+	overlayStyle: {
+		height: screenHeight * 0.5,
+		width: screenWidth * 0.8,
+		margin: 0,
+		padding: 0,
+	},
+	Save: {
+		paddingRight: 5,
+		fontSize: 17,
+		color: '#63CCC8',
 	},
 	image: {
 		height: 125,
@@ -191,29 +203,4 @@ const styles = StyleSheet.create({
 		marginTop: 30
 
 	},
-	imagephoto: {
-		height: 120,
-		width: '100%',
-	},
-
-	fullImageStyle: {
-		justifyContent: 'center',
-		alignItems: 'center',
-		height: '100%',
-		width: '98%',
-		resizeMode: 'contain',
-	},
-	modelStyle: {
-		flex: 1,
-		justifyContent: 'center',
-		alignItems: 'center',
-		backgroundColor: 'white',
-	},
-	closeButtonStyle: {
-		width: 25,
-		height: 25,
-		top: 9,
-		right: 9,
-		position: 'absolute',
-	},
-});
+})
