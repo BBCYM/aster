@@ -140,7 +140,7 @@ export function useAuth() {
 				action(actionType.SET.isSync, isSync)
 			])
 		},
-		checkisFreshing: async () => {
+		checkisFreshing: async (callback) => {
 			let _isIndb = await axios.get(`http://${ipv4}:3000/?userid=${user.id}`, {
 				headers: {
 					'X-Requested-With': 'com.aster'
@@ -148,9 +148,9 @@ export function useAuth() {
 			})
 			dispatch([
 				action(actionType.SET.isFreshing, _isIndb.data.isFreshing),
-				action(actionType.SET.isSync,_isIndb.data.isSync )
+				action(actionType.SET.isSync,_isIndb.data.isSync)
 			])
-			return [_isIndb.data.isFreshing,_isIndb.data.isSync]
+			callback(_isIndb.data.isFreshing,_isIndb.data.isSync)
 		}
 	}), [])
 	return { auth, state }
