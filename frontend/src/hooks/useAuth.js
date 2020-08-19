@@ -148,7 +148,7 @@ export function useAuth() {
 			})
 			dispatch([
 				action(actionType.SET.isFreshing, _isIndb.data.isFreshing),
-				action(actionType.SET.isSync, )
+				action(actionType.SET.isSync,_isIndb.data.isSync )
 			])
 			return [_isIndb.data.isFreshing,_isIndb.data.isSync]
 		}
