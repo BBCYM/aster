@@ -4,12 +4,13 @@ import { StyleSheet, Text, View, Image, TouchableOpacity, Button } from 'react-n
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import { ipv4 } from '../../utils/dev'
 
-// import moment from 'moment';
+
 
 
 
 export default function personalScreen(props) {
 	const { auth, state } = React.useContext(AuthContext)
+
 
 	React.useEffect(() => {
 
@@ -19,11 +20,66 @@ export default function personalScreen(props) {
 
 
 		// GET isSync isFreshing status first
-		auth.checkisFreshing()
-		console.log('FFFcheckisFreshing:', auth._isIndb.data.isFreshing)
+		// var status = auth.checkisFreshing()
+		// console.log(status)
+
+	}, [])
+
+	// auth.checkisFreshing()
 
 
-	})
+	// async function checkisFreshing() {
+	// 	const response = await fetch(`http://${ipv4}:3000?userid=${state.user.id}`, {
+	// 		method: 'GET',
+	// 		headers: {
+	// 			'X-Requested-With': 'com.aster'
+	// 		},
+	// 	})
+	// 	dispatch([
+	// 		action(actionType.SET.isFreshing),
+	// 		action(actionType.SET.isSync)
+	// 	])
+
+	// 	// console.log('for test id:', state.user.id)
+
+	// 	var data = await response.json()
+	// 	console.log('type:', typeof (data))
+	// 	console.log('for test:', data)
+	// 	console.log('isSync:', data['isSync'])
+
+
+	// }
+
+	// async function refresh() {
+	// 	const response = await fetch(`http://${ipv4}:3000`, {
+	// 		method: 'PUT',
+	// 		headers: {
+	// 			'Content-Type': 'application/json',
+	// 			'X-Requested-With': 'com.aster'
+	// 		},
+	// 		body: JSON.stringify({
+	// 			sub: state.user.id
+	// 		}),
+
+	// 	})
+	// 	var data = await response.json()
+	// 	// var refreshStatus = JSON.parse(data)
+	// 	console.log(data)
+
+	// 	console.log('refreshING')
+
+	// 	// console.log('refreshStatus:', refreshStatus)
+
+	// }
+
+	// console.log('userId:', state.user.id)
+	// const status = auth.checkisFreshing()
+	// console.log('statusTEST:', status)
+
+	// auth.setIs(true, false)
+
+	// console.log(isSync)
+
 
 
 	return (

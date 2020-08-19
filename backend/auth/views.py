@@ -22,7 +22,7 @@ class AuthView(APIView):
             isSyncState = checkisSync(userSession, userData.userId)
             user.update(set__isSync=isSyncState)
             r = {'isSync': isSyncState, 'isFreshing': userData.isFreshing}
-            r = json.dumps(r)
+            # r = json.dumps(r)
 
             return Response(r, status=status.HTTP_200_OK)
         else:
@@ -67,7 +67,7 @@ class AuthView(APIView):
         if not u.isSync:
             userSession, user = checkUserToSession(data, request)
             t = threading.Thread(
-                name='update-image', target=fetchNewImage, args=(userSession, user['userOd'], q))
+                name='update-image', target=fetchNewImage, args=(userSession, user['userId'], q))
             t.setDaemon(True)
             t2 = threading.Thread(
                 name='toVisionLabel', target=toVisionApiLabel, args=(user['userId'], q))

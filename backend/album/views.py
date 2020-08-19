@@ -256,20 +256,29 @@ class AlbumPhotoView(APIView):
 
         print(album.to_json())
 
+        albumNameArray = []
+        albumPhotoIdArray = []
+
         # get albumname
-        for a in album.albumPhoto:
+        for a in album:
             if a.isDeleted == False:
                 albumNameArray.append(a.albumName)
-        print(albumNameArray)
+        print(a.albumName)
 
-        # # get _id
+        # array_field = album.albumPhoto
+
+        # for single_photo in array_field:
+        #     # if single_photo.isDeleted == False:
+        #         albumPhotoIdArray.append(single_photo.photoId)
+        # print('albumPhotoIdArraytest:', albumPhotoIdArray)
+
+        # # get albumPhotoId
         # for a in album:
-        #     if a.isDeleted == False:
-        #         data = JSONEncoder().encode(a._id)
-        #         data2 = eval(data)
-        #         print('test:', data2)
-        #         _idArray.append(data2)
-        # # print(_idArray)
+        # for z in album.albumPhoto:
+        # if z.isDeleted == False:
+
+        #     albumPhotoIdArray.append(a.photoId)
+        # print(albumPhotoIdArray)
 
         # # get coverPhotoId
         # for a in album:
@@ -282,8 +291,20 @@ class AlbumPhotoView(APIView):
         #        "coverPhotoIdArray": coverPhotoIdArray}
 
         # return Response(res, status=status.HTTP_200_OK)
-        return Response('OK', status=status.HTTP_200_OK)
+        return Response(album.to_json(), status=status.HTTP_200_OK)
 
+    # 刪除相簿中的相片
+
+    def delete(self, request):
+        """
+        刪除相簿中的相片
+        根據_id和photoId刪掉指定的相片
+        photo不存在或是成功刪除都會還傳成功
+        Args:
+            request: 裡面需要有_id和photoId
+        Returns:
+            相簿剩下的photo
+        """
 
         album_id = request.data["_id"]
         album_photo = request.data["albumPhoto"]

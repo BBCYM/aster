@@ -133,6 +133,11 @@ export function useAuth() {
 					console.log(res.data)
 					dispatch(action(actionType.SET.isFreshing, res.data.isFreshing))
 				})
+			console.log('TESTstate.user.isFreshing:', state.user.isFreshing)
+			console.log('TESTstate.user.isSync:', state.user.isSync)
+
+			auth.setIs(state.user.isFreshing, state.user.isSync)
+
 		},
 		setIs: (isFreshing, isSync) => {
 			dispatch([
@@ -141,7 +146,10 @@ export function useAuth() {
 			])
 		},
 		checkisFreshing: async () => {
-			let _isIndb = await axios.get(`http://${ipv4}:3000/?userid=${user.id}`, {
+			let user = await AsyncStorage.getItem('user')
+			user = JSON.parse(user)
+
+			let _isIndb = await axios.get(`http://${ipv4}:3000?userid=${user.id}`, {
 				headers: {
 					'X-Requested-With': 'com.aster'
 				}
@@ -150,6 +158,9 @@ export function useAuth() {
 				action(actionType.SET.isFreshing, _isIndb.data.isFreshing),
 				action(actionType.SET.isSync)
 			])
+			// console.log('isFreshing:', _isIndb.data.isFreshing)
+			// console.log('isSync:', _isIndb.data.isSync)
+
 			return [_isIndb.data.isFreshing, _isIndb.data.isSync]
 		}
 	}), [])
