@@ -141,7 +141,7 @@ export function useAuth() {
 			])
 		},
 		checkisFreshing: async (callback) => {
-			let _isIndb = await axios.get(`http://${ipv4}:3000/?userid=${user.id}`, {
+			let _isIndb = await axios.get(`http://${ipv4}:3000/?userid=${state.user.id}`, {
 				headers: {
 					'X-Requested-With': 'com.aster'
 				}
