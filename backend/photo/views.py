@@ -12,8 +12,8 @@ connect('aster')  # 好像不用這一行
 
 class PhotoView(APIView):
     def get(self, request):
-        # photo_id = request.query_params["photoId"]
-        photo_id = request.data["photoId"]
+        photo_id = request.query_params["photoId"]
+        # photo_id = request.data["photoId"]
         try:
             photo = Photo.objects(photoId__exact=photo_id).all_fields()
             print(photo.to_json())
@@ -238,9 +238,6 @@ class TagView(APIView):
 
         try:
 
-            # photo = Photo.objects().update({'photoId': '1'}, {'$set': {'tag.custom_tag.$[element].tag': 'bobo'}}, {
-            #     'arrayFilters': [{'element.tag': 'custom3'}], 'upsert': True})
-            # custom_tag_list = Photo.objects(photoId=photo_id).get().tag.custom_tag
             photo = Photo.objects(
                 photoId=photo_id, tag__custom_tag__match={'tag': custom_tag, 'is_deleted': False}).first()
             # print(photo.to_json())
@@ -252,14 +249,7 @@ class TagView(APIView):
                     single_tag.is_deleted = True
             # print(photo.to_json())
             photo.save()
-            # 終於成估了
-            # custom_tag_array = photo.tag["custom_tag"]
 
-            # for cus_tag_db in custom_tag_array:
-            #     if cus_tag_db["tag"] == custom_tag:
-            #         cus_tag_db["is_deleted"] = True
-
-            # photo.save()
         except Exception as e:
             print(e)
             return Response(simpleMessage("DELETE/TagView: error"), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
