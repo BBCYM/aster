@@ -60,16 +60,10 @@ class BotView(views.APIView):
         # print("測試用:", res.query_result)
         parameters = res.query_result.parameters
         # print("parameters:",parameters)
-
-        # location = parameters.fields['location'].list_value.values[0].struct_value.fields['city'].string_value
-        # datetime = parameters.fields['date-time'].list_value.values[0].string_value
-        # vision = parameters.fields['visionAPI_1000'].list_value.values[0].string_value
         
         emotion = parameters.fields['emotion'].list_value
-        # date_time = parameters.fields['date-time'].list_value
         date = parameters.fields['date'].list_value
         dateperiod = parameters.fields['date-period'].list_value
-        # print('date-period:',dateperiod)
         vision = parameters.fields['visionAPI_1000'].list_value
         location = parameters.fields['location'].list_value
         pid = []
@@ -115,15 +109,6 @@ class BotView(views.APIView):
                 print('location:',location)
                 addpid(location, key)
 
-                today = datetime.strptime(key, "%Y-%m-%d")
-                # print('today',today)
-                tomorrow = today + timedelta(days=1)
-                tomorrow = datetime.strftime(tomorrow, "%Y-%m-%d")
-                # print('tomorrow',tomorrow)
-                date = Photo.objects(Q(userId=userid) & Q(createTime__lt=tomorrow) & Q(createTime__gt=key))
-                print('date:',date)
-                addpid(date, key)
-
                 album = Album.objects(Q(userId=userid) & Q(albumTag__isDeleted=False) & Q(albumTag__tag=key))
                 # print('album:',album)
                 for i in album:
@@ -152,7 +137,14 @@ class BotView(views.APIView):
             datekey = date.values[0].string_value
             datekey = datetime.strptime(datekey, "%Y-%m-%dT%H:%M:%S+08:00")
             datekey= datetime.strftime(datekey,"%Y-%m-%d")
-            getpid(datekey)
+            today = datetime.strptime(datekey, "%Y-%m-%d")
+            # print('today',today)
+            tomorrow = today + timedelta(days=1)
+            tomorrow = datetime.strftime(tomorrow, "%Y-%m-%d")
+            # print('tomorrow',tomorrow)
+            date = Photo.objects(Q(userId=userid) & Q(createTime__lt=tomorrow) & Q(createTime__gt=datekey))
+            print('date:',date)
+            addpid(date, datekey)
         
         # 抓時間區間(ex:今年,上禮拜)
         if len(dateperiod) is not 0:
@@ -162,10 +154,10 @@ class BotView(views.APIView):
             # print('dpend',dpend)
             start = datetime.strptime(dpstart, "%Y-%m-%dT%H:%M:%S+08:00")
             start= datetime.strftime(start,"%Y-%m-%d")
-            print('start',start)
+            # print('start',start)
             end = datetime.strptime(dpend, "%Y-%m-%dT%H:%M:%S+08:00")
             end= datetime.strftime(end,"%Y-%m-%d")
-            print('end',end)
+            # print('end',end)
 
             dateperiod = Photo.objects(Q(userId=userid) & Q(createTime__lt=end) & Q(createTime__gt=start))
             print('dateperiod:',dateperiod)
