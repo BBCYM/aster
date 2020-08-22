@@ -11,6 +11,8 @@ from google.protobuf.json_format import MessageToJson
 from photo.models import Photo
 from album.models import Album
 from mongoengine.queryset.visitor import Q
+from datetime import datetime
+from datetime import timedelta
 
 class BotView(views.APIView):
     # global uri
@@ -64,27 +66,29 @@ class BotView(views.APIView):
         # vision = parameters.fields['visionAPI_1000'].list_value.values[0].string_value
         
         emotion = parameters.fields['emotion'].list_value
-        datetime = parameters.fields['date-time'].list_value
+        # date_time = parameters.fields['date-time'].list_value
+        date = parameters.fields['date'].list_value
+        dateperiod = parameters.fields['date-period'].list_value
+        # print('date-period:',dateperiod)
         vision = parameters.fields['visionAPI_1000'].list_value
         location = parameters.fields['location'].list_value
         pid = []
         pid_tag = []
+        def addpid(pidarr, key):
+            for i in pidarr:
+                tag = []
+                photoid = i.photoId
+                # print('photoid:',photoid)
+                pid.append(photoid)
+                # print('key in add:',key)
+                tag.append(key)
+                temptag = tag
+                # print('tag:',tag)
+                pid_tag.append({"pid":photoid, "tag":temptag})
+                print('pid_tag',pid_tag)
+
         def getpid(key):
             try:
-                # main = Photo.objects(tag__main_tag='天空')
-                def addpid(pidarr, key):
-                    for i in pidarr:
-                        tag = []
-                        photoid = i.photoId
-                        # print('photoid:',photoid)
-                        pid.append(photoid)
-                        # print('key in add:',key)
-                        tag.append(key)
-                        temptag = tag
-                        # print('tag:',tag)
-                        pid_tag.append({"pid":photoid, "tag":temptag})
-                        print('pid_tag',pid_tag)
-
                 print('key',key)
 
                 emo = Photo.objects(Q(userId=userid) & Q(tag__emotion_tag=key))
@@ -110,7 +114,15 @@ class BotView(views.APIView):
                 location = Photo.objects(Q(userId=userid) & Q(location=key))
                 print('location:',location)
                 addpid(location, key)
-                # print('pid:',pid)
+
+                today = datetime.strptime(key, "%Y-%m-%d")
+                # print('today',today)
+                tomorrow = today + timedelta(days=1)
+                tomorrow = datetime.strftime(tomorrow, "%Y-%m-%d")
+                # print('tomorrow',tomorrow)
+                date = Photo.objects(Q(userId=userid) & Q(createTime__lt=tomorrow) & Q(createTime__gt=key))
+                print('date:',date)
+                addpid(date, key)
 
                 album = Album.objects(Q(userId=userid) & Q(albumTag__isDeleted=False) & Q(albumTag__tag=key))
                 # print('album:',album)
@@ -135,9 +147,31 @@ class BotView(views.APIView):
             emokey = emotion.values[0].string_value
             getpid(emokey)
 
-        if len(datetime) is not 0:
-            datetimekey = datetime.values[0].string_value
-            getpid(datetimekey)
+        # 抓單一日期(ex:昨天)
+        if len(date) is not 0:
+            datekey = date.values[0].string_value
+            datekey = datetime.strptime(datekey, "%Y-%m-%dT%H:%M:%S+08:00")
+            datekey= datetime.strftime(datekey,"%Y-%m-%d")
+            getpid(datekey)
+        
+        # 抓時間區間(ex:今年,上禮拜)
+        if len(dateperiod) is not 0:
+            dpstart = dateperiod.values[0].struct_value.fields['startDate'].string_value
+            dpend = dateperiod.values[0].struct_value.fields['endDate'].string_value
+            # print('dpstart',dpstart)
+            # print('dpend',dpend)
+            start = datetime.strptime(dpstart, "%Y-%m-%dT%H:%M:%S+08:00")
+            start= datetime.strftime(start,"%Y-%m-%d")
+            print('start',start)
+            end = datetime.strptime(dpend, "%Y-%m-%dT%H:%M:%S+08:00")
+            end= datetime.strftime(end,"%Y-%m-%d")
+            print('end',end)
+
+            dateperiod = Photo.objects(Q(userId=userid) & Q(createTime__lt=end) & Q(createTime__gt=start))
+            print('dateperiod:',dateperiod)
+            periodkey = start + '-' + end
+            # print('periodkey:',periodkey)
+            addpid(dateperiod, periodkey)
 
         if len(vision) is not 0:
             vikeyArray = map(lambda k: k.string_value,vision.values)
