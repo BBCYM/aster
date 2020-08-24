@@ -197,13 +197,13 @@ export default function SomeGalleryScreen(props) {
 								)}
 								//Setting the number of column
 								numColumns={3}
-								listKey={(item, index) => item.imgId}
+								listKey={(item, index) => item.imgId.toString()}
 							/>
 						</View>
 					</View>
 				)}
 				keyExtractor={(item, index) => {
-					return item.key
+					return item.key.toString()
 				}}
 			/>
 
