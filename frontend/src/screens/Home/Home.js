@@ -40,7 +40,6 @@ export default function HomeScreen(props) {
 	async function fetchAlbumSource(callback) {
 		const accessToken = await auth.getAccessToken()
 		const userId = await state.user.id
-		//get albumid Name coverPhotoId
 		try {
 			const response = await fetch(`http://${ipv4}:3000/album?userId=${userId}`, {
 				method: 'GET',
@@ -80,9 +79,6 @@ export default function HomeScreen(props) {
 		}
 	}
 
-	//get Tag
-
-
 	React.useEffect(() => {
 		fetchAlbumSource()
 		console.log('hi album')
@@ -98,7 +94,7 @@ export default function HomeScreen(props) {
 
 	//delete album
 	async function deleteAlbum() {
-		const response = await fetch(`http://${ipv4}:3000/album?_id=`, {
+		const response = await fetch(`http://${ipv4}:3000/album?_id=${status.toDel}`, {
 			method: 'DELETE',
 			hesders: {
 				'Content-Type': 'application/json',
@@ -107,12 +103,12 @@ export default function HomeScreen(props) {
 		})
 		console.log("delete ok")
 
-		let slicedAlbum = [...status.doubleCheese]
+		let slicedAlbum = [...status.fastSource]
         var result = slicedAlbum.findIndex((v, i) => {
             return v.albumId === status.toDel
         })
-        slicedAlbum.splice(result, 1)
-        setStatus({ doubleCheese: slicedAlbum , toDel: null,aModal: false  })
+		slicedAlbum.splice(result, 1)
+        setStatus({ fastSource: slicedAlbum , toDel: null,aModal: false })
 	}
 	return (
 		<View>
