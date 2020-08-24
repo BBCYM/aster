@@ -36,12 +36,13 @@ export default function HomeScreen(props) {
 		isDisabled: false,
 		aModal: false
 	})
-	const { auth } = React.useContext(AuthContext)
+	const { auth, state } = React.useContext(AuthContext)
 	async function fetchAlbumSource(callback) {
 		const accessToken = await auth.getAccessToken()
+		const userId = await state.user.id
 		//get albumid Name coverPhotoId
 		try {
-			const response = await fetch(`http://${ipv4}:3000/album?userId=113073984862808105932`, {
+			const response = await fetch(`http://${ipv4}:3000/album?userId=${userId}`, {
 				method: 'GET',
 				headers: {
 					'Accept': 'application/json',
@@ -80,29 +81,7 @@ export default function HomeScreen(props) {
 	}
 
 	//get Tag
-	// async function fetchAlbumsTag() {
-	// 	const response = await fetch(`http://${ipv4}:3000/album/tag?_id=5f380ee0789056bccfab23ed`, {
-	// 		method: 'GET',
-	// 		headers: {
-	// 			'Accept': 'application/json',
-	// 			'Content-Type': 'application/json',
-	// 			'X-Requested-With': "com.rnexparea",
-	// 		},
-	// 	})
-	// 	var data = await response.json()
-	// 	var tag = data.result
-	// 	console.log(data)
 
-	// 	console.log(tag)
-
-	// 	//albumPhot albumTag albumName 
-	// 	//var data = JSON.parse(data)
-	// 	//console.log(data)
-	// 	// album_tag_array = []
-	// 	//this.setState({})
-	// 	//this.setState({image: photoId   })
-
-	// }
 
 	React.useEffect(() => {
 		fetchAlbumSource()
@@ -119,7 +98,7 @@ export default function HomeScreen(props) {
 
 	//delete album
 	async function deleteAlbum() {
-		const response = await fetch(`http://${ipv4}:3000/album?_id=5f3d46604d0267a1a3b7d9e9`, {
+		const response = await fetch(`http://${ipv4}:3000/album?_id=`, {
 			method: 'DELETE',
 			hesders: {
 				'Content-Type': 'application/json',
@@ -215,7 +194,6 @@ const styles = StyleSheet.create({
 		overflow: "hidden",
 		marginLeft: 23,
 		marginTop: 30
-
 	},
 	container:{
 		// borderWidth:2,
