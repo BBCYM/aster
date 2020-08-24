@@ -25,7 +25,7 @@ export function AlbumModal([status, setStatus], state, props) {
         let albumTag = status.doubleCheese.map((v, i) => { return v.text })
         ErrorHandling(()=>{
             if(!albumName || _.isEmpty(albumName.trim())){
-                throw "Need a album name"
+                throw Error('Need a album name')
             }
         },()=>{
             Axios.post(`http://${ipv4}:3000/album`, JSON.stringify({

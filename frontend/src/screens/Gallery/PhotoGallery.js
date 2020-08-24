@@ -11,7 +11,7 @@ import {
 import { Overlay, SearchBar } from 'react-native-elements'
 import FastImage from 'react-native-fast-image'
 import ImageViewer from 'react-native-image-zoom-viewer'
-import { photoFooter, TagList } from '../../components/photoComponent'
+import { photoFooter, TagList } from '../../components/NormalphotoComponent'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import Axios from 'axios'
 import { AuthContext } from '../../contexts/AuthContext'
@@ -37,6 +37,7 @@ export default function GalleryScreen(that) {
 		tag: [],
 		emotionStatus: Array(6).fill(false),
 		actionBtnVisi:false,
+		isMoving:false
 	})
 	const { auth, state } = React.useContext(AuthContext)
 	function setEmotion(n) {
@@ -60,6 +61,7 @@ export default function GalleryScreen(that) {
 			console.log('Loading photo')
 			const accessToken = await auth.getAccessToken()
 			let pageToken = ''
+			let i = 0
 			do {
 				var params = {
 					pageSize: 100
@@ -80,11 +82,11 @@ export default function GalleryScreen(that) {
 					let mediaItems = res.data['mediaItems']
 					let fSource = status.fastSource
 					let mSource = status.modalSource
-					for (const [i, item] of mediaItems.entries()) {
+					for (const item of mediaItems) {
 						var width = 400
 						var height = 400
 						var img = {
-							id: i,
+							id: i++,
 							imgId: item['id'],
 							src: `${item['baseUrl']}=w${width}-h${height}`,
 							headers: { Authorization: `Bearer ${accessToken}` }
@@ -97,7 +99,7 @@ export default function GalleryScreen(that) {
 					setStatus({ fastSource: fSource, modalSource: mSource })
 				} catch (err) {
 					console.log('error')
-					console.log(err)
+					console.log(err.message)
 				}
 			} while (pageToken)
 		}
@@ -122,10 +124,11 @@ export default function GalleryScreen(that) {
 	function showImage(item) {
 		// load tag of the item
 		setStatus({
-			currentImg: item.src,
 			currentId: item.id,
 			isVisible: true,
 			currentPhotoId: item.imgId,
+			reset:undefined,
+			actionBtnVisi:false
 		})
 	}
 
@@ -228,6 +231,16 @@ export default function GalleryScreen(that) {
 					enablePreload={true}
 					useNativeDriver={true}
 					renderIndicator={() => null}
+					onCancel={()=>setStatus({reset:true, isVisible:false})}
+					onMove={(m)=>{
+						if(m.type==='onPanResponderRelease'){
+							setStatus({isMoving:false, })
+						} else {
+							if(status.isMoving===false){
+								setStatus({isMoving:true,actionBtnVisi:false})
+							}
+						}
+					}}
 					renderFooter={(currentIndex) => photoFooter(that, [status, setStatus], currentIndex, state)}
 					footerContainerStyle={{
 						flex: 1,
@@ -235,8 +248,8 @@ export default function GalleryScreen(that) {
 						flexDirection: 'row',
 						width: 140,
 						height: 200,
-						borderColor: 'black',
-						borderWidth: 1,
+						// borderColor: 'black',
+						// borderWidth: 1,
 						zIndex: 1
 					}}
 				/>
@@ -251,7 +264,6 @@ export default function GalleryScreen(that) {
 								source={{
 									uri: item.src,
 									headers: item.headers,
-									priority: FastImage.priority.high,
 								}}
 							/>
 						</TouchableOpacity>

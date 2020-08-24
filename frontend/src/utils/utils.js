@@ -1,19 +1,16 @@
 import _ from 'lodash'
+import hash from 'object-hash'
 import Snackbar from 'react-native-snackbar'
-
-let c = function (e) {
-	return e
-}
-export async function asyncErrorHandling(check:Function,after:Function,code:Function=c){
+export async function asyncErrorHandling(check:Function,after:Function){
 	let hasError = false
 	try{
 		await check()
 	} catch(err){
 		console.log('has err')
-		console.log(code(err))
+		console.log(err.message)
 		hasError = true
 		Snackbar.show({
-			text: code(err),
+			text: err.message,
 			textColor:'#F6C570',
 			backgroundColor:'#303960',
 			duration:Snackbar.LENGTH_INDEFINITE,
@@ -22,25 +19,22 @@ export async function asyncErrorHandling(check:Function,after:Function,code:Func
 				textColor:'#F6C570'
 			}
 		})
-		setTimeout(function(){
-			Snackbar.dismiss()
-		},10000)
 	}
 	if(!hasError) {
 		console.log('Outbound')
 		await after()
 	}
 }
-export function ErrorHandling(check:Function,after:Function,code:Function=c){
+export function ErrorHandling(check:Function,after:Function){
 	let hasError = false
 	try{
 		check()
 	} catch(err){
 		console.log('has err')
-		console.log(code(err))
+		console.log(err.message)
 		hasError = true
 		Snackbar.show({
-			text: code(err),
+			text: err.message,
 			textColor:'#F6C570',
 			backgroundColor:'#303960',
 			duration:Snackbar.LENGTH_INDEFINITE,
@@ -49,9 +43,6 @@ export function ErrorHandling(check:Function,after:Function,code:Function=c){
 				textColor:'#F6C570'
 			}
 		})
-		setTimeout(function(){
-			Snackbar.dismiss()
-		},4000)
 	}
 	if(!hasError) {
 		console.log('Outbound')
@@ -87,21 +78,31 @@ export function resToEmotionStatus(eState, want){
 	return eCopy
 }
 
-export function concatLocalTag(pid_tag){
+export function concatLocalTag(hashTag:Map){
+	// console.log(hashTag)
 	let temp = []
-	pid_tag.forEach((v, i) => {
-		temp = _.concat(temp,v.tag)
+	let pids = []
+	hashTag.forEach((v,k)=>{
+		temp = _.concat(temp, v.tag)
+		pids = _.concat(pids,v.pid)
 	})
-	return _.uniq(temp).map((v,i)=>({key:temp.length-i-1,text:v}))
+	temp = _.uniq(temp).map((v,i)=>({key:temp.length-i-1,text:v}))
+	return {pids, temp}
 }
 
-// export function preCleanPid(pids){
-// 	let temp = pids.map((v, i)=>{
-// 		return {
-// 			pid: v.pid,
-// 			tag: new Set(v.tag)
-// 		}
-// 	})
-// 	temp = _.sortBy(temp,[function(o){return len(o.tag)}])
-	
-// }
+export function preCleanPid(pids){
+	pids = _.sortBy(pids,[function(o){return o.tag.length}]).reverse()
+	let hashMap = new Map()
+	pids.forEach((v)=>{
+		v.tag.sort()
+		var hashTag = hash.MD5(v.tag)
+		if(hashMap.has(hashTag)){
+			var past = hashMap.get(hashTag)
+			past.pid.push(v.pid)
+			hashMap.set(hashTag, past)
+		} else {
+			hashMap.set(hashTag, {tag:v.tag, pid:[v.pid]})
+		}
+	})
+	return hashMap
+}
