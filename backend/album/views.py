@@ -118,7 +118,7 @@ class AlbumView(APIView):
         Returns:
             None
         """
-        _id = request.data["_id"]
+        _id = request.query_params["_id"]
 
         try:
 
