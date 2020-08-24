@@ -35,7 +35,6 @@ export function useAuth() {
 				} else if (result) {
 
 					var user = JSON.parse(result)
-					console.log(user)
 					config.accountName = user.email
 				}
 			})
@@ -96,7 +95,6 @@ export function useAuth() {
 						'X-Requested-With': 'com.aster'
 					}
 				}).then((res) => {
-					console.log(res.data)
 					AsyncStorage.setItem('user', JSON.stringify(userInfo.user))
 					dispatch([
 						action(actionType.SET.USER, userInfo.user),

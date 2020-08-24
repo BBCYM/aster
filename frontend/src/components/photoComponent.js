@@ -121,7 +121,6 @@ export function photoFooter(that, [status, setStatus], currentIndex, state) {
 				return v.pics.map((v) => { return _.pick(v, ['id', 'imgId']) })
 			})
 			const now = _.find(temp, (o) => { return o.id === currentIndex })
-			console.log(now.imgId)
 			let res = await Axios.get(`http://${ipv4}:3000/photo`, {
 				params: {
 					userId: state.user.id,

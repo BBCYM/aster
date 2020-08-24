@@ -17,7 +17,6 @@ import { ipv4 } from '../utils/dev'
 import { ErrorHandling } from '../utils/utils'
 export function AlbumModal([status, setStatus], state, props) {
 	function createAlbum() {
-        console.log(status.fastSource)
         let imgIDRes = _.flatMap(status.fastSource.map((v, i) => { return v.pics }))
         imgIDRes = imgIDRes.map((v)=>{return v.imgId})
 		let albumName = status.aName
@@ -30,8 +29,6 @@ export function AlbumModal([status, setStatus], state, props) {
 				throw Error('Need a album name')
 			}
 		}, () => {
-            console.log(imgIDRes)
-            console.log(coverPhotoId)
 			Axios.post(`http://${ipv4}:3000/album`, JSON.stringify({
 				userId: userId,
 				albumName: albumName,
@@ -43,7 +40,6 @@ export function AlbumModal([status, setStatus], state, props) {
 					'Content-Type': 'application/json'
 				}
 			}).then((res) => {
-				console.log(res.data)
 				props.navigation.navigate('Home')
 			}).catch((err) => {
 				console.error(err)

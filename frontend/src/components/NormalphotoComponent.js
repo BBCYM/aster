@@ -112,7 +112,6 @@ export function photoFooter(that, [status, setStatus], currentIndex, state) {
 		asyncErrorHandling(async () => {
 			setStatus({ actionBtnVisi: true })
 			const now = status.fastSource[currentIndex]
-			console.log(now.imgId)
 			let res = await Axios.get(`http://${ipv4}:3000/photo`, {
 				params: {
 					userId: state.user.id,
