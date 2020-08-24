@@ -1,14 +1,14 @@
-// for cai
 import * as React from 'react'
 import {
 	StyleSheet,
 	View,
 	FlatList,
-	Modal,
 	TouchableOpacity,
 	Dimensions,
-	Text
+	Text,
 } from 'react-native'
+import Modal from 'react-native-modalbox';
+import { Input, ListItem, Button } from 'react-native-elements'
 import { Overlay, SearchBar } from 'react-native-elements'
 import FastImage from 'react-native-fast-image'
 import ImageViewer from 'react-native-image-zoom-viewer'
@@ -30,10 +30,11 @@ export default function HomeScreen(props) {
 	}
 	const [status, setStatus] = useMergeState({
 		fastSource: [],
-		//tag: [],
 		albumName: '',
-		//image:'',
-		albumId: 0
+		albumId: 0,
+		isOpen: false,
+		isDisabled: false,
+		aModal: false
 	})
 	const { auth } = React.useContext(AuthContext)
 	async function fetchAlbumSource(callback) {
@@ -46,13 +47,12 @@ export default function HomeScreen(props) {
 					'Accept': 'application/json',
 					'Content-Type': 'application/json',
 					'X-Requested-With': "com.rnexparea",
-					//'Authorization': 'Bearer 5f380ee0789056bccfab23ed'	
 				},
 			})
 			var data = await response.json()
 			let fSource = []
 			let i = 0
-			for (const [_id, _title, _coverId] of _.zip(data._idArray, data.albumNameArray,data.coverPhotoIdArray)) {
+			for (const [_id, _title, _coverId] of _.zip(data._idArray, data.albumNameArray, data.coverPhotoIdArray)) {
 				console.log(_id, _title, _coverId)
 				let res = await Axios.get(`https://photoslibrary.googleapis.com/v1/mediaItems/${_coverId}`, {
 					headers: {
@@ -65,7 +65,7 @@ export default function HomeScreen(props) {
 				var album = {
 					id: i++,
 					albumId: _id,
-					title:_title,
+					title: _title,
 					coverUrl: `${res.data['baseUrl']}=w${width}-h${height}`,
 					headers: { Authorization: `Bearer ${accessToken}` },
 				}
@@ -106,94 +106,108 @@ export default function HomeScreen(props) {
 
 	React.useEffect(() => {
 		fetchAlbumSource()
-		//fetchAlbumsTag()
 		console.log('hi album')
 	}, [])
 
 	//go to albumphoto
 	function showAlbum(item) {
 		props.navigation.navigate('SomeGallery', {
-			// albumId:string, photoIds:[], albumtitle:string, 
 			albumId: item.albumId,
 			albumTitle: item.title
 		})
 	}
 
 	//delete album
-	// async function deleteAlbum() {
-	// 	var r = alert('Delete?')
-	// 	if (r = true) {
-	// 		const response = await fetch(`http://${ipv4}:3000/album`, {
-	// 			method: 'Delete',
-	// 			hesders: {
-	// 				'Content-Type': 'application/json',
-	// 				'X-Requested-With': "com.rnexparea"
-	// 			},
-	// 			body: {
-	// 				albumId: this.state.albumId,
-	// 			}
-	// 		})
-	// 	}
-	// }
-	return (
-		<View style={styles.container}>
-			<Text style={styles.title}
-				style={{
-					fontSize: 20,
-					color: 'black',
-					//backgroundColor: 'white',
-				}}>
+	async function deleteAlbum() {
+		const response = await fetch(`http://${ipv4}:3000/album?_id=5f3d46604d0267a1a3b7d9e9`, {
+			method: 'DELETE',
+			hesders: {
+				'Content-Type': 'application/json',
+				'X-Requested-With': "com.rnexparea"
+			},
+		})
+		console.log("delete ok")
 
-			</Text>
-			<FlatList
-				data={status.fastSource}
-				renderItem={({ item }) => (
-					<View style={{ flex: 1, flexDirection: 'column', margin: 1 }}>
-						<TouchableOpacity
-							key={item.id}
-							style={{ flex: 1 }}
-							onPress={() => showAlbum(item)}
-							onLongPress={() => deleteAlbum(albumId)}
-						>
-							<FastImage
-								style={styles.image}
-								source={{
-									uri: item.coverUrl,
-									headers: item.headers,
-									priority: FastImage.priority.high,
-								}}
-							/>
-							<Text style={{ marginLeft: 30, fontSize: 18 }}>{item.title}</Text>
-						</TouchableOpacity>
+		let slicedAlbum = [...status.doubleCheese]
+        var result = slicedAlbum.findIndex((v, i) => {
+            return v.albumId === status.toDel
+        })
+        slicedAlbum.splice(result, 1)
+        setStatus({ doubleCheese: slicedAlbum , toDel: null,aModal: false  })
+	}
+	return (
+		<View>
+			<Modal backButtonClose={true} isOpen={status.aModal} onClosed={() => setStatus({ aModal: false })} style={styles.modal4} position={"bottom"}>
+				<View style={styles.modal}>
+					<View style={styles.AlbumText}>
+						<Text h1 style={{ fontSize: 20, color: 'black' }}>刪除相簿</Text>
 					</View>
-				)}
-				//Setting the number of column
-				numColumns={2}
-				keyExtractor={(item, index) => index}
-			/>
+					<View style={{ paddingTop: 30, paddingBottom: 30, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'flex-end' }}>
+						<View>
+							<Button
+								title="Dismiss"
+								type="outline"
+								titleStyle={{ color: 'black' }}
+								onPress={() => setStatus({ aModal: false })}
+								buttonStyle={{ borderColor: 'black', width: 100 }}
+							/>
+						</View>
+						<View>
+							<Button
+								title="delete"
+								type="outline"
+								titleStyle={{ color: 'black' }}
+								onPress={() => deleteAlbum()}
+								buttonStyle={{ borderColor: 'black', width: 100 }}
+							/>
+						</View>
+					</View>
+				</View>
+			</Modal>
+			<View style={styles.container}>
+
+				{/* <Text style={styles.title}
+					style={{
+						fontSize: 20,
+						color: 'black',
+						//backgroundColor: 'white',
+					}}>
+
+				</Text> */}
+				<FlatList
+					data={status.fastSource}
+					renderItem={({ item }) => (
+						<View style={{ flex: 1, flexDirection: 'column', margin: 1 }}>
+							<TouchableOpacity
+								key={item.id}
+								style={{ flex: 1 }}
+								onPress={() => showAlbum(item)}
+								onLongPress={() => setStatus({ aModal: true, toDel:item.albumId })} 
+							>
+								<FastImage
+									style={styles.image}
+									source={{
+										uri: item.coverUrl,
+										headers: item.headers,
+										priority: FastImage.priority.high,
+									}}
+								/>
+								<Text style={{ marginLeft: 30, fontSize: 18 }}>{item.title}</Text>
+							</TouchableOpacity>
+						</View>
+					)}
+					numColumns={2}
+					keyExtractor={(item, index) => index}
+				/>
+			</View>
 		</View>
+
 	)
 
 }
 const screenWidth = Math.round(Dimensions.get('window').width)
 const screenHeight = Math.round(Dimensions.get('window').height)
 const styles = StyleSheet.create({
-	imageThumbnail: {
-		justifyContent: 'center',
-		alignItems: 'center',
-		height: 100,
-	},
-	overlayStyle: {
-		height: screenHeight * 0.5,
-		width: screenWidth * 0.8,
-		margin: 0,
-		padding: 0,
-	},
-	Save: {
-		paddingRight: 5,
-		fontSize: 17,
-		color: '#63CCC8',
-	},
 	image: {
 		height: 125,
 		width: 150,
@@ -203,4 +217,31 @@ const styles = StyleSheet.create({
 		marginTop: 30
 
 	},
+	container:{
+		// borderWidth:2,
+		// borderColor:'green',
+		// flex:1,
+		height:'100%',
+		width:'100%'
+
+	},
+	modal4: {
+		backgroundColor:'green',
+		height: 200,
+	},
+	modal: {
+		flex: 1,
+		alignItems: 'stretch',
+		// backgroundColor: '#b197fc',
+		// borderTopLeftRadius: 30,
+		// borderTopRightRadius: 30,
+	},
+	AlbumText: {
+		justifyContent: 'flex-start',
+		alignItems: 'center',
+		padding: 10,
+		// borderColor: 'black',
+		// borderWidth: 1
+	}
+
 })
