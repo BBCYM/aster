@@ -119,7 +119,7 @@ export function useAuth() {
 			return (await GoogleSignin.getTokens()).accessToken
 		},
 		refresh: async () => {
-			console.log(state.user.id)
+			// console.log(state.user.id)
 			let user = await AsyncStorage.getItem('user')
 			user = JSON.parse(user)
 			Axios.put(`http://${ipv4}:3000`, JSON.stringify({
@@ -133,10 +133,6 @@ export function useAuth() {
 					console.log(res.data)
 					dispatch(action(actionType.SET.isFreshing, res.data.isFreshing))
 				})
-			console.log('TESTstate.user.isFreshing:', state.user.isFreshing)
-			console.log('TESTstate.user.isSync:', state.user.isSync)
-
-			auth.setIs(state.user.isFreshing, state.user.isSync)
 
 		},
 		setIs: (isFreshing, isSync) => {
@@ -146,7 +142,10 @@ export function useAuth() {
 			])
 		},
 		checkisFreshing: async (callback) => {
-			let _isIndb = await axios.get(`http://${ipv4}:3000/?userid=${state.user.id}`, {
+			// console.log(state.user.id)
+			let user = await AsyncStorage.getItem('user')
+			user = JSON.parse(user)
+			let _isIndb = await axios.get(`http://${ipv4}:3000/?userid=${user.id}`, {
 				headers: {
 					'X-Requested-With': 'com.aster'
 				}

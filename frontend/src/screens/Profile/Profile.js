@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { AuthContext } from '../../contexts/AuthContext'
-import { StyleSheet, Text, View, Image, TouchableOpacity, Button } from 'react-native'
+import { StyleSheet, Text, View, Image, TouchableOpacity, ActivityIndicator } from 'react-native'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import { ipv4 } from '../../utils/dev'
 
@@ -10,13 +10,22 @@ import { ipv4 } from '../../utils/dev'
 
 export default function personalScreen(props) {
 	const { auth, state } = React.useContext(AuthContext)
+	// var testloading = true
 
 
 	React.useEffect(() => {
 
-		console.log('isSync:', state.isSync)
-		console.log('isFreshing:', state.isFreshing)
-		console.log('userId:', state.user.id)
+		console.log('init_isSync:', state.isSync)
+		console.log('init_isFreshing:', state.isFreshing)
+		// console.log('userId:', state.user.id)
+
+
+		auth.checkisFreshing((isFreshing, isSync) => {
+
+			console.log('check_isSync:', isSync)
+			console.log('check_isFreshing:', isFreshing)
+
+		})
 
 
 		// GET isSync isFreshing status first
@@ -24,6 +33,7 @@ export default function personalScreen(props) {
 		// console.log(status)
 
 	}, [])
+
 
 	// auth.checkisFreshing()
 
@@ -83,7 +93,7 @@ export default function personalScreen(props) {
 
 
 	return (
-		<View style={styles.container}>
+		<View >
 			<View style={styles.header}></View>
 			<Image style={styles.avatar} source={{ uri: `${state.user.photo}` }} />
 			{/* https://lh3.googleusercontent.com/a-/AOh14GixVww8PP-TJc7CrmOa9z5zPM8bsbPbh08A6Fq-Og=s96-c */}
@@ -95,7 +105,7 @@ export default function personalScreen(props) {
 					<Text style={styles.name}>{state.user.name}</Text>
 
 					<View style={styles.Btncontainer}>
-						<TouchableOpacity style={styles.Btn} onPress={() => { auth.refresh() }}>
+						<TouchableOpacity style={styles.Btn} disabled={state.isFreshing} onPress={() => { auth.refresh() }}>
 							<Text>REFRESH</Text>
 						</TouchableOpacity>
 
@@ -103,12 +113,20 @@ export default function personalScreen(props) {
 							<Text>LOG OUT</Text>
 						</TouchableOpacity>
 
+					</View>
+
+					{/* refresh loading animation */}
+					<View style={[styles.container, { opacity: state.isFreshing ? 100 : 0 }]}>
+
+						<ActivityIndicator style={styles.loding} size="large" color="#d0cfcf" />
+						<Text style={styles.textREFRESH}>REFRESHING</Text>
 
 					</View>
 
 				</View>
 			</View>
 		</View>
+
 
 	)
 
@@ -193,5 +211,16 @@ const styles = StyleSheet.create({
 		shadowRadius: 5.46,
 		// elevation: 7,
 	},
+	container: {
+		marginTop: 170,
+		justifyContent: 'center'
+	},
+	textREFRESH: {
+		justifyContent: 'center',
+		textAlign: 'center',
+		color: '#d0cfcf',
+		fontSize: 15,
+		marginTop: 30,
+	}
 
 })

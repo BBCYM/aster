@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { StyleSheet, View, Image, TouchableOpacity, } from 'react-native'
+import { StyleSheet, View, Image, TouchableOpacity, ActivityIndicator, Text } from 'react-native'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import { Overlay } from 'react-native-elements'
 // import moment from 'moment';
@@ -12,6 +12,7 @@ export default function personalScreen(props) {
     const showModal = () => setVisible(true)
 
     const hideModal = () => setVisible(false)
+    var username = true
 
     return (
         <View style={styles.container}>
@@ -71,6 +72,19 @@ export default function personalScreen(props) {
 
             {/* 這邊結束 */}
 
+            <View style={[styles.container, { opacity: username ? 100 : 0 }]}>
+
+                <ActivityIndicator size="large" color="#d0cfcf" />
+                <Text style={styles.textREFRESH}>REFRESHING</Text>
+
+                {/* <Text
+                    style={[styles.textREFRESH,
+                    { opacity: username ? 100 : 0 }]}>
+                    REFRESHING
+                </Text> */}
+
+            </View>
+
         </View>
 
     )
@@ -117,5 +131,16 @@ const styles = StyleSheet.create({
         padding: 0,
         marginBottom: 20,
     },
+    container: {
+        flex: 3,
+        justifyContent: "center"
+    },
+    textREFRESH: {
+        justifyContent: "center",
+        textAlign: 'center',
+        color: '#d0cfcf',
+        fontSize: 15,
+
+    }
 
 })
