@@ -13,8 +13,8 @@ import Modal from 'react-native-modalbox'
 import { SwipeListView } from 'react-native-swipe-list-view'
 import Axios from 'axios'
 import _ from 'lodash'
-import { ipv4 } from '../utils/dev';
-import { ErrorHandling } from '../utils/utils';
+import { ipv4 } from '../utils/dev'
+import { ErrorHandling } from '../utils/utils'
 export function AlbumModal([status, setStatus], state, props) {
 	function createAlbum() {
 		const imgIDRes = status.fastSource.map((v, i) => { return v.imgId })
