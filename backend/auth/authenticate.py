@@ -18,12 +18,12 @@ from aster import settings
 import shutil
 import pytz
 from mongoengine.queryset.visitor import Q
+from pprint import pprint
 
-
-def checkisSync(session, userId):
-    params = {'pageSize': 5}
-    photoRes = session.get(
-        'https://photoslibrary.googleapis.com/v1/mediaItems', params=params).json()
+def checkisSync(session,userId):
+    params = {'pageSize':10}
+    photoRes = session.get('https://photoslibrary.googleapis.com/v1/mediaItems', params=params).json()
+    # pprint(photoRes)
     mediaItems = photoRes['mediaItems']
     print(f'Checking {len(mediaItems)} pics')
     for mediaItem in mediaItems:
