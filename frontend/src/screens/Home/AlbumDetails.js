@@ -22,7 +22,7 @@ import Dash from 'react-native-dash'
 import _ from 'lodash'
 
 
-export default function SomeGalleryScreen(props) {
+export default function AlbumDetails(props) {
 	function useMergeState(initialState) {
 		const [state, setState] = React.useState(initialState)
 		const setStatus = newState =>
@@ -65,9 +65,13 @@ export default function SomeGalleryScreen(props) {
 	}, [])
 	async function fetchImageSource(callback) {
 		console.log('Loading photo')
-		let hashTag = preCleanPid(props.route.params.pid_tag)
-		console.log(props.route.params.pid_tag)
-		let { temp } = concatLocalTag(hashTag)
+		// props.route.params.albumId
+		let res = await Axios.get(`http://${ipv4}:3000/album/photo`,{
+			params:{
+				_id:props.route.params.albumId
+			}
+		})
+		// res.data['album_object']
 		setStatus({ preBuildTag: temp })
 		const accessToken = await auth.getAccessToken()
 		let fSource = []

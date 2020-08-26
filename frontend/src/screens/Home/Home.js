@@ -86,7 +86,7 @@ export default function HomeScreen(props) {
 
 	//go to albumphoto
 	function showAlbum(item) {
-		props.navigation.navigate('SomeGallery', {
+		props.navigation.navigate('AlbumDetails', {
 			albumId: item.albumId,
 			albumTitle: item.title
 		})
@@ -98,7 +98,7 @@ export default function HomeScreen(props) {
 			method: 'DELETE',
 			hesders: {
 				'Content-Type': 'application/json',
-				'X-Requested-With': "com.rnexparea"
+				'X-Requested-With': 'com.rnexparea'
 			},
 		})
 		console.log("delete ok")
@@ -180,14 +180,13 @@ export default function HomeScreen(props) {
 	)
 
 }
-const screenWidth = Math.round(Dimensions.get('window').width)
-const screenHeight = Math.round(Dimensions.get('window').height)
+
 const styles = StyleSheet.create({
 	image: {
 		height: 125,
 		width: 150,
 		borderRadius: 20,
-		overflow: "hidden",
+		overflow: 'hidden',
 		marginLeft: 23,
 		marginTop: 30
 	},
