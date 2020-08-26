@@ -21,6 +21,7 @@ class AlbumView(APIView):
         coverPhotoIdArray = []
 
         album = Album.objects(userId=userId).filter()
+        print(album.to_json())
 
         # get albumname
         for a in album:
@@ -32,14 +33,14 @@ class AlbumView(APIView):
             if a.isDeleted == False:
                 data = JSONEncoder().encode(a._id)
                 data2 = eval(data)
-                print('test:', data2)
+                # print('test:', data2)
                 _idArray.append(data2)
         # print(_idArray)
 
         # get coverPhotoId
         for a in album:
             if a.isDeleted == False:
-                print('test2:', a.coverPhotoId)
+                # print('test2:', a.coverPhotoId)
 
                 coverPhotoIdArray.append(a.coverPhotoId)
 
@@ -170,7 +171,7 @@ class AlbumTagView(APIView):
 
         print(album_tag_array)
         res = {"result": "Get/AlbumTagView",
-                                   "album_tag": album_tag_array}
+               "album_tag": album_tag_array}
 
         # response_str = json.dumps({"result": "Get/AlbumTagView",
         #                            "album_tag": album_tag_array})
@@ -245,21 +246,44 @@ class AlbumTagView(APIView):
 
 class AlbumPhotoView(APIView):
 
-    # 抓相簿中的所有照片
+    # 抓相簿中的所有照片、tag
     def get(self, request):
 
         # _id = request.data["_id"]
         _id = request.query_params["_id"]
 
-        try:
-            album = Album.objects(_id=_id).get()
-            print(album)
+        album = Album.objects(_id=_id).filter()
 
-            return_txt = {"result": 'GET/AlbumPhotoView',
-                          'album_object': album}
-        except Exception as e:
-            print('AlbumPhotoViewError:', e)
-        return Response(return_txt, status=status.HTTP_200_OK)
+        # print(album.to_json())
+
+        # albumNameArray = []
+        albumPhotoIdArray = []
+        albumTagArray = []
+
+        # get albumPhotoId
+        for a in album:
+            if a.isDeleted == False:
+                for z in a.albumPhoto:
+                    if z.isDeleted == False:
+                        # print(z.photoId)
+                        albumPhotoIdArray.append(z.photoId)
+        # print(a.albumName)
+        print(albumPhotoIdArray)
+
+        # get albumTag
+        for w in album:
+            if w.isDeleted == False:
+                for q in a.albumTag:
+                    if q.isDeleted == False:
+                        # print(z.photoId)
+                        albumTagArray.append(q.tag)
+        # print(a.albumName)
+        print(albumTagArray)
+
+        res = {"albumPhotoIdArray": albumPhotoIdArray,
+               "albumTagArray": albumTagArray}
+
+        return Response(res, status=status.HTTP_200_OK)
 
     # 刪除相簿中的相片
 
@@ -273,6 +297,7 @@ class AlbumPhotoView(APIView):
         Returns:
             相簿剩下的photo
         """
+
         album_id = request.data["_id"]
         album_photo = request.data["albumPhoto"]
 
