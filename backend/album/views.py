@@ -246,7 +246,7 @@ class AlbumTagView(APIView):
 
 class AlbumPhotoView(APIView):
 
-    # 抓相簿中的所有照片
+    # 抓相簿中的所有照片、tag
     def get(self, request):
 
         # _id = request.data["_id"]
@@ -258,33 +258,30 @@ class AlbumPhotoView(APIView):
 
         # albumNameArray = []
         albumPhotoIdArray = []
+        albumTagArray = []
 
         # get albumPhotoId
         for a in album:
             if a.isDeleted == False:
                 for z in a.albumPhoto:
                     if z.isDeleted == False:
-                    # print(z.photoId)
+                        # print(z.photoId)
                         albumPhotoIdArray.append(z.photoId)
         # print(a.albumName)
         print(albumPhotoIdArray)
 
-        # # get albumname
-        # for a in album:
-        #     if a.isDeleted == False:
-        #         albumNameArray.append(a.albumPhoto)
-        # # print(a.albumName)
-        # print(albumNameArray)
+        # get albumTag
+        for w in album:
+            if w.isDeleted == False:
+                for q in a.albumTag:
+                    if q.isDeleted == False:
+                        # print(z.photoId)
+                        albumTagArray.append(q.tag)
+        # print(a.albumName)
+        print(albumTagArray)
 
-
-        # # get coverPhotoId
-        # for a in album:
-        #     if a.isDeleted == False:
-        #         print('test2:', a.coverPhotoId)
-
-        #         coverPhotoIdArray.append(a.coverPhotoId)
-
-        res = {"albumPhotoIdArray": albumPhotoIdArray}
+        res = {"albumPhotoIdArray": albumPhotoIdArray,
+               "albumTagArray": albumTagArray}
 
         return Response(res, status=status.HTTP_200_OK)
 
