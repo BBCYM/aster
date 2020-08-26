@@ -101,7 +101,7 @@ export function PagesTabNavigator(props) {
 			<PagesStack.Screen name='SomeAlbumGallery' component={SomeAlbumGallery} options={{
 				headerShown: true,
 				headerTitle: null,
-			}}/>
+			}} />
 
 		</PagesStack.Navigator>
 	)

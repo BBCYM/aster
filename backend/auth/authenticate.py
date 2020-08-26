@@ -33,13 +33,15 @@ def checkisSync(session,userId):
             return False
     return True
 
+
 def fetchNewImage(session, userId, q):
     nPT = ''
     params = {'pageSize': 12}
     while True:
         if nPT:
             params['nextPageToken'] = nPT
-        photoRes = session.get('https://photoslibrary.googleapis.com/v1/mediaItems', params=params).json()
+        photoRes = session.get(
+            'https://photoslibrary.googleapis.com/v1/mediaItems', params=params).json()
         mediaItems = photoRes['mediaItems']
         print(f'Fetching {len(mediaItems)} pics')
         for mediaItem in mediaItems:
@@ -81,7 +83,7 @@ def afterAll(userId, q, thread):
         set__isSync=True,
         set__isFreshing=False,
         set__lastSync=make_aware(datetime.datetime.utcnow(),
-                            timezone=pytz.timezone(settings.TIME_ZONE))
+                                 timezone=pytz.timezone(settings.TIME_ZONE))
     )
     print('User isSync, not freshing')
 
@@ -165,6 +167,7 @@ def downloadImage(session, userId, q):
             break
         else:
             nPT = photoRes['nextPageToken']
+
 
 def checkUserToSession(data, req):
 
