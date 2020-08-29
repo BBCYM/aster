@@ -8,17 +8,16 @@ import {
 	Dimensions,
 	Image
 } from 'react-native'
-import { Overlay, SearchBar, Badge } from 'react-native-elements'
+import { Overlay, SearchBar} from 'react-native-elements'
 import FastImage from 'react-native-fast-image'
 import ImageViewer from 'react-native-image-zoom-viewer'
 import { photoFooter, TagList } from '../../components/photoComponent'
-import { OneClickAction, AlbumModal } from '../../components/oneClickSave'
+import { OneClickAction, AlbumModal } from '../../components/oneClickEdit'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import Axios from 'axios'
 import { AuthContext } from '../../contexts/AuthContext'
-import { checkEmotion, preCleanPid, concatLocalTag } from '../../utils/utils'
+import { checkEmotion} from '../../utils/utils'
 import { ipv4 } from '../../utils/dev'
-import Dash from 'react-native-dash'
 import _ from 'lodash'
 
 
@@ -65,51 +64,44 @@ export default function AlbumDetails(props) {
 	}, [])
 	async function fetchImageSource(callback) {
 		console.log('Loading photo')
-		// props.route.params.albumId
 		let res = await Axios.get(`http://${ipv4}:3000/album/photo`,{
 			params:{
 				_id:props.route.params.albumId
 			}
 		})
-		// res.data['album_object']
-		setStatus({ preBuildTag: temp })
+		setStatus({ currentAlbumId: props.route.params.albumId, aName: props.route.params.albumTitle, preBuildTag: res.data['albumTagArray'].map((v, i) => ({ key: res.data['albumTagArray'].length - i - 1, text: v })) })
 		const accessToken = await auth.getAccessToken()
 		let fSource = []
 		let mSource = []
 		let i = 0
-		console.log(hashTag)
-		hashTag.forEach(async (v, k) => {
-			fSource.push({ key: k, tags: v.tag, pics: [] })
-			let m = _.findIndex(fSource, function (o) { return o.key === k })
-			for (const onePid of v.pid) {
-				try{
-					let res = await Axios.get(`https://photoslibrary.googleapis.com/v1/mediaItems/${onePid}`, {
-						headers: {
-							'Authorization': `Bearer ${accessToken}`,
-							'Content-type': 'application/json'
-						}
-					})
-					var item = res.data
-					var width = 400
-					var height = 400
-					var img = {
-						id: i++,
-						imgId: item['id'],
-						src: `${item['baseUrl']}=w${width}-h${height}`,
-						headers: { Authorization: `Bearer ${accessToken}` }
+		res.data['albumPhotoIdArray'].forEach(async (v, k) => {
+			try{
+				let gres = await Axios.get(`https://photoslibrary.googleapis.com/v1/mediaItems/${v}`, {
+					headers: {
+						'Authorization': `Bearer ${accessToken}`,
+						'Content-type': 'application/json'
 					}
-					fSource[m].pics.push(img)
-					mSource.push({ url: item['baseUrl'] })
-				} catch(err){
-					console.log(err)
+				})
+				var item = gres.data
+				var width = 400
+				var height = 400
+				var img = {
+					id: i++,
+					imgId: item['id'],
+					src: `${item['baseUrl']}=w${width}-h${height}`,
+					headers: { Authorization: `Bearer ${accessToken}` }
 				}
-				setStatus({ fastSource: fSource, modalSource: mSource})
+				fSource.push(img)
+				mSource.push({ url: item['baseUrl'] })
+			} catch(err){
+				console.log(err)
 			}
+			await setStatus({ fastSource: fSource, modalSource: mSource})
+
 		})
 	}
 
 	async function showImage(item) {
-		console.log(item.id)
 		await setStatus({
 			currentId: item.id,
 			isVisible: true,
@@ -161,56 +153,20 @@ export default function AlbumDetails(props) {
 				data={status.fastSource}
 				extraData={status}
 				renderItem={({ item }) => (
-					<View style={{ flex: 1, flexDirection: 'row' }}>
-						<View style={styles.dashContainer}>
-							<View>
-								<View style={styles._innerContainer}>
-									<View
-										style={styles.outerContainer}
-									/>
-								</View>
-							</View>
-							<View>
-								<Dash dashGap={7} dashLength={5} dashColor="#63CCC8" style={{ width: 1, height: '100%', flexDirection: 'column' }} />
-							</View>
-						</View>
-						<View style={{ flex: 1, paddingTop: 5, paddingBottom: 5 }}>
-							<View style={{ flex: 1, flexDirection: 'row-reverse', padding: 3 }}>
-								{
-									item.tags.map((v, i) => (
-										<View key={i} style={{ paddingRight: 2, paddingLeft: 2 }}>
-											<Badge status='error' value={v} />
-										</View>
-									))
-								}
-
-							</View>
-							<FlatList
-								data={item.pics}
-								extraData={status}
-								renderItem={(block) => (
-									<View style={{ flex: 1, flexDirection: 'column', margin: 1 }}>
-										<TouchableOpacity onPress={() => showImage(block.item)}>
-											<FastImage
-												style={styles.imageThumbnail}
-												source={{
-													uri: block.item.src,
-													headers: block.item.headers,
-												}}
-											/>
-										</TouchableOpacity>
-									</View>
-								)}
-								//Setting the number of column
-								numColumns={3}
-								listKey={(item, index) => item.imgId.toString()}
+					<View style={{ flex: 1, flexDirection: 'column', margin: 1 }}>
+						<TouchableOpacity onPress={() => showImage(item)}>
+							<FastImage
+								style={styles.imageThumbnail}
+								source={{
+									uri: item.src,
+									headers: item.headers,
+								}}
 							/>
-						</View>
+						</TouchableOpacity>
 					</View>
 				)}
-				keyExtractor={(item, index) => {
-					return item.key.toString()
-				}}
+				numColumns={3}
+				keyExtractor={(item, index) => index.toString()}
 			/>
 
 			{AlbumModal([status, setStatus], state, props)}
