@@ -130,7 +130,10 @@ export function useAuth() {
 				}
 			}).then((res) => {
 				console.log(res.data)
-				dispatch(action(actionType.SET.isFreshing, res.data.isFreshing))
+				dispatch([
+					action(actionType.SET.isFreshing, res.data.isFreshing),
+					action(actionType.SET.isSync,res.data.isSync)
+				])
 			})
 
 		},

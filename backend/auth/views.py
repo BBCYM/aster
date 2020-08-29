@@ -78,6 +78,6 @@ class AuthView(APIView):
             t.start()
             t2.start()
             t3.start()
-            return Response({'isFreshing': True}, status=status.HTTP_200_OK)
+            return Response({'isFreshing': True,'isSync': False}, status=status.HTTP_200_OK)
         else:
-            return Response({'isSync': True})
+            return Response({'isSync': True,'isFreshing': False})

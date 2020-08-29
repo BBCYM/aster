@@ -4,22 +4,17 @@ import {
 	View,
 	FlatList,
 	TouchableOpacity,
-	Dimensions,
 	Text,
 } from 'react-native'
-import Modal from 'react-native-modalbox';
-import { Input, ListItem, Button } from 'react-native-elements'
-import { Overlay, SearchBar } from 'react-native-elements'
+import Modal from 'react-native-modalbox'
+import { Button } from 'react-native-elements'
 import FastImage from 'react-native-fast-image'
-import ImageViewer from 'react-native-image-zoom-viewer'
-//import { photoFooter, TagList } from '../../components/photoComponent copy'
-import Ionicons from 'react-native-vector-icons/Ionicons'
 import Axios from 'axios'
 import { AuthContext } from '../../contexts/AuthContext'
 import { ipv4 } from '../../utils/dev';
 import _ from 'lodash'
-import { TextInput } from 'react-native-gesture-handler'
-import { createIconSetFromFontello } from 'react-native-vector-icons'
+
+
 
 export default function HomeScreen(props) {
 	function useMergeState(initialState) {
@@ -46,14 +41,13 @@ export default function HomeScreen(props) {
 				headers: {
 					'Accept': 'application/json',
 					'Content-Type': 'application/json',
-					'X-Requested-With': "com.rnexparea",
+					'X-Requested-With': 'com.rnexparea',
 				},
 			})
 			var data = await response.json()
 			let fSource = []
 			let i = 0
 			for (const [_id, _title, _coverId] of _.zip(data._idArray, data.albumNameArray, data.coverPhotoIdArray)) {
-				console.log(_id, _title, _coverId)
 				let res = await Axios.get(`https://photoslibrary.googleapis.com/v1/mediaItems/${_coverId}`, {
 					headers: {
 						'Authorization': `Bearer ${accessToken}`,
@@ -94,15 +88,13 @@ export default function HomeScreen(props) {
 
 	//delete album
 	async function deleteAlbum() {
-		const response = await fetch(`http://${ipv4}:3000/album?_id=${status.toDel}`, {
+		await fetch(`http://${ipv4}:3000/album?_id=${status.toDel}`, {
 			method: 'DELETE',
 			hesders: {
 				'Content-Type': 'application/json',
 				'X-Requested-With': 'com.rnexparea'
 			},
 		})
-		console.log("delete ok")
-
 		let slicedAlbum = [...status.fastSource]
         var result = slicedAlbum.findIndex((v, i) => {
             return v.albumId === status.toDel
@@ -112,43 +104,34 @@ export default function HomeScreen(props) {
 	}
 	return (
 		<View>
-			<Modal backButtonClose={true} isOpen={status.aModal} onClosed={() => setStatus({ aModal: false })} style={styles.modal4} position={"bottom"}>
+			<Modal backButtonClose={true} isOpen={status.aModal} onClosed={() => setStatus({ aModal: false })} style={styles.modal4} position={'center'}>
 				<View style={styles.modal}>
 					<View style={styles.AlbumText}>
-						<Text h1 style={{ fontSize: 20, color: 'black' }}>刪除相簿</Text>
+						<Text h1 style={{ fontSize: 22, color: '#303960' }}>Delete Album</Text>
 					</View>
-					<View style={{ paddingTop: 30, paddingBottom: 30, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'flex-end' }}>
+					<View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'flex-end' }}>
 						<View>
 							<Button
 								title="Dismiss"
 								type="outline"
-								titleStyle={{ color: 'black' }}
+								titleStyle={styles.modalBtnTitle}
 								onPress={() => setStatus({ aModal: false })}
-								buttonStyle={{ borderColor: 'black', width: 100 }}
+								buttonStyle={styles.modalBtnStyle}
 							/>
 						</View>
 						<View>
 							<Button
-								title="delete"
+								title="Delete"
 								type="outline"
-								titleStyle={{ color: 'black' }}
+								titleStyle={styles.modalBtnTitle}
 								onPress={() => deleteAlbum()}
-								buttonStyle={{ borderColor: 'black', width: 100 }}
+								buttonStyle={styles.modalBtnStyle}
 							/>
 						</View>
 					</View>
 				</View>
 			</Modal>
 			<View style={styles.container}>
-
-				{/* <Text style={styles.title}
-					style={{
-						fontSize: 20,
-						color: 'black',
-						//backgroundColor: 'white',
-					}}>
-
-				</Text> */}
 				<FlatList
 					data={status.fastSource}
 					renderItem={({ item }) => (
@@ -191,30 +174,28 @@ const styles = StyleSheet.create({
 		marginTop: 30
 	},
 	container:{
-		// borderWidth:2,
-		// borderColor:'green',
-		// flex:1,
 		height:'100%',
 		width:'100%'
 
 	},
+	modalBtnTitle:{ color: '#303960', fontWeight:'bold' },
+	modalBtnStyle:{ borderColor: '#303960', width: 90, borderWidth:2 },
 	modal4: {
-		backgroundColor:'green',
-		height: 200,
+		backgroundColor:'#63CCC8',
+		height: 115,
+		width:'90%',
+		borderRadius:15,
+		borderColor: '#F5B19C',
+		borderWidth:2
 	},
 	modal: {
 		flex: 1,
 		alignItems: 'stretch',
-		// backgroundColor: '#b197fc',
-		// borderTopLeftRadius: 30,
-		// borderTopRightRadius: 30,
 	},
 	AlbumText: {
 		justifyContent: 'flex-start',
 		alignItems: 'center',
 		padding: 10,
-		// borderColor: 'black',
-		// borderWidth: 1
 	}
 
 })

@@ -11,9 +11,7 @@ export function AuthStackNavigator() {
 				animationEnabled: true
 			}}
 		>
-			{
-				<AuthStack.Screen name='Signin' component={SigninScreen} />
-			}
+			<AuthStack.Screen name='Signin' component={SigninScreen} />
 		</AuthStack.Navigator>
 	)
 }
