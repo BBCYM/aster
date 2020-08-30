@@ -12,9 +12,10 @@ from .utils import getEmotionString, EmotionStringtoI
 class PhotoView(APIView):
     def get(self, request, pk=None):
         return_txt = ''
+        photo_id = pk[1:]
+        print(photo_id)
         user_id = request.query_params['userId']
-        if pk:
-            photo_id = pk
+        if photo_id:
             try:
                 photo = Photo.objects(userId=user_id,photoId__exact=photo_id).all_fields()
                 return_txt = {"result": 'GET/PhotoView',
@@ -24,9 +25,9 @@ class PhotoView(APIView):
                 print('PhotoViewError:', e)
                 return Response(e, status=status.HTTP_400_BAD_REQUEST)
         else:
-            want_deleted = request.query_params.get('isDeleted', False)
+            want_deleted = json.loads(request.query_params.get('isDeleted', 'false'))
             photo = Photo.objects(Q(userId=user_id) and Q(isDeleted=want_deleted)).scalar('photoId')
-            print(photo)
+            photo = list(photo)
             return Response(photo, status=status.HTTP_200_OK)
     def post(self, request):
         """
@@ -93,7 +94,7 @@ class PhotoView(APIView):
         Returns:
             None
         """
-        photo_id = pk
+        photo_id = pk[1:]
         # photo_id = request.data["photoId"]
 
         try:

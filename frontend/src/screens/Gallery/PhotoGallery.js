@@ -19,8 +19,9 @@ import Axios from 'axios'
 import ModalBox from 'react-native-modalbox'
 import { AuthContext } from '../../contexts/AuthContext'
 import AsyncStorage from '@react-native-community/async-storage'
-import { checkEmotion, ErrorHandling } from '../../utils/utils'
+import { checkEmotion, asyncErrorHandling} from '../../utils/utils'
 import { ipv4 } from '../../utils/dev'
+import _ from 'lodash'
 export default function GalleryScreen(that) {
 	function useMergeState(initialState) {
 		const [state, setState] = React.useState(initialState)
@@ -64,79 +65,84 @@ export default function GalleryScreen(that) {
 		let deletedPid = await Axios.get(`http://${ipv4}:3000/photo`, {
 			params: {
 				userId: state.user.id,
-				isDeleted:false
+				isDeleted:true
 			}
 		})
 		console.log(deletedPid.data)
 		const isLoaded = await AsyncStorage.getItem('GalleryLoaded')
-		// if (isLoaded === 'false') {
-		// 	console.log('Loading photo')
-		// 	const accessToken = await auth.getAccessToken()
-		// 	let pageToken = ''
-		// 	let i = 0
-		// 	do {
-		// 		var params = {
-		// 			pageSize: 100
-		// 		}
-		// 		if (pageToken) {
-		// 			console.log('has pageToken')
-		// 			params.pageToken = pageToken
-		// 		}
-		// 		try {
-		// 			let res = await Axios.get('https://photoslibrary.googleapis.com/v1/mediaItems', {
-		// 				params: params,
-		// 				headers: {
-		// 					'Authorization': `Bearer ${accessToken}`,
-		// 					'Content-type': 'application/json'
-		// 				}
-		// 			})
-		// 			pageToken = res.data['nextPageToken']
-		// 			let mediaItems = res.data['mediaItems']
-		// 			let fSource = status.fastSource
-		// 			let mSource = status.modalSource
-		// 			for (const item of mediaItems) {
-		// 				var width = 400
-		// 				var height = 400
-		// 				var img = {
-		// 					id: i++,
-		// 					imgId: item['id'],
-		// 					src: `${item['baseUrl']}=w${width}-h${height}`,
-		// 					headers: { Authorization: `Bearer ${accessToken}` }
-		// 				}
-		// 				fSource.push(img)
-		// 				mSource.push({
-		// 					url: item['baseUrl'],
-		// 				})
-		// 			}
-		// 			setStatus({ fastSource: fSource, modalSource: mSource })
-		// 		} catch (err) {
-		// 			console.log('error')
-		// 			console.log(err.message)
-		// 		}
-		// 	} while (pageToken)
-		// }
+		if (isLoaded === 'false') {
+			console.log('Loading photo')
+			const accessToken = await auth.getAccessToken()
+			let pageToken = ''
+			let i = 0
+			do {
+				var params = {
+					pageSize: 100
+				}
+				if (pageToken) {
+					console.log('has pageToken')
+					params.pageToken = pageToken
+				}
+				try {
+					let res = await Axios.get('https://photoslibrary.googleapis.com/v1/mediaItems', {
+						params: params,
+						headers: {
+							'Authorization': `Bearer ${accessToken}`,
+							'Content-type': 'application/json'
+						}
+					})
+					pageToken = res.data['nextPageToken']
+					let mediaItems = res.data['mediaItems']
+					let fSource = status.fastSource
+					let mSource = status.modalSource
+					for (const item of mediaItems) {
+						if (deletedPid.data.includes(item['id'])){
+							continue
+						}
+						var width = 400
+						var height = 400
+						var img = {
+							id: i++,
+							imgId: item['id'],
+							src: `${item['baseUrl']}=w${width}-h${height}`,
+							headers: { Authorization: `Bearer ${accessToken}` }
+						}
+						fSource.push(img)
+						mSource.push({
+							// url: item['baseUrl'],
+							url: `${item['baseUrl']}=w${width}-h${height}`,
+						})
+					}
+					setStatus({ fastSource: fSource, modalSource: mSource })
+				} catch (err) {
+					console.log('error')
+					console.log(err.message)
+				}
+			} while (pageToken)
+		}
 		callback(isLoaded)
 	}
 	React.useEffect(() => {
 		fetchImageSource(async (isLoaded) => {
-			console.log(isLoaded)
+			console.log('isLoaded',isLoaded)
 			if (isLoaded === 'false') {
 				// first time
 				let fSource = ['fSource', JSON.stringify(status.fastSource)]
 				let mSource = ['mSource', JSON.stringify(status.modalSource)]
 				let GalleryLoaded = ['GalleryLoaded', 'true']
-				await AsyncStorage.multiSet([fSource, mSource, GalleryLoaded])
+				AsyncStorage.multiSet([fSource, mSource, GalleryLoaded])
 			} else {
 				let temp = await AsyncStorage.multiGet(['fSource', 'mSource'])
 				setStatus({ fastSource: JSON.parse(temp[0][1]), modalSource: JSON.parse(temp[1][1]) })
 			}
+			setStatus({isLoading:false})
 		})
 	}, [])
 
 	function showImage(item) {
 		// load tag of the item
 		setStatus({
-			currentId: item.id,
+			currentId: _.indexOf(status.fastSource, item),
 			isVisible: true,
 			currentPhotoId: item.imgId,
 			reset: undefined,
@@ -182,7 +188,7 @@ export default function GalleryScreen(that) {
 		return temp
 	}
 	function deletePhoto() {
-		ErrorHandling(async () => {
+		asyncErrorHandling(async () => {
 			let res = await Axios.delete(`http://${ipv4}:3000/photo/${status.currentPhotoId}`, {
 				params: {
 					userId: state.user.id,
@@ -191,6 +197,16 @@ export default function GalleryScreen(that) {
 			if (res.status !== 200) {
 				throw Error('Delete not success')
 			}
+		},async()=>{
+			var index = _.findIndex(status.fastSource,function(o){return o.imgId===status.currentPhotoId})
+			console.log(index)
+			var fSource = [...status.fastSource]
+			var mSource = [...status.modalSource]
+			console.log( _.findIndex(mSource,function(o){return o.url===fSource[index].src}))
+			_.pullAt(fSource, index)
+			_.pullAt(mSource,index)
+			await AsyncStorage.multiSet([['fSource', JSON.stringify(fSource)], ['mSource', JSON.stringify(mSource)]])
+			setStatus({fastSource:fSource, modalSource:mSource, aModal:false})
 		})
 	}
 	return (
