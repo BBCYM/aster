@@ -11,8 +11,7 @@ from .utils import getEmotionString, EmotionStringtoI
 class PhotoView(APIView):
     def get(self, request, pk=None):
         return_txt = ''
-        photo_id = pk[1:]
-        print(photo_id)
+        photo_id = pk
         user_id = request.query_params['userId']
         if photo_id:
             try:
@@ -93,20 +92,19 @@ class PhotoView(APIView):
         Returns:
             None
         """
-        photo_id = pk[1:]
+        photo_id = pk
         # photo_id = request.data["photoId"]
-
-        try:
-
-            update_rows = Photo.objects(photoId__exact=photo_id).update(
-                isDeleted=True)
-            print(f'Photo/View: PhotoView.delete, db:{update_rows} rows')
-            # photo = Photo.objects(photoId=photo_id)
-            # print(photo.delete())
-        except Exception as e:
-            print(e)
-            return Response("PhotoViewError", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        return Response(simpleMessage('DELETE/PhotoView'), status=status.HTTP_200_OK)
+        if photo_id:
+            try:
+                update_rows = Photo.objects(photoId__exact=photo_id).update(
+                    isDeleted=True)
+                print(f'Photo/View: PhotoView.delete, db:{update_rows} rows')
+            except Exception as e:
+                print(e)
+                return Response("PhotoViewError", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(simpleMessage('DELETE/PhotoView'), status=status.HTTP_200_OK)
+        else:
+            return Response({}, status=status.HTTP_200_OK)
 
 
 class EmotionView(APIView):

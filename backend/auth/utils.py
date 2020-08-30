@@ -1,6 +1,7 @@
 import json
 from googletrans import Translator
 import random
+import inspect
 
 def getLabelDescription(data):
     return data.description
@@ -31,3 +32,12 @@ def randLocation():
     rand1 = random.choice(list(location.keys()))
     rand2 = random.choice(location[rand1])
     return rand2
+
+def get_class_that_defined_method(meth):
+    if inspect.isfunction(meth):
+        cls = getattr(inspect.getmodule(meth),
+                      meth.__qualname__.split('.<locals>', 1)[0].rsplit('.', 1)[0],
+                      None)
+        if isinstance(cls, type):
+            return cls
+    return None  # not required since None would have been implicitly returned anyway
