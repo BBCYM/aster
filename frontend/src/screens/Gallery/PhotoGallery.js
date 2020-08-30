@@ -68,7 +68,6 @@ export default function GalleryScreen(that) {
 				isDeleted:true
 			}
 		})
-		console.log(deletedPid.data)
 		const isLoaded = await AsyncStorage.getItem('GalleryLoaded')
 		if (isLoaded === 'false') {
 			console.log('Loading photo')
@@ -109,8 +108,7 @@ export default function GalleryScreen(that) {
 						}
 						fSource.push(img)
 						mSource.push({
-							// url: item['baseUrl'],
-							url: `${item['baseUrl']}=w${width}-h${height}`,
+							url: item['baseUrl'],
 						})
 					}
 					setStatus({ fastSource: fSource, modalSource: mSource })
@@ -199,10 +197,8 @@ export default function GalleryScreen(that) {
 			}
 		},async()=>{
 			var index = _.findIndex(status.fastSource,function(o){return o.imgId===status.currentPhotoId})
-			console.log(index)
 			var fSource = [...status.fastSource]
 			var mSource = [...status.modalSource]
-			console.log( _.findIndex(mSource,function(o){return o.url===fSource[index].src}))
 			_.pullAt(fSource, index)
 			_.pullAt(mSource,index)
 			await AsyncStorage.multiSet([['fSource', JSON.stringify(fSource)], ['mSource', JSON.stringify(mSource)]])
