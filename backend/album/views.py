@@ -282,8 +282,8 @@ class AlbumPhotoView(APIView):
             相簿剩下的photo
         """
 
-        album_id = request.data["_id"]
-        album_photo = request.data["albumPhoto"]
+        album_id = request.query_params["_id"]
+        album_photo = request.query_params["albumPhoto"]
 
         try:
 
@@ -303,7 +303,7 @@ class AlbumPhotoView(APIView):
             print(e)
             return Response(simpleMessage("DELETE/AlbumPhotoView: error"), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        return Response(simpleMessage('DELETE/AlbumPhotoView'), status=status.HTTP_201_CREATED)
+        return Response(simpleMessage('DELETE/AlbumPhotoView'), status=status.HTTP_200_OK)
 
     # 新增相片到相簿中(現在先不用這個，只有一鍵建相簿)
     def post(self, request):

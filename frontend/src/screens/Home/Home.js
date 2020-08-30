@@ -5,6 +5,7 @@ import {
 	FlatList,
 	TouchableOpacity,
 	Text,
+	ActivityIndicator,
 } from 'react-native'
 import Modal from 'react-native-modalbox'
 import { Button } from 'react-native-elements'
@@ -29,7 +30,8 @@ export default function HomeScreen(props) {
 		albumId: 0,
 		isOpen: false,
 		isDisabled: false,
-		aModal: false
+		aModal: false,
+		isLoading: true
 	})
 	const { auth, state } = React.useContext(AuthContext)
 	async function fetchAlbumSource(callback) {
@@ -71,11 +73,15 @@ export default function HomeScreen(props) {
 			console.log('error')
 			console.log(err)
 		}
+		callback()
 	}
 
 	React.useEffect(() => {
-		fetchAlbumSource()
-		console.log('hi album')
+		fetchAlbumSource(() => {
+			console.log('hi album')
+			setStatus({ isLoading: false })
+		})
+
 	}, [])
 
 	//go to albumphoto
@@ -96,68 +102,79 @@ export default function HomeScreen(props) {
 			},
 		})
 		let slicedAlbum = [...status.fastSource]
-        var result = slicedAlbum.findIndex((v, i) => {
-            return v.albumId === status.toDel
-        })
+		var result = slicedAlbum.findIndex((v, i) => {
+			return v.albumId === status.toDel
+		})
 		slicedAlbum.splice(result, 1)
-        setStatus({ fastSource: slicedAlbum , toDel: null,aModal: false })
+		setStatus({ fastSource: slicedAlbum, toDel: null, aModal: false })
 	}
 	return (
-		<View>
-			<Modal backButtonClose={true} isOpen={status.aModal} onClosed={() => setStatus({ aModal: false })} style={styles.modal4} position={'center'}>
-				<View style={styles.modal}>
-					<View style={styles.AlbumText}>
-						<Text h1 style={{ fontSize: 22, color: '#303960' }}>Delete Album</Text>
+		<View style={{ flex: 1 }}>
+			{
+				status.isLoading ? (
+					<View style={{ flex: 1, justifyContent: 'center' }}>
+						<ActivityIndicator size='large' color="#FF6130" />
 					</View>
-					<View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'flex-end' }}>
-						<View>
-							<Button
-								title="Dismiss"
-								type="outline"
-								titleStyle={styles.modalBtnTitle}
-								onPress={() => setStatus({ aModal: false })}
-								buttonStyle={styles.modalBtnStyle}
+				) : (
+					<View style={{ flex: 1 }}>
+						<Modal useNativeDriver={true} animationDuration={300} backButtonClose={true} isOpen={status.aModal} onClosed={() => setStatus({ aModal: false })} style={styles.modal4} position={'center'}>
+							<View style={styles.modal}>
+								<View style={styles.AlbumText}>
+									<Text h1 style={{ fontSize: 22, color: '#303960' }}>Delete Album</Text>
+								</View>
+								<View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'flex-end' }}>
+									<View>
+										<Button
+											title="Dismiss"
+											type="outline"
+											titleStyle={styles.modalBtnTitle}
+											onPress={() => setStatus({ aModal: false })}
+											buttonStyle={styles.modalBtnStyle}
+										/>
+									</View>
+									<View>
+										<Button
+											title="Delete"
+											type="outline"
+											titleStyle={styles.modalBtnTitle}
+											onPress={() => deleteAlbum()}
+											buttonStyle={styles.modalBtnStyle}
+										/>
+									</View>
+								</View>
+							</View>
+						</Modal>
+						<View style={styles.container}>
+							<FlatList
+								data={status.fastSource}
+								renderItem={({ item }) => (
+									<View style={{ flex: 1, flexDirection: 'column', margin: 1 }}>
+										<TouchableOpacity
+											key={item.id}
+											style={{ flex: 1 }}
+											onPress={() => showAlbum(item)}
+											onLongPress={() => setStatus({ aModal: true, toDel: item.albumId })}
+										>
+											<FastImage
+												style={styles.image}
+												source={{
+													uri: item.coverUrl,
+													headers: item.headers,
+													priority: FastImage.priority.high,
+												}}
+											/>
+											<Text style={{ marginLeft: 30, fontSize: 18 }}>{item.title}</Text>
+										</TouchableOpacity>
+									</View>
+								)}
+								numColumns={2}
+								keyExtractor={(item, index) => index}
 							/>
 						</View>
-						<View>
-							<Button
-								title="Delete"
-								type="outline"
-								titleStyle={styles.modalBtnTitle}
-								onPress={() => deleteAlbum()}
-								buttonStyle={styles.modalBtnStyle}
-							/>
-						</View>
 					</View>
-				</View>
-			</Modal>
-			<View style={styles.container}>
-				<FlatList
-					data={status.fastSource}
-					renderItem={({ item }) => (
-						<View style={{ flex: 1, flexDirection: 'column', margin: 1 }}>
-							<TouchableOpacity
-								key={item.id}
-								style={{ flex: 1 }}
-								onPress={() => showAlbum(item)}
-								onLongPress={() => setStatus({ aModal: true, toDel:item.albumId })} 
-							>
-								<FastImage
-									style={styles.image}
-									source={{
-										uri: item.coverUrl,
-										headers: item.headers,
-										priority: FastImage.priority.high,
-									}}
-								/>
-								<Text style={{ marginLeft: 30, fontSize: 18 }}>{item.title}</Text>
-							</TouchableOpacity>
-						</View>
-					)}
-					numColumns={2}
-					keyExtractor={(item, index) => index}
-				/>
-			</View>
+				)
+			}
+
 		</View>
 
 	)
@@ -173,20 +190,20 @@ const styles = StyleSheet.create({
 		marginLeft: 23,
 		marginTop: 30
 	},
-	container:{
-		height:'100%',
-		width:'100%'
+	container: {
+		height: '100%',
+		width: '100%'
 
 	},
-	modalBtnTitle:{ color: '#303960', fontWeight:'bold' },
-	modalBtnStyle:{ borderColor: '#303960', width: 90, borderWidth:2 },
+	modalBtnTitle: { color: '#303960', fontWeight: 'bold' },
+	modalBtnStyle: { borderColor: '#303960', width: 90, borderWidth: 2 },
 	modal4: {
-		backgroundColor:'#63CCC8',
+		backgroundColor: '#63CCC8',
 		height: 115,
-		width:'90%',
-		borderRadius:15,
+		width: '90%',
+		borderRadius: 15,
 		borderColor: '#F5B19C',
-		borderWidth:2
+		borderWidth: 2
 	},
 	modal: {
 		flex: 1,

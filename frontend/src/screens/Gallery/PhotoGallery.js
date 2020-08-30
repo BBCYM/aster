@@ -315,7 +315,7 @@ export default function GalleryScreen(that) {
 							numColumns={3}
 							keyExtractor={(item, index) => index}
 						/>
-						<ModalBox backButtonClose={true} isOpen={status.aModal} onClosed={() => setStatus({ aModal: false, currentPhotoId: null })} style={styles.modal4} position={'center'}>
+						<ModalBox useNativeDriver={true} animationDuration={300} backButtonClose={true} isOpen={status.aModal} onClosed={() => setStatus({ aModal: false, currentPhotoId: null })} style={styles.modal4} position={'center'}>
 							<View style={styles.modal}>
 								<View style={styles.AlbumText}>
 									<Text h1 style={{ fontSize: 22, color: '#303960' }}>Delete Photo</Text>

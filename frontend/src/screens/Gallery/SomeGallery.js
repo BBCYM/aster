@@ -66,14 +66,12 @@ export default function SomeGalleryScreen(props) {
 	async function fetchImageSource(callback) {
 		console.log('Loading photo')
 		let hashTag = preCleanPid(props.route.params.pid_tag)
-		console.log(props.route.params.pid_tag)
 		let { temp } = concatLocalTag(hashTag)
 		setStatus({ preBuildTag: temp })
 		const accessToken = await auth.getAccessToken()
 		let fSource = []
 		let mSource = []
 		let i = 0
-		console.log(hashTag)
 		hashTag.forEach(async (v, k) => {
 			fSource.push({ key: k, tags: v.tag, pics: [] })
 			let m = _.findIndex(fSource, function (o) { return o.key === k })

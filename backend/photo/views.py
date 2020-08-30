@@ -3,7 +3,6 @@ from rest_framework.response import Response
 from auth.utils import simpleMessage
 from datetime import datetime
 import json
-from mongoengine import connect
 from mongoengine.queryset.visitor import Q
 from .models import Photo, Tag, Custom_tag
 from .utils import getEmotionString, EmotionStringtoI
