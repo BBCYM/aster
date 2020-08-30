@@ -19,20 +19,19 @@ export default function personalScreen(props) {
 		console.log('init_isFreshing:', state.isFreshing)
 		// console.log('userId:', state.user.id)
 
-
-		auth.checkisFreshing((isFreshing, isSync) => {
-
-			console.log('check_isSync:', isSync)
-			console.log('check_isFreshing:', isFreshing)
-
-		})
+		if(state.isFreshing) {
+			auth.checkisFreshing((isFreshing, isSync) => {
+				console.log('check_isSync:', isSync)
+				console.log('check_isFreshing:', isFreshing)
+			})
+		}
 
 
 		// GET isSync isFreshing status first
 		// var status = auth.checkisFreshing()
 		// console.log(status)
 
-	}, [])
+	}, [state.isFreshing])
 
 
 	return (

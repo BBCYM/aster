@@ -21,7 +21,7 @@ class AlbumView(APIView):
         coverPhotoIdArray = []
 
         album = Album.objects(userId=userId).filter()
-        print(album.to_json())
+
 
         # get albumname
         for a in album:
@@ -33,15 +33,13 @@ class AlbumView(APIView):
             if a.isDeleted == False:
                 data = JSONEncoder().encode(a._id)
                 data2 = eval(data)
-                # print('test:', data2)
+
                 _idArray.append(data2)
-        # print(_idArray)
+
 
         # get coverPhotoId
         for a in album:
             if a.isDeleted == False:
-                # print('test2:', a.coverPhotoId)
-
                 coverPhotoIdArray.append(a.coverPhotoId)
 
         res = {"albumNameArray": albumNameArray, "_idArray": _idArray,
@@ -157,19 +155,16 @@ class AlbumTagView(APIView):
             array_field = album.albumTag
 
             if len(array_field) == 0:
-                print(len(array_field))
                 return Response(simpleMessage("zero"), status=status.HTTP_200_OK)
 
             for single_tag in array_field:
                 if single_tag.isDeleted == False:
                     album_tag_array.append(single_tag.tag)
-                    print(single_tag.tag)
 
         except Exception as e:
             print(e)
             return Response(simpleMessage("Get/AlbumTagView: error"), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        print(album_tag_array)
         res = {"result": "Get/AlbumTagView",
                "album_tag": album_tag_array}
 
@@ -191,7 +186,6 @@ class AlbumTagView(APIView):
         """
         album_id = request.data["_id"]
         album_tag = request.data["albumTag"]
-        print(album_tag)
         tag = {
             'tag': album_tag,
             'isDeleted': False
@@ -220,21 +214,18 @@ class AlbumTagView(APIView):
         Returns:
             剩下的tag
         """
-        album_id = request.data["_id"]
-        album_tag = request.data["albumTag"]
+        album_id = request.query_params["_id"]
+        album_tag = request.query_params["albumTag"]
 
         try:
 
             album = Album.objects(
                 _id=album_id, albumTag__match={'tag': album_tag, 'isDeleted': False}).first()
-            print(album.to_json())
 
             for single_tag in album.albumTag:
 
                 if single_tag.tag == album_tag:
-                    print('same')
                     single_tag.isDeleted = True
-            print(album.to_json())
             album.save()
 
         except Exception as e:
@@ -248,15 +239,10 @@ class AlbumPhotoView(APIView):
 
     # 抓相簿中的所有照片、tag
     def get(self, request):
-
-        # _id = request.data["_id"]
         _id = request.query_params["_id"]
 
         album = Album.objects(_id=_id).filter()
 
-        # print(album.to_json())
-
-        # albumNameArray = []
         albumPhotoIdArray = []
         albumTagArray = []
 
@@ -265,20 +251,18 @@ class AlbumPhotoView(APIView):
             if a.isDeleted == False:
                 for z in a.albumPhoto:
                     if z.isDeleted == False:
-                        # print(z.photoId)
                         albumPhotoIdArray.append(z.photoId)
-        # print(a.albumName)
-        print(albumPhotoIdArray)
+
 
         # get albumTag
         for w in album:
             if w.isDeleted == False:
                 for q in a.albumTag:
                     if q.isDeleted == False:
-                        # print(z.photoId)
+
                         albumTagArray.append(q.tag)
-        # print(a.albumName)
-        print(albumTagArray)
+
+
 
         res = {"albumPhotoIdArray": albumPhotoIdArray,
                "albumTagArray": albumTagArray}
@@ -298,28 +282,28 @@ class AlbumPhotoView(APIView):
             相簿剩下的photo
         """
 
-        album_id = request.data["_id"]
-        album_photo = request.data["albumPhoto"]
+        album_id = request.query_params["_id"]
+        album_photo = request.query_params["albumPhoto"]
 
         try:
 
             album = Album.objects(
                 _id=album_id, albumPhoto__match={'photoId': album_photo, 'isDeleted': False}).first()
-            print(album.to_json())
+
 
             for single_photo in album.albumPhoto:
 
                 if single_photo.photoId == album_photo:
-                    print('same')
+
                     single_photo.isDeleted = True
-            print(album.to_json())
+
             album.save()
 
         except Exception as e:
             print(e)
             return Response(simpleMessage("DELETE/AlbumPhotoView: error"), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        return Response(simpleMessage('DELETE/AlbumPhotoView'), status=status.HTTP_201_CREATED)
+        return Response(simpleMessage('DELETE/AlbumPhotoView'), status=status.HTTP_200_OK)
 
     # 新增相片到相簿中(現在先不用這個，只有一鍵建相簿)
     def post(self, request):

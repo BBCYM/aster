@@ -7,7 +7,7 @@ import ProfileScreen from '../screens/Profile/Profile'
 import GalleryHome from '../screens/Gallery/PhotoGallery'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import SomeGallery from '../screens/Gallery/SomeGallery'
-import SomeAlbumGallery from '../screens/Gallery/SomeAlbumGallery'
+import AlbumDetails from '../screens/Home/AlbumDetails'
 const PagesTab = createBottomTabNavigator()
 const PagesStack = createStackNavigator()
 
@@ -98,10 +98,10 @@ export function PagesTabNavigator(props) {
 				headerShown: true,
 				headerTitle: null,
 			}} />
-			<PagesStack.Screen name='SomeAlbumGallery' component={SomeAlbumGallery} options={{
+			<PagesStack.Screen name='AlbumDetails' component={AlbumDetails} options={({route})=>({
 				headerShown: true,
-				headerTitle: null,
-			}} />
+				title:route.params.albumTitle
+			})}/>
 
 		</PagesStack.Navigator>
 	)

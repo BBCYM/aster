@@ -3,28 +3,30 @@ from rest_framework.response import Response
 from auth.utils import simpleMessage
 from datetime import datetime
 import json
-from mongoengine import connect
 from mongoengine.queryset.visitor import Q
 from .models import Photo, Tag, Custom_tag
 from .utils import getEmotionString, EmotionStringtoI
 
-connect('aster') #write by bobo through teaviewer 
 
 class PhotoView(APIView):
-    def get(self, request):
+    def get(self, request, pk=None):
+        return_txt = ''
+        photo_id = pk
         user_id = request.query_params['userId']
-        photo_id = request.query_params["photoId"]
-        # photo_id = request.data["photoId"]
-        try:
-            photo = Photo.objects(userId=user_id,photoId__exact=photo_id).all_fields()
-            print(photo.to_json())
-
-            return_txt = {"result": 'GET/PhotoView',
-                          'photo_object': photo.to_json()}
-            return Response(return_txt, status=status.HTTP_200_OK)
-        except Exception as e:
-            print('PhotoViewError:', e)
-            return Response(e, status=status.HTTP_400_BAD_REQUEST)
+        if photo_id:
+            try:
+                photo = Photo.objects(userId=user_id,photoId__exact=photo_id).all_fields()
+                return_txt = {"result": 'GET/PhotoView',
+                            'photo_object': photo.to_json()}
+                return Response(return_txt, status=status.HTTP_200_OK)
+            except Exception as e:
+                print('PhotoViewError:', e)
+                return Response(e, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            want_deleted = json.loads(request.query_params.get('isDeleted', 'false'))
+            photo = Photo.objects(Q(userId=user_id) and Q(isDeleted=want_deleted)).scalar('photoId')
+            photo = list(photo)
+            return Response(photo, status=status.HTTP_200_OK)
     def post(self, request):
         """
         (測試用)
@@ -79,7 +81,7 @@ class PhotoView(APIView):
 
         return Response(simpleMessage('POST/PhotoView'), status=status.HTTP_201_CREATED)
 
-    def delete(self, request):
+    def delete(self, request, pk=None):
         """
         刪除照片
         把photoId的is_delete欄位改成true
@@ -90,71 +92,19 @@ class PhotoView(APIView):
         Returns:
             None
         """
-        # photo_id = request.query_params["photoId"]
-        photo_id = request.data["photoId"]
-
-        try:
-
-            update_rows = Photo.objects(photoId__exact=photo_id).update(
-                isDeleted=True)
-            print(f'Photo/View: PhotoView.delete, db:{update_rows} rows')
-            # photo = Photo.objects(photoId=photo_id)
-            # print(photo.delete())
-        except Exception as e:
-            print(e)
-            return Response("PhotoViewError", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        return Response(simpleMessage('DELETE/PhotoView'), status=status.HTTP_201_CREATED)
-
-    def post(self, request):
-        """
-        (測試用)
-        產生一筆假資料
-        Args:
-            None
-        Returns:
-            None
-        """
-        photo = Photo(photoId='12345', userId='abc', tag={
-            'main_tag': 'dog',
-            'emotion_tag': 'cute',
-            'custom_tag': [
-                {
-                    'tag': 'custom1',
-                    'is_deleted': False
-                },
-                {
-                    'tag': 'custom2',
-                    'is_deleted': False
-                }
-            ],
-            'top3_tag': [
-                {
-                    'tag': 'cat1',
-                    'precision': '99'
-                },
-                {
-                    'tag': 'cat2',
-                    'precision': '88'
-                }
-            ],
-            'all_tag': [
-                {
-                    'tag': 'cat1',
-                    'precision': '99'
-                },
-                {
-                    'tag': 'cat2',
-                    'precision': '88'
-                },
-                {
-                    'tag': 'cat3',
-                    'precision': '898'
-                }
-            ]},
-            location='TPE', createTime=datetime.utcnow())
-        photo.save()
-
-        return Response(simpleMessage('POST/PhotoView'), status=status.HTTP_201_CREATED)
+        photo_id = pk
+        # photo_id = request.data["photoId"]
+        if photo_id:
+            try:
+                update_rows = Photo.objects(photoId__exact=photo_id).update(
+                    isDeleted=True)
+                print(f'Photo/View: PhotoView.delete, db:{update_rows} rows')
+            except Exception as e:
+                print(e)
+                return Response("PhotoViewError", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(simpleMessage('DELETE/PhotoView'), status=status.HTTP_200_OK)
+        else:
+            return Response({}, status=status.HTTP_200_OK)
 
 
 class EmotionView(APIView):

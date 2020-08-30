@@ -24,8 +24,8 @@ from album.views import AlbumView, AlbumTagView, AlbumPhotoView
 
 
 photo_patterns = [
-    path('<int:pk>', PhotoView.as_view()),
     path('', PhotoView.as_view()),
+    path('<str:pk>', PhotoView.as_view()),
     path('emotion', EmotionView.as_view()),
     path('tag', TagView.as_view()),
 ]

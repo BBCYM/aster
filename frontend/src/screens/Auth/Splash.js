@@ -1,7 +1,6 @@
 import * as React from 'react'
-import { View, Text, ActivityIndicator, StyleSheet, ImageBackground, Image } from 'react-native'
+import { View, StyleSheet, ImageBackground, Image } from 'react-native'
 import { AuthContext } from '../../contexts/AuthContext'
-import Ionicon from 'react-native-vector-icons/Ionicons'
 export function SplashScreen(props) {
 	const { auth } = React.useContext(AuthContext)
 	React.useEffect(() => {

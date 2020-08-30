@@ -4,7 +4,6 @@ import {
 	StyleSheet,
 	View,
 	Text,
-	Dimensions,
 	TouchableOpacity
 } from 'react-native'
 import { Input, ListItem, Button } from 'react-native-elements'
@@ -16,25 +15,40 @@ import _ from 'lodash'
 import { ipv4 } from '../utils/dev'
 import { ErrorHandling } from '../utils/utils'
 export function AlbumModal([status, setStatus], state, props) {
-	function createAlbum() {
-        let imgIDRes = _.flatMap(status.fastSource.map((v, i) => { return v.pics }))
-        imgIDRes = imgIDRes.map((v)=>{return v.imgId})
+	function editAlbum() {
 		let albumName = status.aName
-		let userId = state.user.id
-        let coverPhotoId = _.sample(imgIDRes)
-		let albumPhoto = imgIDRes
-		let albumTag = status.doubleCheese.map((v, i) => { return v.text })
+		let albumId = status.currentAlbumId
+		let newTags = _.differenceBy(status.doubleCheese, status.preBuildTag, 'text').map((v)=>{return v.text})
+		let deleteTags = _.differenceBy(status.preBuildTag, status.doubleCheese, 'text').map((v)=>{return v.text})
 		ErrorHandling(() => {
 			if (!albumName || _.isEmpty(albumName.trim())) {
 				throw Error('Need a album name')
 			}
 		}, () => {
-			Axios.post(`http://${ipv4}:3000/album`, JSON.stringify({
-				userId: userId,
+			for (const nt of newTags){
+				Axios.post(`http://${ipv4}:3000/album/tag`, JSON.stringify({
+					_id: albumId,
+					albumTag: nt,
+				}), {
+					headers: {
+						'Content-Type': 'application/json'
+					}
+				})
+			}
+			for (const dt of deleteTags) {
+				Axios.delete(`http://${ipv4}:3000/album/tag`, {
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					params:{
+						_id: albumId,
+						albumTag: dt,
+					}
+				})
+			}
+			Axios.put(`http://${ipv4}:3000/album`, JSON.stringify({
+				_id: status.currentAlbumId,
 				albumName: albumName,
-				coverPhotoId: coverPhotoId,
-				albumPhoto: albumPhoto,
-				albumTag: albumTag
 			}), {
 				headers: {
 					'Content-Type': 'application/json'
@@ -42,7 +56,7 @@ export function AlbumModal([status, setStatus], state, props) {
 			}).then((res) => {
 				props.navigation.navigate('Home')
 			}).catch((err) => {
-				console.error(err)
+				console.log(err)
 			})
 		})
 	}
@@ -70,7 +84,7 @@ export function AlbumModal([status, setStatus], state, props) {
 		<Modal backButtonClose={true} isOpen={status.aModal} onClosed={() => setStatus({ aModal: false })} style={styles.modal4} position={"bottom"}>
 			<View style={styles.modal}>
 				<View style={styles.AlbumText}>
-					<Text h1 style={{ fontSize: 30, color: '#ffffff' }}>建立相簿</Text>
+					<Text h1 style={{ fontSize: 30, color: '#ffffff' }}>編輯相簿</Text>
 				</View>
 				<View style={styles.AlbumTitle}>
 					<Input label='Album Name' labelStyle={{ color: '#ffffff' }} onChangeText={value => setStatus({ aName: value })} value={status.aName ? status.aName : ''} inputContainerStyle={{ borderBottomColor: '#ffffff' }} />
@@ -119,10 +133,10 @@ export function AlbumModal([status, setStatus], state, props) {
 					</View>
 					<View>
 						<Button
-							title="Create"
+							title="Edit"
 							type="outline"
 							titleStyle={{ color: 'white' }}
-							onPress={() => createAlbum()}
+							onPress={() => editAlbum()}
 							buttonStyle={{ borderColor: 'white', width: 100 }}
 						/>
 					</View>
