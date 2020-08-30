@@ -15,8 +15,6 @@ import { AuthContext } from '../../contexts/AuthContext'
 import { ipv4 } from '../../utils/dev';
 import _ from 'lodash'
 
-
-
 export default function HomeScreen(props) {
 	function useMergeState(initialState) {
 		const [state, setState] = React.useState(initialState)
@@ -65,7 +63,6 @@ export default function HomeScreen(props) {
 				}
 				fSource.push(album)
 				await setStatus({ fastSource: fSource })
-				// fastSource=[{id:, albumId:, title:,coverUrl:,headers:}*n]
 			}
 		} catch (err) {
 			console.log('error')
@@ -73,7 +70,6 @@ export default function HomeScreen(props) {
 		}
 		callback()
 	}
-
 	React.useEffect(() => {
 		fetchAlbumSource(() => {
 			console.log('hi album')
@@ -81,7 +77,6 @@ export default function HomeScreen(props) {
 		})
 
 	}, [])
-
 	//go to albumphoto
 	function showAlbum(item) {
 		props.navigation.navigate('AlbumDetails', {
@@ -89,7 +84,6 @@ export default function HomeScreen(props) {
 			albumTitle: item.title
 		})
 	}
-
 	//delete album
 	async function deleteAlbum() {
 		await fetch(`http://${ipv4}:3000/album?_id=${status.toDel}`, {
@@ -174,7 +168,6 @@ export default function HomeScreen(props) {
 			}
 		</View>
 	)
-
 }
 
 const styles = StyleSheet.create({
@@ -186,10 +179,10 @@ const styles = StyleSheet.create({
 		marginLeft: 23,
 		marginTop: 30
 	},
+
 	container: {
 		height: '100%',
 		width: '100%'
-
 	},
 	modalBtnTitle: { color: '#303960', fontWeight: 'bold' },
 	modalBtnStyle: { borderColor: '#303960', width: 90, borderWidth: 2 },
@@ -200,6 +193,7 @@ const styles = StyleSheet.create({
 		borderRadius: 15,
 		borderColor: '#F5B19C',
 		borderWidth: 2
+
 	},
 	modal: {
 		flex: 1,
@@ -210,5 +204,4 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		padding: 10,
 	}
-
 })
