@@ -28,8 +28,6 @@ export default function HomeScreen(props) {
 		fastSource: [],
 		albumName: '',
 		albumId: 0,
-		isOpen: false,
-		isDisabled: false,
 		aModal: false,
 		isLoading: true
 	})
@@ -174,9 +172,7 @@ export default function HomeScreen(props) {
 					</View>
 				)
 			}
-
 		</View>
-
 	)
 
 }
