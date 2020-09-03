@@ -41,7 +41,6 @@ urlpatterns = [
     path('album', AlbumView.as_view()),
     path('album/tag', AlbumTagView.as_view()),
     path('album/photo', AlbumPhotoView.as_view()),
-    # path('line/', include('line.urls')),
     path('line/', callback),
 
 ]
