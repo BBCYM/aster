@@ -22,6 +22,7 @@ mongoengine = "*"
 blinker = "*"
 pandas = "*"
 owlready2 = "*"
+line-bot-sdk = "*"
 
 [requires]
 python_version = "3.7"
