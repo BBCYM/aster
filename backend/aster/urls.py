@@ -21,7 +21,7 @@ from home.views import HomeView
 from photo.views import PhotoView, EmotionView, TagView
 from personal.views import personalView
 from album.views import AlbumView, AlbumTagView, AlbumPhotoView
-
+from line.views import callback
 
 photo_patterns = [
     path('', PhotoView.as_view()),
@@ -41,6 +41,7 @@ urlpatterns = [
     path('album', AlbumView.as_view()),
     path('album/tag', AlbumTagView.as_view()),
     path('album/photo', AlbumPhotoView.as_view()),
-    path('line/', include('line.urls')),
+    # path('line/', include('line.urls')),
+    path('line/', callback),
 
 ]
