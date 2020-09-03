@@ -46,11 +46,11 @@ class UserView(APIView):
             t3.start()
             return Response({'isFreshing': True,'isSync': False}, status=status.HTTP_200_OK)
         else:
-            return Response({'isSync': True,'isFreshing': False})
+            return Response({'isSync': True,'isFreshing': False}, status=status.HTTP_200_OK)
 
 class AuthView(APIView):
 
-    def post(self, request:WSGIRequest):
+    def post(self, request:WSGIRequest, userId:str=None):
         # first time checkin
         data = request.data
 
@@ -78,4 +78,4 @@ class AuthView(APIView):
             t3.start()
             return Response({'isSync': False, 'isFreshing': True}, status=status.HTTP_200_OK)
         else:
-            return Response({})
+            return Response({}, status=status.HTTP_204_NO_CONTENT)

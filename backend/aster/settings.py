@@ -34,9 +34,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_mongoengine',
     'auth',
-    'personal',
     'bot',
-    'home',
     'photo',
     'album',
     'ontology'

@@ -5,13 +5,19 @@ from datetime import datetime
 import json
 from mongoengine.queryset.visitor import Q
 from .models import Photo, Tag, Custom_tag
+from django.core.handlers.wsgi import WSGIRequest
 from .utils import getEmotionString, EmotionStringtoI
+
+# class PhotoListView(APIView):
+#     def get(self, request:WSGIRequest, userId:str=None):
+#         if userId:
 
 
 class PhotoView(APIView):
     def get(self, request, pk=None):
         return_txt = ''
         photo_id = pk
+        print(photo_id)
         user_id = request.query_params['userId']
         if photo_id:
             try:
