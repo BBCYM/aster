@@ -17,21 +17,23 @@ from django.contrib import admin
 from django.urls import path, include
 from auth.views import AuthView, UserView
 from bot.views import BotView
-from photo.views import PhotoView, EmotionView, TagView
+from photo.views import PhotoView, EmotionView, TagView, PhotoListView
 from album.views import AlbumView, AlbumTagView, AlbumPhotoView
 
 
 photo_patterns = [
-    path('', PhotoView.as_view()),
     path('<str:photoId>', PhotoView.as_view()),
     path('emotion/<str:photoId>', EmotionView.as_view()),
     path('tag/<str:photoId>', TagView.as_view()),
 ]
 
 urlpatterns = [
+    # done
     path('auth/<str:userId>', AuthView.as_view()),
     path('user/<str:userId>', UserView.as_view()),
     path('bot/<str:userId>', BotView.as_view()),
+    path('photos/<str:userId>', PhotoListView.as_view())
+    # undone
     path('photo/', include(photo_patterns)),
     path('album', AlbumView.as_view()),
     path('album/tag', AlbumTagView.as_view()),

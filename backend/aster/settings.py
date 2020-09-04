@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'bot',
     'photo',
     'album',
-    'ontology'
+    'ontology',
+    'utils'
 ]
 
 MIDDLEWARE = [
