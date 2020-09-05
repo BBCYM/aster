@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'home',
     'photo',
     'album',
-    'ontology'
+    'ontology',
+    'color_detection'
 ]
 
 MIDDLEWARE = [
