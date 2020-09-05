@@ -4,15 +4,15 @@ import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/
 import ChatbotScreen from '../screens/Chatbot/Chatbot'
 import HomeScreen from '../screens/Home/Home'
 import ProfileScreen from '../screens/Profile/Profile'
-import GalleryHome from '../screens/Gallery/PhotoGallery copy'
+import GalleryHome from '../screens/Gallery/PhotoGallery'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import SomeGallery from '../screens/Gallery/SomeGallery'
-
+import AlbumDetails from '../screens/Home/AlbumDetails'
 const PagesTab = createBottomTabNavigator()
 const PagesStack = createStackNavigator()
 
 export function PagesTabNavigator(props) {
-	
+
 	function index() {
 		return (
 			<PagesTab.Navigator
@@ -73,8 +73,8 @@ export function PagesTabNavigator(props) {
 			</PagesTab.Navigator>
 		)
 	}
-	
-	
+
+
 	return (
 		<PagesStack.Navigator
 			initialRouteName='index'
@@ -98,6 +98,10 @@ export function PagesTabNavigator(props) {
 				headerShown: true,
 				headerTitle: null,
 			}} />
+			<PagesStack.Screen name='AlbumDetails' component={AlbumDetails} options={({route})=>({
+				headerShown: true,
+				title:route.params.albumTitle
+			})}/>
 
 		</PagesStack.Navigator>
 	)

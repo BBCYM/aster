@@ -1,29 +1,32 @@
 from rest_framework.views import APIView, status
 from rest_framework.response import Response
-from auth.customResponse import simpleMessage
+from auth.utils import simpleMessage
 from datetime import datetime
 import json
-from mongoengine import connect
 from mongoengine.queryset.visitor import Q
-from .models import Photo, Tag
-
-connect('aster')  # 好像不用這一行
+from .models import Photo, Tag, Custom_tag
+from .utils import getEmotionString, EmotionStringtoI
 
 
 class PhotoView(APIView):
-    def get(self, request):
-        photo_id = request.query_params["photoId"]
-        # photo_id = request.data["photoId"]
-        try:
-            photo = Photo.objects(photoId__exact=photo_id).all_fields()
-            print(photo.to_json())
-
-            return_txt = {"result": 'GET/PhotoView',
-                          'photo_object': photo.to_json()}
-        except Exception as e:
-            print('PhotoViewError:', e)
-        return Response(return_txt, status=status.HTTP_200_OK)
-
+    def get(self, request, pk=None):
+        return_txt = ''
+        photo_id = pk
+        user_id = request.query_params['userId']
+        if photo_id:
+            try:
+                photo = Photo.objects(userId=user_id,photoId__exact=photo_id).all_fields()
+                return_txt = {"result": 'GET/PhotoView',
+                            'photo_object': photo.to_json()}
+                return Response(return_txt, status=status.HTTP_200_OK)
+            except Exception as e:
+                print('PhotoViewError:', e)
+                return Response(e, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            want_deleted = json.loads(request.query_params.get('isDeleted', 'false'))
+            photo = Photo.objects(Q(userId=user_id) and Q(isDeleted=want_deleted)).scalar('photoId')
+            photo = list(photo)
+            return Response(photo, status=status.HTTP_200_OK)
     def post(self, request):
         """
         (測試用)
@@ -78,7 +81,7 @@ class PhotoView(APIView):
 
         return Response(simpleMessage('POST/PhotoView'), status=status.HTTP_201_CREATED)
 
-    def delete(self, request):
+    def delete(self, request, pk=None):
         """
         刪除照片
         把photoId的is_delete欄位改成true
@@ -89,41 +92,38 @@ class PhotoView(APIView):
         Returns:
             None
         """
-        # photo_id = request.query_params["photoId"]
-        photo_id = request.data["photoId"]
-
-        try:
-
-            update_rows = Photo.objects(photoId__exact=photo_id).update(
-                isDeleted=True)
-            print(f'Photo/View: PhotoView.delete, db:{update_rows} rows')
-            # photo = Photo.objects(photoId=photo_id)
-            # print(photo.delete())
-        except Exception as e:
-            print(e)
-            return Response("PhotoViewError", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        return Response(simpleMessage('DELETE/PhotoView'), status=status.HTTP_201_CREATED)
+        photo_id = pk
+        # photo_id = request.data["photoId"]
+        if photo_id:
+            try:
+                update_rows = Photo.objects(photoId__exact=photo_id).update(
+                    isDeleted=True)
+                print(f'Photo/View: PhotoView.delete, db:{update_rows} rows')
+            except Exception as e:
+                print(e)
+                return Response("PhotoViewError", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(simpleMessage('DELETE/PhotoView'), status=status.HTTP_200_OK)
+        else:
+            return Response({}, status=status.HTTP_200_OK)
 
 
 class EmotionView(APIView):
-    def post(self, request):
+    def get(self, request):
         """
-        test
+        get emotion
         """
-        user_id = request.data["userId"]
-        emotion_tag = request.data["emotion_tag"]
+        user_id = request.query_params.get('userId',None)
+        photo_id = request.query_params.get('photoId',None)
 
         try:
-            # photo = Photo.objects(userId__exact=user_id, )
-            update_rows = Photo.objects(userId=user_id, tag__emotion_tag__exact=emotion_tag).update(
-                tag__emotion_tag='bobo')
-            print(f'Photo/View: EmotionView.post, db:{update_rows} rows')
+            temp = Photo.objects(userId=user_id, photoId=photo_id)
+            print(f'Photo/View: EmotionView.post, db:{temp[0]} rows')
 
         except Exception as e:
             print(e)
             return Response("EmotionViewError", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        return Response(simpleMessage('PUT/PhotoView'), status=status.HTTP_200_OK)
+        k = EmotionStringtoI(temp[0].tag.emotion_tag)
+        return Response(simpleMessage(str(k)), status=status.HTTP_200_OK)
 
     def put(self, request):
         """
@@ -137,12 +137,13 @@ class EmotionView(APIView):
             None
 
         """
-        photo_id = request.data["photoId"]
+        user_id = request.data["userId"]
+        photo_id = request.data['photoId']
         emotion_tag = request.data["emotion_tag"]
-
+        eTag = getEmotionString(int(emotion_tag))
         try:
-            update_rows = Photo.objects(photoId__exact=photo_id).update(
-                tag__emotion_tag=emotion_tag)
+            update_rows = Photo.objects(photoId=photo_id,userId=user_id).update(
+                tag__emotion_tag=eTag)
             print(f'Photo/View: EmotionView.put, db:{update_rows} rows')
         except Exception as e:
             print(e)
@@ -164,30 +165,30 @@ class TagView(APIView):
         Returns:
             該photo全部的custom_tag
         """
-        photo_id = request.data["photoId"]
-        custom_tag_array = []
+        user_id = request.query_params.get('userId',None)
+        photo_id = request.query_params.get('photoId',None)
 
         try:
-            photo = Photo.objects(photoId__exact=photo_id).get()
-
+            photo = Photo.objects(userId=user_id, photoId=photo_id).get()
+            print(photo)
             array_field = photo.tag.custom_tag
 
             if len(array_field) == 0:
-                print(len(array_field))
-                return Response(simpleMessage("zero"), status=status.HTTP_200_OK)
+                return Response(False, status=status.HTTP_200_OK)
 
+            custom_tag_array = []
             for single_tag in array_field:
                 if single_tag.is_deleted == False:
                     custom_tag_array.append(single_tag.tag)
-
+            response_str = json.dumps({"result": "Get/TagView",
+                                   "custom_tag": custom_tag_array})
         except Exception as e:
             print(e)
             return Response(simpleMessage("Get/TagView: error"), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        response_str = json.dumps({"result": "Get/TagView",
-                                   "custom_tag": custom_tag_array})
+        
 
-        return Response(response_str, status=status.HTTP_201_CREATED)
+        return Response(response_str, status=status.HTTP_200_OK)
 
     def put(self, request):
         """
@@ -201,17 +202,12 @@ class TagView(APIView):
         Returns:
             更改過後的tag
         """
+        user_id = request.data['userId']
         photo_id = request.data["photoId"]
-        custom_tag = request.data["custom_tag"]
-        tag = {
-            'tag': custom_tag,
-            'is_deleted': False
-        }
-
+        custom_tag = request.data["customTag"]
+        tag = Custom_tag(tag=custom_tag)
         try:
-            update_rows = Photo.objects(photoId__exact=photo_id).update(
-                add_to_set__tag__custom_tag=tag)
-
+            update_rows = Photo.objects(photoId__exact=photo_id).update(add_to_set__tag__custom_tag=tag)
             print(f'Photo/View: TagView.put, db:{update_rows} rows')
 
         except Exception as e:
@@ -233,13 +229,14 @@ class TagView(APIView):
             剩下的tag 
 
         """
-        photo_id = request.data["photoId"]
-        custom_tag = request.data["custom_tag"]
+        user_id = request.query_params.get('userId',None)
+        photo_id = request.query_params.get("photoId",None)
+        custom_tag = request.query_params.get("custom_tag",None)
 
         try:
 
             photo = Photo.objects(
-                photoId=photo_id, tag__custom_tag__match={'tag': custom_tag, 'is_deleted': False}).first()
+                userId=user_id,photoId=photo_id, tag__custom_tag__match={'tag': custom_tag, 'is_deleted': False}).first()
             # print(photo.to_json())
 
             for single_tag in photo.tag.custom_tag:

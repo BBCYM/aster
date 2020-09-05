@@ -7,23 +7,24 @@ import {
 	TouchableOpacity,
 	Dimensions,
 	Image,
+	Text,
 	ActivityIndicator
 } from 'react-native'
-import { Overlay, SearchBar, Badge } from 'react-native-elements'
+import ModalBox from 'react-native-modalbox'
+import { Overlay, SearchBar, Button } from 'react-native-elements'
 import FastImage from 'react-native-fast-image'
 import ImageViewer from 'react-native-image-zoom-viewer'
 import { photoFooter, TagList } from '../../components/photoComponent'
-import { OneClickAction, AlbumModal } from '../../components/oneClickSave'
+import { OneClickAction, AlbumModal } from '../../components/oneClickEdit'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import Axios from 'axios'
 import { AuthContext } from '../../contexts/AuthContext'
-import { checkEmotion, preCleanPid, concatLocalTag } from '../../utils/utils'
+import { checkEmotion, asyncErrorHandling } from '../../utils/utils'
 import { ipv4 } from '../../utils/dev'
-import Dash from 'react-native-dash'
 import _ from 'lodash'
 
 
-export default function SomeGalleryScreen(props) {
+export default function AlbumDetails(props) {
 	function useMergeState(initialState) {
 		const [state, setState] = React.useState(initialState)
 		const setStatus = newState =>
@@ -44,7 +45,8 @@ export default function SomeGalleryScreen(props) {
 		emotionStatus: Array(6).fill(false),
 		actionBtnVisi: false,
 		isMoving: false,
-		isLoading: true
+		bModal: false,
+		isLoading:true
 	})
 	const { auth, state } = React.useContext(AuthContext)
 	function setEmotion(n) {
@@ -62,53 +64,51 @@ export default function SomeGalleryScreen(props) {
 		})
 	}
 	React.useEffect(() => {
-		fetchImageSource(() => {
-			setStatus({ isLoading: false })
+		fetchImageSource(()=>{
 			console.log('hello from some screen')
+			setStatus({isLoading:false})
 		})
 	}, [])
 	async function fetchImageSource(callback) {
 		console.log('Loading photo')
-		let hashTag = preCleanPid(props.route.params.pid_tag)
-		let { temp } = concatLocalTag(hashTag)
-		setStatus({ preBuildTag: temp })
+		let res = await Axios.get(`http://${ipv4}:3000/album/photo`, {
+			params: {
+				_id: props.route.params.albumId
+			}
+		})
+		setStatus({ currentAlbumId: props.route.params.albumId, aName: props.route.params.albumTitle, preBuildTag: res.data['albumTagArray'].map((v, i) => ({ key: res.data['albumTagArray'].length - i - 1, text: v })) })
 		const accessToken = await auth.getAccessToken()
 		let fSource = []
 		let mSource = []
 		let i = 0
-		hashTag.forEach(async (v, k) => {
-			fSource.push({ key: k, tags: v.tag, pics: [] })
-			let m = _.findIndex(fSource, function (o) { return o.key === k })
-			for (const onePid of v.pid) {
-				try {
-					let res = await Axios.get(`https://photoslibrary.googleapis.com/v1/mediaItems/${onePid}`, {
-						headers: {
-							'Authorization': `Bearer ${accessToken}`,
-							'Content-type': 'application/json'
-						}
-					})
-					var item = res.data
-					var width = 400
-					var height = 400
-					var img = {
-						id: i++,
-						imgId: item['id'],
-						src: `${item['baseUrl']}=w${width}-h${height}`,
-						headers: { Authorization: `Bearer ${accessToken}` }
+		res.data['albumPhotoIdArray'].forEach(async (v, k) => {
+			try {
+				let gres = await Axios.get(`https://photoslibrary.googleapis.com/v1/mediaItems/${v}`, {
+					headers: {
+						'Authorization': `Bearer ${accessToken}`,
+						'Content-type': 'application/json'
 					}
-					fSource[m].pics.push(img)
-					mSource.push({ url: item['baseUrl'] })
-				} catch (err) {
-					console.log(err)
+				})
+				var item = gres.data
+				var width = 400
+				var height = 400
+				var img = {
+					id: i++,
+					imgId: item['id'],
+					src: `${item['baseUrl']}=w${width}-h${height}`,
+					headers: { Authorization: `Bearer ${accessToken}` }
 				}
-				setStatus({ fastSource: fSource, modalSource: mSource })
+				fSource.push(img)
+				mSource.push({ url: item['baseUrl'] })
+			} catch (err) {
+				console.log(err)
 			}
+			await setStatus({ fastSource: fSource, modalSource: mSource })
 		})
 		callback()
 	}
 
 	async function showImage(item) {
-		console.log(item.id)
 		await setStatus({
 			currentId: item.id,
 			isVisible: true,
@@ -153,71 +153,80 @@ export default function SomeGalleryScreen(props) {
 		]
 		return temp
 	}
-
+	function deletePhoto() {
+		asyncErrorHandling(async () => {
+			let res = await Axios.delete(`http://${ipv4}:3000/album/photo`, {
+				params: {
+					_id: status.currentAlbumId,
+					albumPhoto: status.currentPhotoId
+				}
+			})
+			if (res.status !== 200) {
+				throw Error('Delete not success')
+			}
+		}, async () => {
+			var index = _.findIndex(status.fastSource, function (o) { return o.imgId === status.currentPhotoId })
+			var fSource = [...status.fastSource]
+			var mSource = [...status.modalSource]
+			_.pullAt(fSource, index)
+			_.pullAt(mSource, index)
+			setStatus({ fastSource: fSource, modalSource: mSource, bModal: false })
+		})
+	}
 	return (
 		<View style={{ flex: 1 }}>
 			{
-
 				status.isLoading ? (
 					<View style={{ flex: 1, justifyContent: 'center' }}>
 						<ActivityIndicator size='large' color="#FF6130" />
 					</View>
 				) : (
 					<View style={{ flex: 1 }}>
+						<ModalBox useNativeDriver={true} animationDuration={300} backButtonClose={true} isOpen={status.bModal} onClosed={() => setStatus({ bModal: false, currentPhotoId: null })} style={styles.modal4} position={'center'}>
+							<View style={styles.modal}>
+								<View style={styles.AlbumText}>
+									<Text h1 style={{ fontSize: 22, color: '#303960' }}>Delete Photo</Text>
+								</View>
+								<View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'flex-end' }}>
+									<View>
+										<Button
+											title="Dismiss"
+											type="outline"
+											titleStyle={styles.modalBtnTitle}
+											onPress={() => setStatus({ bModal: false, currentPhotoId: null })}
+											buttonStyle={styles.modalBtnStyle}
+										/>
+									</View>
+									<View>
+										<Button
+											title="Delete"
+											type="outline"
+											titleStyle={styles.modalBtnTitle}
+											onPress={() => deletePhoto()}
+											buttonStyle={styles.modalBtnStyle}
+										/>
+									</View>
+								</View>
+							</View>
+						</ModalBox>
 						<FlatList
 							data={status.fastSource}
 							extraData={status}
 							renderItem={({ item }) => (
-								<View style={{ flex: 1, flexDirection: 'row' }}>
-									<View style={styles.dashContainer}>
-										<View>
-											<View style={styles._innerContainer}>
-												<View
-													style={styles.outerContainer}
-												/>
-											</View>
-										</View>
-										<View>
-											<Dash dashGap={7} dashLength={5} dashColor="#63CCC8" style={{ width: 1, height: '100%', flexDirection: 'column' }} />
-										</View>
-									</View>
-									<View style={{ flex: 1, paddingTop: 5, paddingBottom: 5 }}>
-										<View style={{ flex: 1, flexDirection: 'row-reverse', padding: 3 }}>
-											{
-												item.tags.map((v, i) => (
-													<View key={i} style={{ paddingRight: 2, paddingLeft: 2 }}>
-														<Badge status='error' value={v} />
-													</View>
-												))
-											}
-
-										</View>
-										<FlatList
-											data={item.pics}
-											extraData={status}
-											renderItem={(block) => (
-												<View style={{ flex: 1, flexDirection: 'column', margin: 1 }}>
-													<TouchableOpacity onPress={() => showImage(block.item)}>
-														<FastImage
-															style={styles.imageThumbnail}
-															source={{
-																uri: block.item.src,
-																headers: block.item.headers,
-															}}
-														/>
-													</TouchableOpacity>
-												</View>
-											)}
-											//Setting the number of column
-											numColumns={3}
-											listKey={(item, index) => item.imgId.toString()}
+								<View style={{ flex: 1, flexDirection: 'column', margin: 1 }}>
+									<TouchableOpacity onPress={() => showImage(item)} onLongPress={() => setStatus({ bModal: true, currentPhotoId: item.imgId })}>
+										<FastImage
+											style={styles.imageThumbnail}
+											source={{
+												uri: item.src,
+												headers: item.headers,
+											}}
 										/>
-									</View>
+									</TouchableOpacity>
 								</View>
 							)}
-							keyExtractor={(item, index) => {
-								return item.key.toString()
-							}}
+							numColumns={3}
+							keyExtractor={(item, index) => index.toString()}
 						/>
 
 						{AlbumModal([status, setStatus], state, props)}
@@ -307,7 +316,6 @@ export default function SomeGalleryScreen(props) {
 					</View>
 				)
 			}
-
 		</View>
 	)
 
@@ -378,5 +386,24 @@ const styles = StyleSheet.create({
 	emotion: {
 		width: 50,
 		height: 50,
+	},
+	modalBtnTitle: { color: '#303960', fontWeight: 'bold' },
+	modalBtnStyle: { borderColor: '#303960', width: 90, borderWidth: 2 },
+	modal4: {
+		backgroundColor: '#63CCC8',
+		height: 115,
+		width: '90%',
+		borderRadius: 15,
+		borderColor: '#F5B19C',
+		borderWidth: 2
+	},
+	modal: {
+		flex: 1,
+		alignItems: 'stretch',
+	},
+	AlbumText: {
+		justifyContent: 'flex-start',
+		alignItems: 'center',
+		padding: 10,
 	}
 })
