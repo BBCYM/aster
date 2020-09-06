@@ -13,9 +13,8 @@ import Modal from 'react-native-modalbox'
 import { SwipeListView } from 'react-native-swipe-list-view'
 import Axios from 'axios'
 import _ from 'lodash'
-import { ipv4 } from '../utils/dev'
 import { ErrorHandling } from '../utils/utils'
-export function AlbumModal([status, setStatus], state, props) {
+export function AlbumModal([status, setStatus], state, props, auth) {
 	function createAlbum() {
         let imgIDRes = _.flatMap(status.fastSource.map((v, i) => { return v.pics }))
         imgIDRes = imgIDRes.map((v)=>{return v.imgId})
@@ -29,16 +28,13 @@ export function AlbumModal([status, setStatus], state, props) {
 				throw Error('Need a album name')
 			}
 		}, () => {
-			Axios.post(`http://${ipv4}:3000/album`, JSON.stringify({
-				userId: userId,
+			Axios.post(`${auth.url}/album/${userId}`, JSON.stringify({
 				albumName: albumName,
 				coverPhotoId: coverPhotoId,
 				albumPhoto: albumPhoto,
 				albumTag: albumTag
 			}), {
-				headers: {
-					'Content-Type': 'application/json'
-				}
+				headers: auth.headers
 			}).then((res) => {
 				props.navigation.navigate('Home')
 			}).catch((err) => {

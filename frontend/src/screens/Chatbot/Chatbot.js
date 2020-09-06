@@ -3,12 +3,14 @@ import { GiftedChat } from 'react-native-gifted-chat';
 import { renderBubble } from './ChatContainer';
 import AsyncStorage from '@react-native-community/async-storage';
 import uuid from 'react-native-uuid';
-import { ipv4 } from '../../utils/dev';
+import { AuthContext } from '../../contexts/AuthContext'
+
 
 export default function RoomScreen({navigation}) {
 	// useEffect(async()=>{
 	// 	await AsyncStorage.removeItem('pid');
 	// },[])
+	const { auth } = React.useContext(AuthContext)
 	const [messages, setMessages] = useState([
 		// example of chat message
 		{
@@ -72,12 +74,9 @@ export default function RoomScreen({navigation}) {
 		console.log('userid',user.id);
 		
 		//從後端拿到response
-		const response = await fetch(`http://${ipv4}:3000/bot`, {
+		const response = await fetch(`${auth.url}/bot`, {
 			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'X-Requested-With': 'com.rnexparea',
-			},
+			headers: auth.headers,
 			body: JSON.stringify({
 				usermsg: newMessage[0].text,
 				userid: user.id,
