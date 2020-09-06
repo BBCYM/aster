@@ -39,7 +39,7 @@ urlpatterns = [
     path('photo/', include(photo_patterns)),
 
     path('album/<str:userId>', AlbumView.as_view()),
-    path('album/PD/<str:userId>', AlbumPDView.as_view()),
+    path('album/PD/<str:albumId>', AlbumPDView.as_view()),
     path('album/tag/<str:albumId>', AlbumTagView.as_view()),
     path('album/photo/<str:albumId>', AlbumPhotoView.as_view()),
 
