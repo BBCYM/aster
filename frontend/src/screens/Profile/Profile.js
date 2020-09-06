@@ -10,7 +10,7 @@ import { ipv4 } from '../../utils/dev'
 
 export default function personalScreen(props) {
 	const { auth, state } = React.useContext(AuthContext)
-	// var testloading = true
+	var testloading = true
 
 
 	React.useEffect(() => {
@@ -19,7 +19,7 @@ export default function personalScreen(props) {
 		console.log('init_isFreshing:', state.isFreshing)
 		// console.log('userId:', state.user.id)
 
-		if(state.isFreshing) {
+		if (state.isFreshing) {
 			auth.checkisFreshing((isFreshing, isSync) => {
 				console.log('check_isSync:', isSync)
 				console.log('check_isFreshing:', isFreshing)
@@ -60,7 +60,7 @@ export default function personalScreen(props) {
 					{/* refresh loading animation */}
 					<View style={[styles.container, { opacity: state.isFreshing ? 100 : 0 }]}>
 
-						<ActivityIndicator style={styles.loding} size="large" color="#d0cfcf" />
+						<ActivityIndicator style={styles.loding} size="large" color="#FF6130" />
 						<Text style={styles.textREFRESH}>REFRESHING</Text>
 
 					</View>
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
 	textREFRESH: {
 		justifyContent: 'center',
 		textAlign: 'center',
-		color: '#d0cfcf',
+		color: '#FF6130',
 		fontSize: 15,
 		marginTop: 30,
 	}

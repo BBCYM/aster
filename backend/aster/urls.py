@@ -17,8 +17,10 @@ from django.contrib import admin
 from django.urls import path, include
 from auth.views import AuthView, UserView
 from bot.views import BotView
+
 from photo.views import PhotoView, EmotionView, TagView, PhotoListView
-from album.views import AlbumView, AlbumTagView, AlbumPhotoView
+from album.views import AlbumView, AlbumPDView, AlbumTagView, AlbumPhotoView
+
 
 
 photo_patterns = [
@@ -34,9 +36,8 @@ urlpatterns = [
     path('bot/<str:userId>', BotView.as_view()),
     path('photos/<str:userId>', PhotoListView.as_view()),
     path('photo/', include(photo_patterns)),
-    # undone
-    path('album', AlbumView.as_view()),
-    path('album/tag', AlbumTagView.as_view()),
-    path('album/photo', AlbumPhotoView.as_view()),
-
+    path('album/<str:userId>', AlbumView.as_view()),
+    path('album/PD/<str:userId>', AlbumPDView.as_view()),
+    path('album/tag/<str:albumId>', AlbumTagView.as_view()),
+    path('album/photo/<str:albumId>', AlbumPhotoView.as_view()),
 ]

@@ -130,7 +130,6 @@ export function useAuth() {
 					action(actionType.SET.isSync,res.data.isSync)
 				])
 			})
-
 		},
 		setIs: (isFreshing, isSync) => {
 			dispatch([
