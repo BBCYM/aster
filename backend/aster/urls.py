@@ -32,9 +32,9 @@ urlpatterns = [
     path('auth/<str:userId>', AuthView.as_view()),
     path('user/<str:userId>', UserView.as_view()),
     path('bot/<str:userId>', BotView.as_view()),
-    path('photos/<str:userId>', PhotoListView.as_view())
-    # undone
+    path('photos/<str:userId>', PhotoListView.as_view()),
     path('photo/', include(photo_patterns)),
+    # undone
     path('album', AlbumView.as_view()),
     path('album/tag', AlbumTagView.as_view()),
     path('album/photo', AlbumPhotoView.as_view()),
