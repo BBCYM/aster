@@ -12,7 +12,6 @@ import { Button } from 'react-native-elements'
 import FastImage from 'react-native-fast-image'
 import Axios from 'axios'
 import { AuthContext } from '../../contexts/AuthContext'
-import { ipv4 } from '../../utils/dev';
 import _ from 'lodash'
 
 export default function HomeScreen(props) {
@@ -34,20 +33,16 @@ export default function HomeScreen(props) {
 		const accessToken = await auth.getAccessToken()
 		const userId = await state.user.id
 		try {
-			const response = await fetch(`http://${ipv4}:3000/album?userId=${userId}`, {
+			const response = await fetch(`${auth.url}/album/${userId}`, {
 				method: 'GET',
-				headers: {
-					'Accept': 'application/json',
-					'Content-Type': 'application/json',
-					'X-Requested-With': 'com.rnexparea',
-				},
+				headers: auth.headers
 			})
 			var data = await response.json()
 			let fSource = []
 			let i = 0
 			for (const [_id, _title, _coverId] of _.zip(data._idArray, data.albumNameArray, data.coverPhotoIdArray)) {
 				let res = await Axios.get(`https://photoslibrary.googleapis.com/v1/mediaItems/${_coverId}`, {
-					headers: {
+					headers:  {
 						'Authorization': `Bearer ${accessToken}`,
 						'Content-type': 'application/json'
 					}
@@ -86,12 +81,9 @@ export default function HomeScreen(props) {
 	}
 	//delete album
 	async function deleteAlbum() {
-		await fetch(`http://${ipv4}:3000/album?_id=${status.toDel}`, {
+		const response = await fetch(`${auth.url}/album/${status.toDel}`, {
 			method: 'DELETE',
-			hesders: {
-				'Content-Type': 'application/json',
-				'X-Requested-With': 'com.rnexparea'
-			},
+			hesders: auth.headers 
 		})
 		let slicedAlbum = [...status.fastSource]
 		var result = slicedAlbum.findIndex((v, i) => {
