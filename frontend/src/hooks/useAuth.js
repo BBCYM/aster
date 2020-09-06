@@ -9,6 +9,7 @@ import { asyncErrorHandling } from '../utils/utils'
 import axios from 'axios'
 import _ from 'lodash'
 import Axios from 'axios'
+import { APP, NODE_ENV, API_URL, ACCESS_CODE} from '../../env.json'
 /**
  * initial state
  */
@@ -19,7 +20,12 @@ const initialState = {
 export function useAuth() {
 
 	const [state, dispatch] = React.useReducer(authReducer, initialState)
-
+	const url = `${API_URL[NODE_ENV]}`
+	const headers = {
+		'X-Requested-With':APP,
+		'Authorization':ACCESS_CODE,
+		'Content-Type': 'application/json'
+	}
 	const auth = React.useMemo(() => ({
 		configure: async (callback) => {
 			console.log('configure')
@@ -58,10 +64,8 @@ export function useAuth() {
 					dispatch([action(actionType.SET.USER, user), action(actionType.SET.SPLASH, false)])
 				} else {
 					console.log(ipv4)
-					let _isIndb = await axios.get(`http://${ipv4}:3000/?userid=${user.id}`, {
-						headers: {
-							'X-Requested-With': 'com.aster'
-						}
+					let _isIndb = await axios.get(`${url}/user/${user.id}`, {
+						headers: headers
 					})
 					if (!_.isEmpty(_isIndb.data)) {
 						dispatch([
@@ -86,23 +90,20 @@ export function useAuth() {
 				userInfo = await GoogleSignin.signIn()
 			}, () => {
 				AsyncStorage.multiSet([['GalleryLoaded', 'false'], ['AlbumLoaded', 'false']])
-				axios.post(`http://${ipv4}:3000`, {
+				axios.post(`${url}/auth/${userInfo.user.id}`, {
 					scopes: userInfo.scopes,
-					sub: userInfo.user.id,
 					serverAuthCode: userInfo.serverAuthCode
 				}, {
-						headers: {
-							'X-Requested-With': 'com.aster'
-						}
-					}).then((res) => {
-						console.log(res.data)
-						AsyncStorage.setItem('user', JSON.stringify(userInfo.user))
-						dispatch([
-							action(actionType.SET.USER, userInfo.user),
-							action(actionType.SET.isFreshing, res.data.isFreshing),
-							action(actionType.SET.isSync, res.data.isSync)
-						])
-					})
+					headers: headers
+				}).then((res) => {
+					console.log(res.data)
+					AsyncStorage.setItem('user', JSON.stringify(userInfo.user))
+					dispatch([
+						action(actionType.SET.USER, userInfo.user),
+						action(actionType.SET.isFreshing, res.data.isFreshing),
+						action(actionType.SET.isSync, res.data.isSync)
+					])
+				})
 			})
 		},
 		signOut: async () => {
@@ -118,24 +119,17 @@ export function useAuth() {
 			return (await GoogleSignin.getTokens()).accessToken
 		},
 		refresh: async () => {
-			// console.log(state.user.id)
 			let user = await AsyncStorage.getItem('user')
 			user = JSON.parse(user)
-			Axios.put(`http://${ipv4}:3000`, JSON.stringify({
-				sub: user.id
-			}), {
-					headers: {
-						'Content-Type': 'application/json',
-						'X-Requested-With': 'com.aster'
-					}
-				}).then((res) => {
-					console.log(res.data)
-					dispatch([
-						action(actionType.SET.isFreshing, res.data.isFreshing),
-						action(actionType.SET.isSync, res.data.isSync)
-					])
-				})
-
+			Axios.put(`${url}/user/${user.id}`, null, {
+				headers:headers
+			}).then((res) => {
+				console.log(res.data)
+				dispatch([
+					action(actionType.SET.isFreshing, res.data.isFreshing),
+					action(actionType.SET.isSync,res.data.isSync)
+				])
+			})
 		},
 		setIs: (isFreshing, isSync) => {
 			dispatch([
@@ -144,20 +138,18 @@ export function useAuth() {
 			])
 		},
 		checkisFreshing: async (callback) => {
-			// console.log(state.user.id)
 			let user = await AsyncStorage.getItem('user')
 			user = JSON.parse(user)
-			let _isIndb = await axios.get(`http://${ipv4}:3000/?userid=${user.id}`, {
-				headers: {
-					'X-Requested-With': 'com.aster'
-				}
+			let _isIndb = await axios.get(`${url}/user/${user.id}`, {
+				headers: headers
 			})
 			dispatch([
 				action(actionType.SET.isFreshing, _isIndb.data.isFreshing),
 				action(actionType.SET.isSync, _isIndb.data.isSync)
 			])
 			callback(_isIndb.data.isFreshing, _isIndb.data.isSync)
-		}
+		},
+		header: headers
 	}), [])
 	return { auth, state }
 }

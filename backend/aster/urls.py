@@ -15,32 +15,29 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from auth.views import AuthView
+from auth.views import AuthView, UserView
 from bot.views import BotView
-from home.views import HomeView
-from photo.views import PhotoView, EmotionView, TagView
-from personal.views import personalView
+
+from photo.views import PhotoView, EmotionView, TagView, PhotoListView
 from album.views import AlbumView, AlbumPDView, AlbumTagView, AlbumPhotoView
 
 
+
 photo_patterns = [
-    path('', PhotoView.as_view()),
-    path('<str:pk>', PhotoView.as_view()),
-    path('emotion', EmotionView.as_view()),
-    path('tag', TagView.as_view()),
+    path('<str:photoId>', PhotoView.as_view()),
+    path('emotion/<str:photoId>', EmotionView.as_view()),
+    path('tag/<str:photoId>', TagView.as_view()),
 ]
 
 urlpatterns = [
-    path('', AuthView.as_view()),
-    path('personal', personalView.as_view()),
-    path('bot', BotView.as_view()),
-    path('home', HomeView.as_view()),
-
+    # done
+    path('auth/<str:userId>', AuthView.as_view()),
+    path('user/<str:userId>', UserView.as_view()),
+    path('bot/<str:userId>', BotView.as_view()),
+    path('photos/<str:userId>', PhotoListView.as_view()),
     path('photo/', include(photo_patterns)),
-
     path('album/<str:userId>', AlbumView.as_view()),
     path('album/PD/<str:userId>', AlbumPDView.as_view()),
     path('album/tag/<str:albumId>', AlbumTagView.as_view()),
     path('album/photo/<str:albumId>', AlbumPhotoView.as_view()),
-
 ]

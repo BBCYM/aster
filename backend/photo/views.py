@@ -5,28 +5,34 @@ from datetime import datetime
 import json
 from mongoengine.queryset.visitor import Q
 from .models import Photo, Tag, Custom_tag
+from django.core.handlers.wsgi import WSGIRequest
 from .utils import getEmotionString, EmotionStringtoI
+from utils.utils import is_valid_objectId
+
+get_fields = ('photoId', 'location', 'isDeleted', 'createTime')
+class PhotoListView(APIView):
+    def get(self, request:WSGIRequest, userId:str=None):
+        if is_valid_objectId(userId):
+            want_deleted = json.loads(request.query_params.get('isDeleted', 'false'))
+            photo = Photo.objects(userId=userId,isDeleted=want_deleted).scalar(*get_fields)
+            photo = list(photo)
+            return Response({'photos':photo}, status=status.HTTP_200_OK)
+        else:
+            return Response({'message': 'No such user'},status=status.HTTP_400_BAD_REQUEST)
 
 
 class PhotoView(APIView):
-    def get(self, request, pk=None):
-        return_txt = ''
-        photo_id = pk
-        user_id = request.query_params['userId']
-        if photo_id:
+    def get(self, request, photoId=None):
+        if photoId:
             try:
-                photo = Photo.objects(userId=user_id,photoId__exact=photo_id).all_fields()
-                return_txt = {"result": 'GET/PhotoView',
-                            'photo_object': photo.to_json()}
-                return Response(return_txt, status=status.HTTP_200_OK)
+                photo = Photo.objects(photoId=photoId).scalar(*get_fields).get()
+                photo = dict(zip(get_fields, photo))
+                return Response(photo, status=status.HTTP_200_OK)
             except Exception as e:
-                print('PhotoViewError:', e)
-                return Response(e, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            want_deleted = json.loads(request.query_params.get('isDeleted', 'false'))
-            photo = Photo.objects(Q(userId=user_id) and Q(isDeleted=want_deleted)).scalar('photoId')
-            photo = list(photo)
-            return Response(photo, status=status.HTTP_200_OK)
+                print(e)
+                return Response('error', status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else: 
+            return Response({'message': 'No such photo'},status=status.HTTP_400_BAD_REQUEST)
     def post(self, request):
         """
         (測試用)
@@ -81,7 +87,7 @@ class PhotoView(APIView):
 
         return Response(simpleMessage('POST/PhotoView'), status=status.HTTP_201_CREATED)
 
-    def delete(self, request, pk=None):
+    def delete(self, request, photoId=None):
         """
         刪除照片
         把photoId的is_delete欄位改成true
@@ -92,40 +98,36 @@ class PhotoView(APIView):
         Returns:
             None
         """
-        photo_id = pk
-        # photo_id = request.data["photoId"]
-        if photo_id:
+        if photoId:
             try:
-                update_rows = Photo.objects(photoId__exact=photo_id).update(
-                    isDeleted=True)
-                print(f'Photo/View: PhotoView.delete, db:{update_rows} rows')
+                update_rows = Photo.objects(photoId=photoId).update(isDeleted=True)
+                return Response({},status=status.HTTP_200_OK)
             except Exception as e:
                 print(e)
-                return Response("PhotoViewError", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            return Response(simpleMessage('DELETE/PhotoView'), status=status.HTTP_200_OK)
+                return Response({'message':"PhotoViewError"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
-            return Response({}, status=status.HTTP_200_OK)
-
+            return Response({'message': 'No such photo'},status=status.HTTP_400_BAD_REQUEST)
 
 class EmotionView(APIView):
-    def get(self, request):
+    def get(self, request, photoId=None):
         """
         get emotion
         """
-        user_id = request.query_params.get('userId',None)
-        photo_id = request.query_params.get('photoId',None)
+        if photoId:
+            try:
+                temp = Photo.objects(photoId=photoId,isDeleted=False).scalar('tag').get()
+                k = EmotionStringtoI(temp.emotion_tag)
+                res = {'emotion':k}
+                return Response(res, status=status.HTTP_200_OK)
+            except Exception as e:
+                print(e)
+                return Response({'message':"EmotionViewError"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response({'message': 'No such photo'},status=status.HTTP_400_BAD_REQUEST)
 
-        try:
-            temp = Photo.objects(userId=user_id, photoId=photo_id)
-            print(f'Photo/View: EmotionView.post, db:{temp[0]} rows')
+        
 
-        except Exception as e:
-            print(e)
-            return Response("EmotionViewError", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        k = EmotionStringtoI(temp[0].tag.emotion_tag)
-        return Response(simpleMessage(str(k)), status=status.HTTP_200_OK)
-
-    def put(self, request):
+    def put(self, request, photoId=None):
         """
         單張照片顯示頁面，更改emotion時
         根據photoId去更改資料庫的emotion欄位
@@ -137,23 +139,23 @@ class EmotionView(APIView):
             None
 
         """
-        user_id = request.data["userId"]
-        photo_id = request.data['photoId']
         emotion_tag = request.data["emotion_tag"]
         eTag = getEmotionString(int(emotion_tag))
-        try:
-            update_rows = Photo.objects(photoId=photo_id,userId=user_id).update(
-                tag__emotion_tag=eTag)
-            print(f'Photo/View: EmotionView.put, db:{update_rows} rows')
-        except Exception as e:
-            print(e)
-            return Response("EmotionViewError", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        if photoId:
+            try:
+                update_rows = Photo.objects(photoId=photoId).update(tag__emotion_tag=eTag)
+                return Response({}, status=status.HTTP_200_OK)
+            except Exception as e:
+                print(e)
+                return Response({'message':"EmotionViewError"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response({'message': 'No such photo'},status=status.HTTP_400_BAD_REQUEST)
 
-        return Response(simpleMessage('PUT/EmotionView'), status=status.HTTP_200_OK)
+
 
 
 class TagView(APIView):
-    def get(self, request):
+    def get(self, request, photoId):
         """
         取得相片的custom_tag
         根據photoId去更改資料庫的emotion欄位
@@ -165,32 +167,22 @@ class TagView(APIView):
         Returns:
             該photo全部的custom_tag
         """
-        user_id = request.query_params.get('userId',None)
-        photo_id = request.query_params.get('photoId',None)
+        if photoId:
+            try:
+                photo = Photo.objects(photoId=photoId).get()
+                array_field = photo.tag.custom_tag
+                custom_tag_array = []
+                for single_tag in array_field:
+                    if single_tag.is_deleted == False:
+                        custom_tag_array.append(single_tag.tag)
+                return Response({"custom_tag": custom_tag_array}, status=status.HTTP_200_OK)
+            except Exception as e:
+                print(e)
+                return Response(simpleMessage("GetTagViewError"), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response({'message': 'No such photo'},status=status.HTTP_400_BAD_REQUEST)
 
-        try:
-            photo = Photo.objects(userId=user_id, photoId=photo_id).get()
-            print(photo)
-            array_field = photo.tag.custom_tag
-
-            if len(array_field) == 0:
-                return Response(False, status=status.HTTP_200_OK)
-
-            custom_tag_array = []
-            for single_tag in array_field:
-                if single_tag.is_deleted == False:
-                    custom_tag_array.append(single_tag.tag)
-            response_str = json.dumps({"result": "Get/TagView",
-                                   "custom_tag": custom_tag_array})
-        except Exception as e:
-            print(e)
-            return Response(simpleMessage("Get/TagView: error"), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        
-
-        return Response(response_str, status=status.HTTP_200_OK)
-
-    def put(self, request):
+    def put(self, request, photoId=None):
         """
         單張照片，編輯頁面，新增tag時
         根據photoId去新增照片的客製化tag
@@ -202,21 +194,19 @@ class TagView(APIView):
         Returns:
             更改過後的tag
         """
-        user_id = request.data['userId']
-        photo_id = request.data["photoId"]
-        custom_tag = request.data["customTag"]
-        tag = Custom_tag(tag=custom_tag)
-        try:
-            update_rows = Photo.objects(photoId__exact=photo_id).update(add_to_set__tag__custom_tag=tag)
-            print(f'Photo/View: TagView.put, db:{update_rows} rows')
+        if is_valid_objectId(photoId):
+            custom_tag = request.data["customTag"]
+            tag = Custom_tag(tag=custom_tag)
+            try:
+                update_rows = Photo.objects(photoId__exact=photoId).update(add_to_set__tag__custom_tag=tag)
+                return Response({}, status=status.HTTP_200_OK)
+            except Exception as e:
+                print('error: ', e)
+                return Response(simpleMessage("Put/TagViewError"), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response({'message': 'No such photo'},status=status.HTTP_400_BAD_REQUEST)
 
-        except Exception as e:
-            print('error: ', e)
-            return Response(simpleMessage("Put/TagView: error"), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        return Response(simpleMessage('Put/TagView'), status=status.HTTP_201_CREATED)
-
-    def delete(self, request):
+    def delete(self, request, photoId=None):
         """
         單張照片，編輯頁面，刪除tag
         根據photoId和custom_tag刪掉指定的custom_tag
@@ -229,36 +219,18 @@ class TagView(APIView):
             剩下的tag 
 
         """
-        user_id = request.query_params.get('userId',None)
-        photo_id = request.query_params.get("photoId",None)
-        custom_tag = request.query_params.get("custom_tag",None)
+        if photoId:
+            try:
+                custom_tag = request.query_params.get("custom_tag",None)
+                photo = Photo.objects(photoId=photoId, tag__custom_tag__match={'tag': custom_tag, 'is_deleted': False}).first()
+                for single_tag in photo.tag.custom_tag:
+                    if single_tag.tag == custom_tag:
+                        single_tag.is_deleted = True
+                photo.save()
+                return Response({}, status=status.HTTP_200_OK)
+            except Exception as e:
+                print(e)
+                return Response(simpleMessage("DELETE/TagView: error"), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response({'message': 'No such photo'},status=status.HTTP_400_BAD_REQUEST)
 
-        try:
-
-            # photo = Photo.objects().update({'photoId': '1'}, {'$set': {'tag.custom_tag.$[element].tag': 'bobo'}}, {
-            #     'arrayFilters': [{'element.tag': 'custom3'}], 'upsert': True})
-            # custom_tag_list = Photo.objects(photoId=photo_id).get().tag.custom_tag
-            photo = Photo.objects(
-                userId=user_id,photoId=photo_id, tag__custom_tag__match={'tag': custom_tag, 'is_deleted': False}).first()
-            # print(photo.to_json())
-
-            for single_tag in photo.tag.custom_tag:
-
-                if single_tag.tag == custom_tag:
-                    print('same')
-                    single_tag.is_deleted = True
-            # print(photo.to_json())
-            photo.save()
-            # 終於成估了
-            # custom_tag_array = photo.tag["custom_tag"]
-
-            # for cus_tag_db in custom_tag_array:
-            #     if cus_tag_db["tag"] == custom_tag:
-            #         cus_tag_db["is_deleted"] = True
-
-            # photo.save()
-        except Exception as e:
-            print(e)
-            return Response(simpleMessage("DELETE/TagView: error"), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        return Response(simpleMessage('DELETE/TagView'), status=status.HTTP_201_CREATED)
