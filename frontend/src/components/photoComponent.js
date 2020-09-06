@@ -13,7 +13,7 @@ import _ from 'lodash'
 import { resToEmotionStatus, asyncErrorHandling } from '../utils/utils'
 
 
-export function TagList([status, setStatus], state, auth) {
+export function TagList([status, setStatus], auth) {
 	function deleteTag(id, text) {
 		Axios.delete(`${auth.url}/photo/tag/${status.currentPhotoId}`, {
 			params: {

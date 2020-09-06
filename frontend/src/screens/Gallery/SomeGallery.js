@@ -232,7 +232,7 @@ export default function SomeGalleryScreen(props) {
 										containerStyle={{ padding: 5 }}
 									/>
 								</View>
-								{TagList([status, setStatus], state, auth)}
+								{TagList([status, setStatus], auth)}
 							</View>
 						</Overlay>
 						<Overlay isVisible={status.isEmotionModalVisi}
