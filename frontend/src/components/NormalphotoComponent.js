@@ -12,7 +12,7 @@ import Axios from 'axios'
 import { ipv4 } from '../utils/dev'
 import _ from 'lodash'
 import { resToEmotionStatus, asyncErrorHandling } from '../utils/utils'
-
+// import { FloatingAction } from 'react-native-floating-action'
 
 export function TagList([status, setStatus], state) {
 	function deleteTag(id, text) {
@@ -112,11 +112,9 @@ export function photoFooter(that, [status, setStatus], currentIndex, state) {
 		asyncErrorHandling(async () => {
 			setStatus({ actionBtnVisi: true })
 			const now = status.fastSource[currentIndex]
-			console.log(now.imgId)
-			let res = await Axios.get(`http://${ipv4}:3000/photo`, {
+			let res = await Axios.get(`http://${ipv4}:3000/photo/${now.imgId}`, {
 				params: {
 					userId: state.user.id,
-					photoId: now.imgId
 				}
 			})
 			let pObject = JSON.parse(res.data.photo_object)
@@ -128,10 +126,50 @@ export function photoFooter(that, [status, setStatus], currentIndex, state) {
 			setStatus({ actionBtnVisi: true })
 		})
 	}
+	// function actions() {
+	// 	var [
+	// 		color,
+	// 		buttonSize,
+	// 		margin,
+	// 	] = [
+	// 		'#63CCC8',
+	// 		55,
+	// 		0
+	// 	]
+		
+	// 	return [
+	// 		{
+	// 			text: 'Emotion',
+	// 			icon: <Ionicons name="happy-outline" style={styles.actionButtonIcon} />,
+	// 			name: 'Emotion',
+	// 			position: 2,
+	// 			margin,
+	// 			color,
+	// 			buttonSize,
+	// 		},
+	// 		{
+	// 			text: 'Tags',
+	// 			icon: <Ionicons name="pricetags-outline" style={styles.actionButtonIcon} />,
+	// 			name: 'Tags',
+	// 			position: 1,
+	// 			color,
+	// 			buttonSize,
+	// 			margin,
+	// 		}
+	// 	]
+	// }
 	return (
 		<View style={styles.root}>
 			{
 				!status.isMoving ? (
+					// <FloatingAction
+					// 	actions={actions()}
+					// 	color='#63CCC8'
+					// 	distanceToEdge={20}
+					// 	overlayColor='transparent'
+					// 	actionsPaddingTopBottom={2}
+					// 	shadow={{ shadowOpacity: 0.9, shadowOffset: { width: 100, height: 100 }, shadowColor: '#F5B19C', shadowRadius: 10 }}
+					// />
 					<ActionButton
 						buttonColor="rgba(231,76,60,1)"
 						position='right'

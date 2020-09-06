@@ -33,13 +33,15 @@ def checkisSync(session,userId):
             return False
     return True
 
+
 def fetchNewImage(session, userId, q):
     nPT = ''
     params = {'pageSize': 12}
     while True:
         if nPT:
             params['nextPageToken'] = nPT
-        photoRes = session.get('https://photoslibrary.googleapis.com/v1/mediaItems', params=params).json()
+        photoRes = session.get(
+            'https://photoslibrary.googleapis.com/v1/mediaItems', params=params).json()
         mediaItems = photoRes['mediaItems']
         print(f'Fetching {len(mediaItems)} pics')
         for mediaItem in mediaItems:
@@ -71,8 +73,11 @@ def fetchNewImage(session, userId, q):
 
 def afterAll(userId, q, thread):
     # wait all task done
+    tic = time.perf_counter()
     thread.join()
     q.join()
+    toc = time.perf_counter()
+    print(f"Total process {toc - tic:0.4f} seconds")
     # delete images
     shutil.rmtree(userId)
     print('process done')
@@ -81,7 +86,7 @@ def afterAll(userId, q, thread):
         set__isSync=True,
         set__isFreshing=False,
         set__lastSync=make_aware(datetime.datetime.utcnow(),
-                            timezone=pytz.timezone(settings.TIME_ZONE))
+                                 timezone=pytz.timezone(settings.TIME_ZONE))
     )
     print('User isSync, not freshing')
 
@@ -98,7 +103,10 @@ def toVisionApiLabel(userId, q):
         with open(f'{userId}/{filename}', 'rb') as f:
             content = f.read()
         image = types.Image(content=content)
+        tic = time.perf_counter()
         res = client.label_detection(image=image)
+        toc = time.perf_counter()
+        print(f"API process {toc - tic:0.4f} seconds")
         labels = res.label_annotations
         sliceTime = mediaItem['mediaMetadata']['creationTime'].split('Z')[0]
         if '.' in mediaItem['mediaMetadata']['creationTime']:
@@ -133,6 +141,7 @@ def toVisionApiLabel(userId, q):
                                 res.error.message))
 
 
+
 def downloadImage(session, userId, q):
     User.objects(userId=userId).update(set__isFreshing=True)
     nPT = ''
@@ -165,6 +174,7 @@ def downloadImage(session, userId, q):
             break
         else:
             nPT = photoRes['nextPageToken']
+
 
 def checkUserToSession(data, req):
 

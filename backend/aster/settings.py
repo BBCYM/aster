@@ -20,7 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '38y656m+708c3h@j#amj#)h7+d*&ib^6hrt5&zyu))g&v6qjp$'
+SECRET_KEY = os.getenv('SERVER_SECRET')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -34,12 +34,10 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_mongoengine',
     'auth',
-    'personal',
     'bot',
-    'home',
     'photo',
     'album',
-    'ontology'
+    'ontology',
 ]
 
 MIDDLEWARE = [
@@ -47,6 +45,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'auth.helmet.AsterMiddleware',
 ]
 
 ROOT_URLCONF = 'aster.urls'

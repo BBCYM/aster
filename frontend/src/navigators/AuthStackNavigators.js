@@ -1,7 +1,6 @@
 import * as React from 'react'
 import { createStackNavigator } from '@react-navigation/stack'
 import { SigninScreen } from '../screens/Auth/Signin'
-import { AuthContext } from '../contexts/AuthContext'
 const AuthStack = createStackNavigator()
 export function AuthStackNavigator() {
 	return (
@@ -12,9 +11,7 @@ export function AuthStackNavigator() {
 				animationEnabled: true
 			}}
 		>
-			{
-				<AuthStack.Screen name='Signin' component={SigninScreen} />
-			}
+			<AuthStack.Screen name='Signin' component={SigninScreen} />
 		</AuthStack.Navigator>
 	)
 }
