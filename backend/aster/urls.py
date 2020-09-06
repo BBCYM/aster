@@ -20,7 +20,7 @@ from bot.views import BotView
 from home.views import HomeView
 from photo.views import PhotoView, EmotionView, TagView
 from personal.views import personalView
-from album.views import AlbumView, AlbumTagView, AlbumPhotoView
+from album.views import AlbumView, AlbumPDView, AlbumTagView, AlbumPhotoView
 
 
 photo_patterns = [
@@ -38,8 +38,9 @@ urlpatterns = [
 
     path('photo/', include(photo_patterns)),
 
-    path('album', AlbumView.as_view()),
-    path('album/tag', AlbumTagView.as_view()),
-    path('album/photo', AlbumPhotoView.as_view()),
+    path('album/<str:userId>', AlbumView.as_view()),
+    path('album/PD/<str:userId>', AlbumPDView.as_view()),
+    path('album/tag/<str:albumId>', AlbumTagView.as_view()),
+    path('album/photo/<str:albumId>', AlbumPhotoView.as_view()),
 
 ]
