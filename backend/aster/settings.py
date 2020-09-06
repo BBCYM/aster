@@ -15,7 +15,6 @@ import mongoengine
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
@@ -45,6 +44,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'requestlogs.middleware.RequestLogsMiddleware',
     'auth.helmet.AsterMiddleware',
 ]
 
@@ -104,5 +104,33 @@ REST_FRAMEWORK = {
     # only render json
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
-    ]
+    ],
+    'EXCEPTION_HANDLER': 'requestlogs.views.exception_handler',
+}
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'requestlogs_to_file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR + '/log/requestlogs.log',
+        },
+    },
+    'loggers': {
+        'requestlogs': {
+            'handlers': ['requestlogs_to_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}
+REQUESTLOGS = {
+    'STORAGE_CLASS': 'requestlogs.storages.LoggingStorage',
+    'ENTRY_CLASS': 'requestlogs.entries.RequestLogEntry',
+    'SERIALIZER_CLASS': 'requestlogs.storages.BaseEntrySerializer',
+    'SECRETS': ['password', 'token'],
+    'ATTRIBUTE_NAME': '_requestlog',
+    'METHODS': ('GET', 'PUT', 'PATCH', 'POST', 'DELETE'),
 }

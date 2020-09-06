@@ -12,9 +12,9 @@ from utils.utils import is_valid_objectId
 get_fields = ('photoId', 'location', 'isDeleted', 'createTime')
 class PhotoListView(APIView):
     def get(self, request:WSGIRequest, userId:str=None):
-        if is_valid_objectId(userId):
+        if userId:
             want_deleted = json.loads(request.query_params.get('isDeleted', 'false'))
-            photo = Photo.objects(userId=userId,isDeleted=want_deleted).scalar(*get_fields)
+            photo = Photo.objects(Q(userId=userId) & Q(isDeleted=want_deleted)).scalar(*get_fields)
             photo = list(photo)
             return Response({'photos':photo}, status=status.HTTP_200_OK)
         else:
@@ -194,7 +194,7 @@ class TagView(APIView):
         Returns:
             更改過後的tag
         """
-        if is_valid_objectId(photoId):
+        if photoId:
             custom_tag = request.data["customTag"]
             tag = Custom_tag(tag=custom_tag)
             try:
