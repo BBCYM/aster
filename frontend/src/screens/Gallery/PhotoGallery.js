@@ -57,13 +57,13 @@ export default function GalleryScreen(that) {
 	}
 
 	async function fetchImageSource(callback) {
-		let temp = await Axios.get(`${auth.url}/photos${state.user.id}`, {
+		let temp = await Axios.get(`${auth.url}/photos/${state.user.id}`, {
 			params: {
 				isDeleted:true
 			},
 			headers:auth.headers
 		})
-		let deletedPid = temp.map((v)=>{return v[0]})
+		let deletedPid = temp.data['photos'].map((v)=>{return v[0]})
 		const isLoaded = await AsyncStorage.getItem('GalleryLoaded')
 		if (isLoaded === 'false') {
 			console.log('Loading photo')
@@ -91,7 +91,7 @@ export default function GalleryScreen(that) {
 					let fSource = status.fastSource
 					let mSource = status.modalSource
 					for (const item of mediaItems) {
-						if (deletedPid.data.includes(item['id'])){
+						if (deletedPid.includes(item['id'])){
 							continue
 						}
 						var width = 400

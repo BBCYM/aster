@@ -74,14 +74,14 @@ export default function RoomScreen({navigation}) {
 		console.log('userid',user.id);
 		
 		//從後端拿到response
-		const response = await fetch(`${auth.url}/bot`, {
+		const response = await fetch(`${auth.url}/bot/${user.id}`, {
 			method: 'POST',
 			headers: auth.headers,
 			body: JSON.stringify({
 				usermsg: newMessage[0].text,
-				userid: user.id,
 			}),
 		});
+		console.log(response)
 		var data = await response.json();
 		var message = JSON.parse(data);
 		var json_message = JSON.parse(message.dialog);

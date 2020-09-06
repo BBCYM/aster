@@ -131,4 +131,5 @@ client_secret.json
 Anster-4bf921cd3b7b.json
 anster-1593361678608.json
 *.env
+*.log
 # End of https://www.gitignore.io/api/django,visualstudiocode

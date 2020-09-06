@@ -176,11 +176,8 @@ def downloadImage(session, userId, q):
             nPT = photoRes['nextPageToken']
 
 
-def checkUserToSession(data, req):
+def checkUserToSession(userId, req):
 
-    if not req.headers.get('X-Requested-With') or req.headers.get('X-Requested-With') != 'com.aster':
-        print('X-R-not-pass')
-        return Response('CSRF', status=status.HTTP_403_FORBIDDEN)
     with open('client_secret.json', 'r', encoding='utf-8') as f:
         appSecret = json.load(f).get('web')
     CLIENT_ID, CLIENT_SECRET, TOKEN_URI = itemgetter(
@@ -189,32 +186,32 @@ def checkUserToSession(data, req):
         'token_uri'
     )(appSecret)
     print('Hello')
-    user = User.objects(userId=data['sub'])
+    user = User.objects(userId=userId)
     access_token = ''
     if not user:
         oauth = OAuth2Session(
             client_id=CLIENT_ID,
             client_secret=CLIENT_SECRET,
-            scope=data['scopes']
+            scope=req.data['scopes']
         )
         token = oauth.fetch_token(
             url=TOKEN_URI,
             grant_type="authorization_code",
-            code=data['serverAuthCode'],
+            code=req.data['serverAuthCode'],
             redirect_url='http://localhost:3000/auth/callabck'
         )
         print('Hello')
         print(token)
         access_token = token['access_token']
         newUser = User(
-            userId=data['sub'],
+            userId=userId,
             expiresAt=datetime.datetime.utcnow() + datetime.timedelta(0,
                                                                       token['expires_in']),
             refreshToken=token['refresh_token']
         )
         newUser.save()
         print('new user created')
-        user = User.objects(userId=data['sub'])
+        user = User.objects(userId=userId)
         print('create new user')
     # userData = user.values()[0]
     userData = user.get()

@@ -13,12 +13,10 @@ import json
 class UserView(APIView):
     def get(self, request:WSGIRequest, userId:str=None):
         # check if database has user
-        temp = request.query_params.get('userid', None)
-        user = User.objects(userId=temp)
+        user = User.objects(userId=userId)
         if user:
             userData = user.get()
-            data = {'sub': userData.userId}
-            userSession, _ = checkUserToSession(data, request)
+            userSession, _ = checkUserToSession(userId, request)
             isSyncState = checkisSync(userSession, userData.userId)
             user.update(set__isSync=isSyncState)
             r = {'isSync': isSyncState, 'isFreshing': userData.isFreshing}
@@ -28,10 +26,9 @@ class UserView(APIView):
         
     def put(self, request:WSGIRequest, userId:str=None):
         q = queue.Queue()
-        data = request.data
-        u = User.objects(userId=data['sub']).get()
+        u = User.objects(userId=userId).get()
         if not u.isSync:
-            userSession, user = checkUserToSession(data, request)
+            userSession, user = checkUserToSession(userId, request)
             t = threading.Thread(
                 name='update-image', target=fetchNewImage, args=(userSession, user['userId'], q))
             t.setDaemon(True)
@@ -52,9 +49,7 @@ class AuthView(APIView):
 
     def post(self, request:WSGIRequest, userId:str=None):
         # first time checkin
-        data = request.data
-
-        userSession, user = checkUserToSession(data, request)
+        userSession, user = checkUserToSession(userId, request)
 
         print('Checking Sync')
 

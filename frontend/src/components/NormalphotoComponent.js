@@ -71,7 +71,7 @@ export function photoFooter(that, [status, setStatus], currentIndex, state, auth
 		Axios.get(`${auth.url}/photo/tag/${now.imgId}`, {
 			headers:auth.headers
 		}).then((res) => {
-			let data = JSON.parse(res.data)
+			let data = res.data
 			if (data.custom_tag) {
 				let len = data.custom_tag.length
 				setStatus({ tag: data.custom_tag.map((v, i) => ({ key: len - i - 1, text: v })) })
@@ -91,8 +91,8 @@ export function photoFooter(that, [status, setStatus], currentIndex, state, auth
 		Axios.get(`${auth.url}/photo/emotion/${now.imgId}`, {
 			headers:auth.headers
 		}).then((res) => {
-			let data = JSON.parse(res.data)
-			let emotionState = resToEmotionStatus(status.emotionStatus, data.message)
+			let data = res.data
+			let emotionState = resToEmotionStatus(status.emotionStatus, data.emotion)
 			setStatus({ emotionStatus: emotionState })
 		}).then(() => {
 			setStatus({ isEmotionModalVisi: true, actionBtnVisi: false })
@@ -107,7 +107,7 @@ export function photoFooter(that, [status, setStatus], currentIndex, state, auth
 			let res = await Axios.get(`${auth.url}/photo/${now.imgId}`, {
 				headers:auth.headers
 			})
-			let pObject = JSON.parse(res.data)
+			let pObject = res.data
 			if (_.isEmpty(pObject)) {
 				setStatus({ isBug: true })
 				throw Error('Not in server, need Refresh')

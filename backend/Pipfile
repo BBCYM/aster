@@ -22,6 +22,7 @@ mongoengine = "*"
 blinker = "*"
 pandas = "*"
 owlready2 = "*"
+django-requestlogs = "*"
 
 [requires]
 python_version = "3.7"
