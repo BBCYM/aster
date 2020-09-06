@@ -15,25 +15,12 @@ from datetime import datetime
 from datetime import timedelta
 
 class BotView(views.APIView):
-    # global uri
-    # http get method
-    def get(self,request):
-        
-        if response.error.message:
-            raise Exception(
-                '{}\nFor more info on error messages, check: '
-                    'https://cloud.google.com/apis/design/errors'.format(
-                     response.error.message))
-            return response
-
-        return response
-
     # http post method
-    def post(self,request):
+    def post(self, request, userId:str=None):
         data = request.data['usermsg']
         # print('這是request=',request)
         # print('這是data=',data)
-        userid = request.data['userid']
+        userid = userId
         # print('userid',userid)
 
 
@@ -215,6 +202,6 @@ class BotView(views.APIView):
         # print('res:',res)
         res = json.dumps(res)
  
-        return response.Response(res)
+        return response.Response(res,status=status.HTTP_200_OK)
     
 
