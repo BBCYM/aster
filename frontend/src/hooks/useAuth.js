@@ -4,11 +4,9 @@ import { web } from '../../android/app/google-services.json'
 import AsyncStorage from '@react-native-community/async-storage'
 import { action, actionType } from '../utils/action'
 import { authReducer } from './authReducer'
-import { ipv4, dev } from '../utils/dev'
 import { asyncErrorHandling } from '../utils/utils'
 import axios from 'axios'
 import _ from 'lodash'
-import Axios from 'axios'
 import { APP, NODE_ENV, API_URL, ACCESS_CODE} from '../../env.json'
 /**
  * initial state
@@ -60,10 +58,9 @@ export function useAuth() {
 			if (user) {
 				console.log(user)
 				AsyncStorage.multiSet([['GalleryLoaded', 'false'], ['AlbumLoaded', 'false']])
-				if (dev) {
+				if (NODE_ENV==='development') {
 					dispatch([action(actionType.SET.USER, user), action(actionType.SET.SPLASH, false)])
 				} else {
-					console.log(ipv4)
 					let _isIndb = await axios.get(`${url}/user/${user.id}`, {
 						headers: headers
 					})
@@ -121,7 +118,7 @@ export function useAuth() {
 		refresh: async () => {
 			let user = await AsyncStorage.getItem('user')
 			user = JSON.parse(user)
-			Axios.put(`${url}/user/${user.id}`, null, {
+			axios.put(`${url}/user/${user.id}`, null, {
 				headers:headers
 			}).then((res) => {
 				console.log(res.data)
@@ -150,7 +147,8 @@ export function useAuth() {
 			])
 			callback(_isIndb.data.isFreshing, _isIndb.data.isSync)
 		},
-		header: headers
+		headers: headers,
+		url:url
 	}), [])
 	return { auth, state }
 }

@@ -2,7 +2,6 @@ import * as React from 'react'
 import { AuthContext } from '../../contexts/AuthContext'
 import { StyleSheet, Text, View, Image, TouchableOpacity, ActivityIndicator } from 'react-native'
 import Ionicons from 'react-native-vector-icons/Ionicons'
-import { ipv4 } from '../../utils/dev'
 
 
 

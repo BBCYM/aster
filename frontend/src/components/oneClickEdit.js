@@ -12,9 +12,8 @@ import Modal from 'react-native-modalbox'
 import { SwipeListView } from 'react-native-swipe-list-view'
 import Axios from 'axios'
 import _ from 'lodash'
-import { ipv4 } from '../utils/dev'
 import { ErrorHandling } from '../utils/utils'
-export function AlbumModal([status, setStatus], state, props) {
+export function AlbumModal([status, setStatus], state, props, auth) {
 	function editAlbum() {
 		let albumName = status.aName
 		let albumId = status.currentAlbumId
@@ -26,33 +25,24 @@ export function AlbumModal([status, setStatus], state, props) {
 			}
 		}, () => {
 			for (const nt of newTags){
-				Axios.post(`http://${ipv4}:3000/album/tag`, JSON.stringify({
-					_id: albumId,
+				Axios.post(`${auth.url}/album/tag/${albumId}`, JSON.stringify({
 					albumTag: nt,
 				}), {
-					headers: {
-						'Content-Type': 'application/json'
-					}
+					headers: auth.headers
 				})
 			}
 			for (const dt of deleteTags) {
-				Axios.delete(`http://${ipv4}:3000/album/tag`, {
-					headers: {
-						'Content-Type': 'application/json'
-					},
+				Axios.delete(`${auth.url}/album/tag/${albumId}`, {
+					headers: auth.headers,
 					params:{
-						_id: albumId,
 						albumTag: dt,
 					}
 				})
 			}
-			Axios.put(`http://${ipv4}:3000/album`, JSON.stringify({
-				_id: status.currentAlbumId,
+			Axios.put(`${auth.url}/album/PD/${status.currentAlbumId}`, JSON.stringify({
 				albumName: albumName,
 			}), {
-				headers: {
-					'Content-Type': 'application/json'
-				}
+				headers: auth.headers
 			}).then((res) => {
 				props.navigation.navigate('Home')
 			}).catch((err) => {
