@@ -2,7 +2,7 @@ from django.core.handlers.wsgi import WSGIRequest
 from rest_framework.response import Response
 from rest_framework import status
 from .utils import get_class_that_defined_method
-from django.http import HttpResponseNotAllowed, HttpResponseForbidden
+from django.http import HttpResponseForbidden
 import os
 import base64
 import hashlib
@@ -13,7 +13,7 @@ class AsterMiddleware:
         self.get_response = get_response
         self.app = os.getenv('APP')
         self.access_code = os.getenv('ACCESS_CODE')
-
+        self.channel_secret = os.getenv('LINE_CHANNEL_SECRET')
     
     def __call__(self, request:WSGIRequest):
         # Code to be executed for each request before
@@ -28,8 +28,8 @@ class AsterMiddleware:
         Authorization = request.headers.get('Authorization',None)
         LineSignature = request.headers.get('X-Line-Signature', None)
         if LineSignature:
-            channel_secret = os.getenv('LINE_CHANNEL_SECRET')
-            hashval = hmac.new(channel_secret.encode('utf-8'),str(request.body).encode('utf-8'), hashlib.sha256).digest()
+            
+            hashval = hmac.new(self.channel_secret.encode('utf-8'),str(request.body).encode('utf-8'), hashlib.sha256).digest()
             signature = base64.b64encode(hashval)
             if LineSignature != signature:
                 return ResWith401(request, view_func)
