@@ -8,6 +8,7 @@ from google.api_core.exceptions import InvalidArgument
 from google.protobuf.json_format import MessageToJson
 from photo.models import Photo
 from album.models import Album
+# from bot.views import get_res
 from mongoengine.queryset.visitor import Q
 from datetime import datetime
 from datetime import timedelta
@@ -77,8 +78,8 @@ def get_res(text):
 
 def get_reply(res):  
     reply_arr = []
-    reply_arr.append(TextSendMessage(text="please try something else"))
-    reply_arr.append(TextSendMessage(text="want reset?"))
+    reply_arr.append(TextSendMessage(text="無結果，請嘗試搜尋其他照片或顯示目前結果。"))
+    reply_arr.append(TextSendMessage(text="或選擇重新開始搜尋"))
     mes = res.query_result.fulfillment_messages
 
     if len(mes) is not 0:
