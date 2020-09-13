@@ -180,6 +180,12 @@
             "index": "pypi",
             "version": "==3.11.1"
         },
+        "future": {
+            "hashes": [
+                "sha256:b1bead90b70cf6ec3f0710ae53a525360fa360d306a86583adc6bf83a4db537d"
+            ],
+            "version": "==0.18.2"
+        },
         "google": {
             "hashes": [
                 "sha256:143530122ee5130509ad5e989f0512f7cb218b2d4eddbafbad40fd10e8d8ccbe",
@@ -327,6 +333,14 @@
                 "sha256:b97d804b1e9b523befed77c48dacec60e6dcb0b5391d57af6a65a312a90648c0"
             ],
             "version": "==2.10"
+        },
+        "line-bot-sdk": {
+            "hashes": [
+                "sha256:3f665300d38e66c06446095e529dcb3415cd448d17ecadd8535428c79ca0a912",
+                "sha256:5779bdcd807137ab31e03a448d2639b21e3b372ceb6e6ed3d6cc7257e952b7f0"
+            ],
+            "index": "pypi",
+            "version": "==1.16.0"
         },
         "mongoengine": {
             "hashes": [
