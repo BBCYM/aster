@@ -27,16 +27,16 @@ class AsterMiddleware:
         XRequestedWith = request.headers.get('X-Requested-With',None)
         Authorization = request.headers.get('Authorization',None)
         LineSignature = request.headers.get('X-Line-Signature', None)
-        if LineSignature:
-            if view_func.__name__ != "callback":
-                return ResWith401(request, view_func)
+        if LineSignature and view_func.__name__ == "callback":
+            return None
         #     hashval = hmac.new(self.channel_secret.encode('utf-8'),str(request.body).encode('utf-8'), hashlib.sha256).digest()
         #     signature = base64.b64encode(hashval)
         #     if LineSignature != signature:
         #         return ResWith401(request, view_func)
         if XRequestedWith != self.app or Authorization != self.access_code:
             return ResWith401(request, view_func)
-        return None
+        else:
+            return None
 
 def ResWith401(request, view_func=None):
     res = HttpResponseForbidden('Reuqest not authorized.')
