@@ -78,8 +78,26 @@ def get_res(text):
 
 def get_reply(res):  
     reply_arr = []
-    reply_arr.append(TextSendMessage(text="無結果，請嘗試搜尋其他照片或顯示目前結果。"))
-    reply_arr.append(TextSendMessage(text="或選擇重新開始搜尋"))
+    reply_arr.append(TextSendMessage(text="無結果，請嘗試搜尋其他照片"))
+    # reply_arr.append(TextSendMessage(text="或選擇顯示目前結果"))
+    # reply_arr.append(TextSendMessage(text="或選擇重新開始搜尋"))
+    reply_arr.append(TemplateSendMessage(
+                            alt_text='Buttons template',
+                            template=ButtonsTemplate(
+                                title='嗨',
+                                text='請選擇接下來的動作',
+                                actions=[
+                                    MessageTemplateAction(
+                                        label='顯示目前結果',
+                                        text='顯示目前結果'
+                                    ),
+                                    MessageTemplateAction(
+                                        label='重新開始搜尋',
+                                        text='重新開始搜尋'
+                                    )
+                                ]
+                            )
+                        ))
     mes = res.query_result.fulfillment_messages
 
     if len(mes) is not 0:
@@ -88,6 +106,23 @@ def get_reply(res):
             # print("ress:",i.text.text[0])
             reply_arr.append(TextSendMessage(text=i.text.text[0]))
 
+        reply_arr.append(TemplateSendMessage(
+                            alt_text='Buttons template',
+                            template=ButtonsTemplate(
+                                title='嗨',
+                                text='請選擇接下來的動作',
+                                actions=[
+                                    MessageTemplateAction(
+                                        label='顯示結果',
+                                        text='顯示結果'
+                                    ),
+                                    MessageTemplateAction(
+                                        label='重新開始搜尋',
+                                        text='重新開始搜尋'
+                                    )
+                                ]
+                            )
+                        ))
     return reply_arr
 
 def get_url(res):
