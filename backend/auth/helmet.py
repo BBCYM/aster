@@ -19,11 +19,8 @@ class AsterMiddleware:
         return response
     
     def process_view(self, request:WSGIRequest, view_func, view_args, view_kwargs):
-        print('process_view is here')
         XRequestedWith = request.headers.get('X-Requested-With',None)
         Authorization = request.headers.get('Authorization',None)
-        print(XRequestedWith)
-        print(Authorization)
         if XRequestedWith != self.app or Authorization != self.access_code:
             res = Response('Reuqest not authorized.', status=status.HTTP_401_UNAUTHORIZED)
             if not getattr(request, 'accepted_renderer', None):
