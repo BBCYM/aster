@@ -30,11 +30,11 @@ class AsterMiddleware:
             hashval = hmac.new(channel_secret.encode('utf-8'),request.body.encode('utf-8'), hashlib.sha256).digest()
             signature = base64.b64encode(hashval)
             if LineSignature != signature:
-                return Reswith404(request, view_func)
+                return ResWith401(request, view_func)
         elif XRequestedWith != self.app or Authorization != self.access_code:
-            return Reswith404(request, view_func)
+            return ResWith401(request, view_func)
         return None
-def Reswith404(request, view_func):
+def ResWith401(request, view_func):
     res = Response('Reuqest not authorized.', status=status.HTTP_401_UNAUTHORIZED)
     if not getattr(request, 'accepted_renderer', None):
         viewclass = get_class_that_defined_method(view_func)
