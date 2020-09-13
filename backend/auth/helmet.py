@@ -30,18 +30,18 @@ class AsterMiddleware:
             hashval = hmac.new(channel_secret.encode('utf-8'),request.body.encode('utf-8'), hashlib.sha256).digest()
             signature = base64.b64encode(hashval)
             if LineSignature != signature:
-                return self.Reswith404(request, view_func)
+                return ResWith401(request, view_func)
         elif XRequestedWith != self.app or Authorization != self.access_code:
-            return self.Reswith404(request, view_func)
+            return ResWith401(request, view_func)
         return None
-    def Reswith404(self, request, view_func):
-        res = Response('Reuqest not authorized.', status=status.HTTP_401_UNAUTHORIZED)
-        if not getattr(request, 'accepted_renderer', None):
-            viewclass = get_class_that_defined_method(view_func)
-            neg = viewclass().perform_content_negotiation(request, force=True)
-            request.accepted_renderer, request.accepted_media_type = neg
-            res.accepted_renderer = request.accepted_renderer
-            res.accepted_media_type = request.accepted_media_type
-            res.renderer_context = viewclass().get_renderer_context()
-        return res
+def ResWith401(request, view_func):
+    res = Response('Reuqest not authorized.', status=status.HTTP_401_UNAUTHORIZED)
+    if not getattr(request, 'accepted_renderer', None):
+        viewclass = get_class_that_defined_method(view_func)
+        neg = viewclass().perform_content_negotiation(request, force=True)
+        request.accepted_renderer, request.accepted_media_type = neg
+        res.accepted_renderer = request.accepted_renderer
+        res.accepted_media_type = request.accepted_media_type
+        res.renderer_context = viewclass().get_renderer_context()
+    return res
 
