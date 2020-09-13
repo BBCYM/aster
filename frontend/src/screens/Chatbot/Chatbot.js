@@ -13,7 +13,7 @@ export default function RoomScreen({navigation}) {
 		// example of chat message
 		{
 			_id: 1,
-			text: 'What do you want?',
+			text: '請問你想甚麼樣的照片?',
 			createdAt: new Date().getTime(),
 			user: {
 				_id: 0,
@@ -23,7 +23,7 @@ export default function RoomScreen({navigation}) {
 		},
 		{
 			_id: 2,
-			text: 'Hello!',
+			text: '你好~ 我是Aster',
 			createdAt: new Date().getTime(),
 			user: {
 				_id: 0,
@@ -208,7 +208,7 @@ export default function RoomScreen({navigation}) {
 			placeholder="Type here ..."
 			parsePatterns={linkStyle => [
 				{
-					pattern: /want result/,
+					pattern: /請問要顯示結果了嗎？/,
 					style: { color: "white", textDecorationLine: "underline" },
 					onPress: (tag) => {
 						navigation.navigate('SomeGallery',{
@@ -218,7 +218,7 @@ export default function RoomScreen({navigation}) {
 					},
 				},
 				{
-					pattern: /reset/,
+					pattern: /重新開始搜尋？/,
 					style: { color: "white", textDecorationLine: "underline" },
 					onPress: (tag) => {
 						reset()
