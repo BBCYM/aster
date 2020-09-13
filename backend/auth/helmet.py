@@ -27,7 +27,7 @@ class AsterMiddleware:
         LineSignature = request.headers.get('X-Line-Signature', None)
         if LineSignature:
             channel_secret = os.getenv('LINE_CHANNEL_SECRET')
-            hashval = hmac.new(channel_secret.encode('utf-8'),request.body.encode('utf-8'), hashlib.sha256).digest()
+            hashval = hmac.new(channel_secret.encode('utf-8'),str(request.body).encode('utf-8'), hashlib.sha256).digest()
             signature = base64.b64encode(hashval)
             if LineSignature != signature:
                 return ResWith401(request, view_func)
