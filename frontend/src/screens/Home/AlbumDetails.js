@@ -20,7 +20,6 @@ import Ionicons from 'react-native-vector-icons/Ionicons'
 import Axios from 'axios'
 import { AuthContext } from '../../contexts/AuthContext'
 import { checkEmotion, asyncErrorHandling } from '../../utils/utils'
-import { ipv4 } from '../../utils/dev'
 import _ from 'lodash'
 
 
@@ -51,14 +50,10 @@ export default function AlbumDetails(props) {
 	const { auth, state } = React.useContext(AuthContext)
 	function setEmotion(n) {
 		let newEmotion = checkEmotion(status.emotionStatus, n).indexOf(true)
-		Axios.put(`http://${ipv4}:3000/photo/emotion`, JSON.stringify({
-			userId: state.user.id,
-			photoId: status.currentPhotoId,
+		Axios.put(`${auth.url}/photo/emotion/${status.currentPhotoId}`, JSON.stringify({
 			emotion_tag: newEmotion
 		}), {
-			headers: {
-				'Content-Type': 'application/json'
-			}
+			headers: auth.headers
 		}).then((res) => {
 			setStatus({ emotionStatus: newEmotion, isEmotionModalVisi: false })
 		})
@@ -71,10 +66,8 @@ export default function AlbumDetails(props) {
 	}, [])
 	async function fetchImageSource(callback) {
 		console.log('Loading photo')
-		let res = await Axios.get(`http://${ipv4}:3000/album/photo`, {
-			params: {
-				_id: props.route.params.albumId
-			}
+		let res = await Axios.get(`${auth.url}/album/photo/${props.route.params.albumId}`, {
+			headers:auth.headers
 		})
 		setStatus({ currentAlbumId: props.route.params.albumId, aName: props.route.params.albumTitle, preBuildTag: res.data['albumTagArray'].map((v, i) => ({ key: res.data['albumTagArray'].length - i - 1, text: v })) })
 		const accessToken = await auth.getAccessToken()
@@ -129,14 +122,10 @@ export default function AlbumDetails(props) {
 			}
 			tags.unshift({ key: String(t), text: status.inputTag })
 			setStatus({ tag: tags, inputTag: '' })
-			Axios.put(`http://${ipv4}:3000/photo/tag`, JSON.stringify({
-				userId: state.user.id,
-				photoId: status.currentPhotoId,
+			Axios.put(`${auth.url}/photo/tag/${status.currentPhotoId}`, JSON.stringify({
 				customTag: status.inputTag
 			}), {
-				headers: {
-					'Content-Type': 'application/json'
-				}
+				headers: auth.headers
 			})
 		} else {
 			setStatus({ inputTag: '' })
@@ -155,11 +144,8 @@ export default function AlbumDetails(props) {
 	}
 	function deletePhoto() {
 		asyncErrorHandling(async () => {
-			let res = await Axios.delete(`http://${ipv4}:3000/album/photo`, {
-				params: {
-					_id: status.currentAlbumId,
-					albumPhoto: status.currentPhotoId
-				}
+			let res = await Axios.delete(`${auth.url}/album/photo/${status.currentPhotoId}`, {
+				headers:auth.headers
 			})
 			if (res.status !== 200) {
 				throw Error('Delete not success')
@@ -229,7 +215,7 @@ export default function AlbumDetails(props) {
 							keyExtractor={(item, index) => index.toString()}
 						/>
 
-						{AlbumModal([status, setStatus], state, props)}
+						{AlbumModal([status, setStatus], state, props, auth)}
 						{OneClickAction([status, setStatus])}
 						<Overlay
 							isVisible={status.isTagModalVisi}
@@ -250,7 +236,7 @@ export default function AlbumDetails(props) {
 										containerStyle={{ padding: 5 }}
 									/>
 								</View>
-								{TagList([status, setStatus])}
+								{TagList([status, setStatus], auth)}
 							</View>
 						</Overlay>
 						<Overlay isVisible={status.isEmotionModalVisi}

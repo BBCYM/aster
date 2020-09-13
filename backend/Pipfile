@@ -23,6 +23,8 @@ blinker = "*"
 pandas = "*"
 owlready2 = "*"
 line-bot-sdk = "*"
+django-requestlogs = "*"
+django-ipware = "*"
 
 [requires]
 python_version = "3.7"

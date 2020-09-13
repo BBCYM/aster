@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "aaed22b99cf5522d1ee288fc0825e8484bac5568e209a43f91a6763e4f143eb5"
+            "sha256": "907c75d26634444212440b8ebf1a967eebd0c053931435e7dddd517c20645f6b"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -150,6 +150,21 @@
             "index": "pypi",
             "version": "==3.1.1"
         },
+        "django-ipware": {
+            "hashes": [
+                "sha256:73a640a5bff00aa7503a35e92e462001cfabb07d73d649c262f117423beee953"
+            ],
+            "index": "pypi",
+            "version": "==3.0.1"
+        },
+        "django-requestlogs": {
+            "hashes": [
+                "sha256:0411087a469a55402aa23d7eeb8b2fde8b24abcda739ed2a980d6f3e9052c90b",
+                "sha256:65d09fb4b103e3b50750a045b00a3ca4062efacae48d82943590296e19afec93"
+            ],
+            "index": "pypi",
+            "version": "==0.2.1"
+        },
         "django-rest-framework-mongoengine": {
             "hashes": [
                 "sha256:cabb60f2b8ecf6ceaa13550b47dde0b8f2fe9b6f7b69be681e059cf31b51d729"
@@ -184,18 +199,18 @@
                 "grpc"
             ],
             "hashes": [
-                "sha256:35cba563034d668ae90ffe1f03193a84e745b38f09592f60258358b5e5ee6238",
-                "sha256:431839101b7edc7b0e6cccca0441cb9015f728fc5f098e146e123bf523e8cf71"
+                "sha256:67e33a852dcca7cb7eff49abc35c8cc2c0bb8ab11397dc8306d911505cae2990",
+                "sha256:779107f17e0fef8169c5239d56a8fbff03f9f72a3893c0c9e5842ec29dfedd54"
             ],
             "index": "pypi",
-            "version": "==1.22.1"
+            "version": "==1.22.2"
         },
         "google-auth": {
             "hashes": [
-                "sha256:982e1f82cace752134660b4c0ff660761b32146a55abb3ad6d225529012af87c",
-                "sha256:f2498ad9cac3d2942d6c509ba18c4639656b366681881a1805f44f2a0c2d46f1"
+                "sha256:bcbd9f970e7144fe933908aa286d7a12c44b7deb6d78a76871f0377a29d09789",
+                "sha256:f4d5093f13b1b1c0a434ab1dc851cd26a983f86a4d75c95239974e33ed406a87"
             ],
-            "version": "==1.21.0"
+            "version": "==1.21.1"
         },
         "google-cloud-vision": {
             "hashes": [
@@ -602,10 +617,10 @@
         },
         "isort": {
             "hashes": [
-                "sha256:60a1b97e33f61243d12647aaaa3e6cc6778f5eb9f42997650f1cc975b6008750",
-                "sha256:d488ba1c5a2db721669cc180180d5acf84ebdc5af7827f7aaeaa75f73cf0e2b8"
+                "sha256:92533892058de0306e51c88f22ece002a209dc8e80288aa3cec6d443060d584f",
+                "sha256:a200d47b7ee8b7f7d0a9646650160c4a51b6a91a9413fd31b1da2c4de789f5d3"
             ],
-            "version": "==5.4.2"
+            "version": "==5.5.1"
         },
         "lazy-object-proxy": {
             "hashes": [

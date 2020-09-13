@@ -29,11 +29,11 @@ class BotView(views.APIView):
     #     return response
 
     # http post method
-    def post(self,request):
+    def post(self, request, userId:str=None):
         data = request.data['usermsg']
         # print('這是request=',request)
         # print('這是data=',data)
-        userid = request.data['userid']
+        userid = userId
         # print('userid',userid)
 
         def get_res(data):
@@ -222,6 +222,6 @@ class BotView(views.APIView):
         print('res:',res)
         res = json.dumps(res)
  
-        return response.Response(res)
+        return response.Response(res,status=status.HTTP_200_OK)
     
 
