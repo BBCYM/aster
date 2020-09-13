@@ -28,9 +28,11 @@ class AsterMiddleware:
         Authorization = request.headers.get('Authorization',None)
         LineSignature = request.headers.get('X-Line-Signature', None)
         if LineSignature:
-            
-            hashval = hmac.new(self.channel_secret.encode('utf-8'),str(request.body).encode('utf-8'), hashlib.sha256).digest()
+            hashval = hmac.new(self.channel_secret.encode('utf-8'),str(request.body), hashlib.sha256).digest()
             signature = base64.b64encode(hashval)
+            print(LineSignature)
+            print("--------------------")
+            print(signature)
             if LineSignature != signature:
                 return ResWith401(request, view_func)
         elif XRequestedWith != self.app or Authorization != self.access_code:
