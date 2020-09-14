@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.getenv('SERVER_SECRET')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = json.dumps(os.getenv('DEBUG').lower())
+DEBUG = json.loads(os.getenv('DEBUG').lower())
 
 ALLOWED_HOSTS = ['*']
 
