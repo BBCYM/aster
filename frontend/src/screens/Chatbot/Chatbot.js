@@ -109,7 +109,7 @@ export default function RoomScreen({navigation}) {
 		}
 		catch (e) {
 			var temp = uuid.v1();
-			var temp1 = uuid.v1();
+			// var temp1 = uuid.v1();
 				let msg = {
 					_id: temp,
 					text: '沒有結果，請搜尋其他照片或重新開始搜尋？',

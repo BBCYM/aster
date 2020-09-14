@@ -78,51 +78,72 @@ def get_res(text):
 
 def get_reply(res):  
     reply_arr = []
-    reply_arr.append(TextSendMessage(text="無結果，請嘗試搜尋其他照片"))
+    reply_arr.append(TextSendMessage(text="此次搜尋無結果，請嘗試搜尋其他照片"))
     # reply_arr.append(TextSendMessage(text="或選擇顯示目前結果"))
     # reply_arr.append(TextSendMessage(text="或選擇重新開始搜尋"))
-    reply_arr.append(TemplateSendMessage(
-                            alt_text='Buttons template',
-                            template=ButtonsTemplate(
-                                title='嗨',
-                                text='請選擇接下來的動作',
-                                actions=[
-                                    MessageTemplateAction(
-                                        label='顯示目前結果',
-                                        text='顯示目前結果'
-                                    ),
-                                    MessageTemplateAction(
-                                        label='重新開始搜尋',
-                                        text='重新開始搜尋'
-                                    )
-                                ]
-                            )
-                        ))
+    # reply_arr.append(TemplateSendMessage(
+    #                         alt_text='Buttons template',
+    #                         template=ButtonsTemplate(
+    #                             title='嗨',
+    #                             text='請選擇接下來的動作',
+    #                             actions=[
+    #                                 MessageTemplateAction(
+    #                                     label='顯示目前結果',
+    #                                     text='顯示目前結果'
+    #                                 ),
+    #                                 MessageTemplateAction(
+    #                                     label='重新開始搜尋',
+    #                                     text='重新開始搜尋'
+    #                                 )
+    #                             ]
+    #                         )
+    #                     ))
+    reply_arr.append(TextSendMessage( 
+        text = '或選擇其他動作', 
+        quick_reply = QuickReply( 
+                        items = [QuickReplyButton( 
+                                    action = MessageAction(label = '查看目前累積結果', text = '查看目前累積結果'), ),
+                                    # image_url = ‘https://mlsc50scean7.i.optimole.com/zXqAqP8-HIEbPDap/w:auto/h:auto/q:auto/http://shareboxnow.com/wp-content/uploads/2020/01/S__7938233.jpg’ ), 
+                                QuickReplyButton( 
+                                    action = MessageAction(label = '重新開始搜尋', text = '重新開始搜尋'), ),
+                                ] ) ) 
+    )
     mes = res.query_result.fulfillment_messages
 
     if len(mes) is not 0:
         reply_arr = []
-        for i in mes:
-            # print("ress:",i.text.text[0])
-            reply_arr.append(TextSendMessage(text=i.text.text[0]))
-
-        reply_arr.append(TemplateSendMessage(
-                            alt_text='Buttons template',
-                            template=ButtonsTemplate(
-                                title='嗨',
-                                text='請選擇接下來的動作',
-                                actions=[
-                                    MessageTemplateAction(
-                                        label='顯示結果',
-                                        text='顯示結果'
-                                    ),
-                                    MessageTemplateAction(
-                                        label='重新開始搜尋',
-                                        text='重新開始搜尋'
-                                    )
-                                ]
-                            )
-                        ))
+        # 撈dialogflow的回應
+        # for i in mes:
+        #     # print("ress:",i.text.text[0])
+        #     reply_arr.append(TextSendMessage(text=i.text.text[0]))
+        reply_arr.append(TextSendMessage(text='目前有搜尋結果，可繼續搜尋'))
+        reply_arr.append(TextSendMessage( 
+        text = '請選擇接下來的動作', 
+        quick_reply = QuickReply( 
+                        items = [QuickReplyButton( 
+                                    action = MessageAction(label = '查看目前結果', text = '查看目前結果'), ),
+                                    # image_url = ‘https://mlsc50scean7.i.optimole.com/zXqAqP8-HIEbPDap/w:auto/h:auto/q:auto/http://shareboxnow.com/wp-content/uploads/2020/01/S__7938233.jpg’ ), 
+                                QuickReplyButton( 
+                                    action = MessageAction(label = '重新開始搜尋', text = '重新開始搜尋'), ),
+                                ] ) ) 
+    )
+        # reply_arr.append(TemplateSendMessage(
+        #                     alt_text='Buttons template',
+        #                     template=ButtonsTemplate(
+        #                         title='嗨',
+        #                         text='請選擇接下來的動作',
+        #                         actions=[
+        #                             MessageTemplateAction(
+        #                                 label='顯示結果',
+        #                                 text='顯示結果'
+        #                             ),
+        #                             MessageTemplateAction(
+        #                                 label='重新開始搜尋',
+        #                                 text='重新開始搜尋'
+        #                             )
+        #                         ]
+        #                     )
+        #                 ))
     return reply_arr
 
 def get_url(res):
