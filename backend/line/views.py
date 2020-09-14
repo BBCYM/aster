@@ -79,25 +79,6 @@ def get_res(text):
 def get_reply(res):  
     reply_arr = []
     reply_arr.append(TextSendMessage(text="此次搜尋無結果，請嘗試搜尋其他照片"))
-    # reply_arr.append(TextSendMessage(text="或選擇顯示目前結果"))
-    # reply_arr.append(TextSendMessage(text="或選擇重新開始搜尋"))
-    # reply_arr.append(TemplateSendMessage(
-    #                         alt_text='Buttons template',
-    #                         template=ButtonsTemplate(
-    #                             title='嗨',
-    #                             text='請選擇接下來的動作',
-    #                             actions=[
-    #                                 MessageTemplateAction(
-    #                                     label='顯示目前結果',
-    #                                     text='顯示目前結果'
-    #                                 ),
-    #                                 MessageTemplateAction(
-    #                                     label='重新開始搜尋',
-    #                                     text='重新開始搜尋'
-    #                                 )
-    #                             ]
-    #                         )
-    #                     ))
     reply_arr.append(TextSendMessage( 
         text = '或選擇其他動作', 
         quick_reply = QuickReply( 
@@ -121,29 +102,12 @@ def get_reply(res):
         text = '請選擇接下來的動作', 
         quick_reply = QuickReply( 
                         items = [QuickReplyButton( 
-                                    action = MessageAction(label = '查看目前結果', text = '查看目前結果'), ),
-                                    # image_url = ‘https://mlsc50scean7.i.optimole.com/zXqAqP8-HIEbPDap/w:auto/h:auto/q:auto/http://shareboxnow.com/wp-content/uploads/2020/01/S__7938233.jpg’ ), 
+                                    action = MessageAction(label = '查看目前累積結果', text = '查看目前累積結果'), ),
+                                    # image_url = 'https://mlsc50scean7.i.optimole.com'), 
                                 QuickReplyButton( 
                                     action = MessageAction(label = '重新開始搜尋', text = '重新開始搜尋'), ),
                                 ] ) ) 
     )
-        # reply_arr.append(TemplateSendMessage(
-        #                     alt_text='Buttons template',
-        #                     template=ButtonsTemplate(
-        #                         title='嗨',
-        #                         text='請選擇接下來的動作',
-        #                         actions=[
-        #                             MessageTemplateAction(
-        #                                 label='顯示結果',
-        #                                 text='顯示結果'
-        #                             ),
-        #                             MessageTemplateAction(
-        #                                 label='重新開始搜尋',
-        #                                 text='重新開始搜尋'
-        #                             )
-        #                         ]
-        #                     )
-        #                 ))
     return reply_arr
 
 def get_url(res):
@@ -306,9 +270,24 @@ def message_text(event: MessageEvent):
     res = get_res(event.message.text)
     reply = get_reply(res)
     pid = get_url(res)
-    print("pid:",pid)
+    # print("pid:",pid)
+    if event.message.text == "查看目前累積結果":
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text='為您導至圖片呈現頁面'))
+    elif  event.message.text == "重新開始搜尋":
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text='已清空之前的搜尋結果，請繼續搜尋'))
+    else:
+        line_bot_api.reply_message(
+            event.reply_token,
+            reply
+        )
+
+@handler.add(MessageEvent, message=StickerMessage)
+def handle_sticker_message(event):
     line_bot_api.reply_message(
         event.reply_token,
-        reply
+        StickerSendMessage(package_id=11539, sticker_id=52114111),
     )
-
