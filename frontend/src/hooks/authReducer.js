@@ -28,6 +28,11 @@ function execSwitch(state, action) {
 			...state,
 			isSync: action.payload
 		}
+	case actionType.SET.useWifi:
+		return {
+			...state,
+			useWifi:action.payload
+		}
 	default:
 		return state
 	}

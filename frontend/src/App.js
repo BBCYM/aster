@@ -10,6 +10,7 @@ import { ThemeProvider } from 'react-native-elements'
 import {setCustomText} from 'react-native-global-props'
 const MainStack = createStackNavigator()
 
+
 const CustomTextProps = {
 	style:{
 		fontFamily: 'SegoeUI',
