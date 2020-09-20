@@ -31,11 +31,60 @@ class BotView(views.APIView):
     # http post method
     def post(self, request, userId:str=None):
         data = request.data['usermsg']
-        # print('這是request=',request)
-        # print('這是data=',data)
         userid = userId
-        # print('userid',userid)
 
+        # for custom tag search with general agent
+        def get_res_cus(data):
+            credentials = service_account.Credentials.from_service_account_file('anster-1593361678608.json').with_scopes(['https://www.googleapis.com/auth/dialogflow'])
+
+            with open('anster-1593361678608.json', encoding='utf-8') as f:
+                appSecret = json.load(f)
+                # print(appSecret)
+                PROJECT_ID = itemgetter("project_id")(appSecret)
+            session_id = 'userforDemo12345'
+            text = data   #這裡改成在RN輸入的字串
+            print('測試抓不抓得到=',data)
+            
+            session_client = dialogflow.SessionsClient(credentials=credentials)
+            session = session_client.session_path(PROJECT_ID,session_id)
+
+            text_input = dialogflow.types.TextInput(text=text, language_code='zh-TW')
+            query_input = dialogflow.types.QueryInput(text=text_input)
+            try:
+                res = session_client.detect_intent(session=session, query_input=query_input)
+                print('res:',res)
+                return res
+            except InvalidArgument:
+                return response.Response("InvalidArgument",status=status.HTTP_400_BAD_REQUEST)
+        
+        def get_url_cus(res_cus):
+            parameters = res_cus.query_result.parameters
+            general_object = parameters.fields['general_object'].list_value
+
+            pid_tag = []
+            if len(general_object) is not 0:
+                gkeyArray = map(lambda k: k.string_value,general_object.values)
+                gkeyArray = set(gkeyArray)
+                gkeyArray = list(gkeyArray)
+                for i in gkeyArray:
+                    try:
+                        custom = Photo.objects(Q(userId=userid) & Q(tag__custom_tag__is_deleted=False) & Q(tag__custom_tag__tag=i))
+                        print('custom:',custom)
+                        for j in custom:
+                            tag = []
+                            photoid = j.photoId
+                            print('photoid:',photoid)
+                            pid.append(photoid)
+                            print('key in add:',i)
+                            tag.append(i)
+                            temptag = tag
+                            # print('tag:',tag)
+                            pid_tag.append({"pid":photoid, "tag":temptag})
+                            # print('pid_tag',pid_tag)
+                    except Exception as e:
+                        print(e)
+            return pid_tag
+        # for all tags search with testing agent
         def get_res(data):
             credentials = service_account.Credentials.from_service_account_file('dfcredentials.json').with_scopes(['https://www.googleapis.com/auth/dialogflow'])
 
@@ -81,34 +130,34 @@ class BotView(views.APIView):
                     temptag = tag
                     # print('tag:',tag)
                     pid_tag.append({"pid":photoid, "tag":temptag})
-                    print('pid_tag',pid_tag)
+                    # print('pid_tag',pid_tag)
 
             def getpid(key):
                 try:
-                    print('key',key)
+                    # print('key',key)
 
                     emo = Photo.objects(Q(userId=userid) & Q(tag__emotion_tag=key))
-                    print('emotion:',emo)
+                    # print('emotion:',emo)
                     addpid(emo, key)
 
                     main = Photo.objects(Q(userId=userid) & Q(tag__main_tag=key))
-                    print('main:',main)
+                    # print('main:',main)
                     addpid(main, key)
 
                     top3 = Photo.objects(Q(userId=userid) & Q(tag__top3_tag__tag=key))
-                    print('top3:',top3)
+                    # print('top3:',top3)
                     addpid(top3, key)
 
                     alltag = Photo.objects(Q(userId=userid) & Q(tag__all_tag__tag=key))
-                    print('alltag:',alltag)
+                    # print('alltag:',alltag)
                     addpid(alltag, key)
 
                     custom = Photo.objects(Q(userId=userid) & Q(tag__custom_tag__is_deleted=False) & Q(tag__custom_tag__tag=key))
-                    print('custom:',custom)
+                    # print('custom:',custom)
                     addpid(custom, key)
 
                     location = Photo.objects(Q(userId=userid) & Q(location=key))
-                    print('location:',location)
+                    # print('location:',location)
                     addpid(location, key)
 
                     album = Album.objects(Q(userId=userid) & Q(albumTag__isDeleted=False) & Q(albumTag__tag=key))
@@ -124,7 +173,7 @@ class BotView(views.APIView):
                                 atag.append(key)
                                 atemptag = atag
                                 pid_tag.append({"pid":j.photoId, "tag":atemptag})
-                                print('pid_tag',pid_tag)
+                                # print('pid_tag',pid_tag)
 
                 except Exception as e:
                     print(e)
@@ -145,7 +194,7 @@ class BotView(views.APIView):
                 tomorrow = datetime.strftime(tomorrow, "%Y-%m-%d")
                 # print('tomorrow',tomorrow)
                 date = Photo.objects(Q(userId=userid) & Q(createTime__lt=tomorrow) & Q(createTime__gt=datekey))
-                print('date:',date)
+                # print('date:',date)
                 addpid(date, datekey)
             
             # 抓時間區間(ex:今年,上禮拜)
@@ -162,7 +211,7 @@ class BotView(views.APIView):
                 # print('end',end)
 
                 dateperiod = Photo.objects(Q(userId=userid) & Q(createTime__lt=end) & Q(createTime__gt=start))
-                print('dateperiod:',dateperiod)
+                # print('dateperiod:',dateperiod)
                 periodkey = start + '-' + end
                 # print('periodkey:',periodkey)
                 addpid(dateperiod, periodkey)
@@ -212,14 +261,20 @@ class BotView(views.APIView):
                     # print(zip_codekey)
                     getpid(zip_codekey)
             return pid_tag
-        # print('lastpid',pid)
+
         pid = []
+        # for general(custom) agent
+        res1 = get_res_cus(data)
+        pid_tag1 = get_url_cus(res1)
+        re1 = MessageToJson(res1.query_result)
+
+        # for testing agent
         res = get_res(data)
         pid_tag = get_url(res)
         re = MessageToJson(res.query_result)
-        res = {"dialog" : re, "pid" : pid, "pid_tag" : pid_tag}
-        # res = {"dialog" : re, "pid_tag" : pid_tag}
-        print('res:',res)
+
+        res = {"dialog" : re, "pid" : pid, "pid_tag" : pid_tag, "dialog1" : re1, "pid_tag1" : pid_tag1}
+        # print('res:',res)
         res = json.dumps(res)
  
         return response.Response(res,status=status.HTTP_200_OK)

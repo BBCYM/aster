@@ -84,14 +84,18 @@ export default function RoomScreen({navigation}) {
 		console.log(response)
 		var data = await response.json();
 		var message = JSON.parse(data);
+		// testing(all) response
 		var json_message = JSON.parse(message.dialog);
+		// general(custom) response
+		var json_message1 = JSON.parse(message.dialog1);
 
 		//////////////拿回應//////////////
 		//將所有response message都拿出來，並用成giftedchat的msg format
+		//先試testing agent在試general agent
 		try { // statements to try
 			json_message.fulfillmentMessages.forEach(element => {
 				var resmsg = element.text.text[0];
-				// console.log(resmsg);
+				console.log(resmsg);
 				//給random id
 				var temp = uuid.v1();
 				let msg = {
@@ -108,18 +112,38 @@ export default function RoomScreen({navigation}) {
 			});
 		}
 		catch (e) {
-			var temp = uuid.v1();
-			// var temp1 = uuid.v1();
-				let msg = {
-					_id: temp,
-					text: '沒有結果，請搜尋其他照片或重新開始搜尋？',
-					createdAt: new Date(),
-					user: {
-						_id: 0,
-						name: 'Aster',
-					},
-				};
-			combine = GiftedChat.append(combine, [msg]);
+			try {
+				json_message1.fulfillmentMessages.forEach(element => {
+					var resmsg = element.text.text[0];
+					console.log(resmsg);
+					//給random id
+					var temp = uuid.v1();
+					let msg = {
+						_id: temp,
+						text: resmsg,
+						createdAt: new Date(),
+						user: {
+							_id: 0,
+							name: 'Aster',
+						},
+					};
+					//將回應訊息也append到combine中
+					combine = GiftedChat.append(combine, [msg]);
+				});
+			} catch (e) {
+				var temp = uuid.v1();
+				// var temp1 = uuid.v1();
+					let msg = {
+						_id: temp,
+						text: '沒有結果，請搜尋其他照片或重新開始搜尋？',
+						createdAt: new Date(),
+						user: {
+							_id: 0,
+							name: 'Aster',
+						},
+					};
+				combine = GiftedChat.append(combine, [msg]);
+			}
 		}
 		//存msg於前端
 		await AsyncStorage.setItem(
@@ -134,6 +158,7 @@ export default function RoomScreen({navigation}) {
 		//////////////抓取後端傳來的pid//////////////
 		var newpid = message.pid;
 		var newpid_tag = message.pid_tag;
+		var newcpid_tag = message.pid_tag1;
 		// console.log('newpid_tag',newpid_tag);
 		var tempid = imgIDs;
 
@@ -153,8 +178,49 @@ export default function RoomScreen({navigation}) {
 				setimgIDs(tempid);
 			}	
 		})
-
+		
 		newpid_tag.forEach(element=>{
+			//將pid取出存於id array
+			// console.log('imIDtags:',imgIDtags);
+			imgIDtags.forEach(element=>{
+				id.push(element.pid);
+			})
+			//設定給全域變數ID
+			setID(id);
+			//用filterid判斷是否有重複的id
+			var filterid = ID.filter(function(value) {
+				return value === element.pid;
+			});
+			//若無相同pid就將該張照片加入array
+			if(!filterid.length){
+				tempid_tag.push(element);
+				//設定給全域變數imgIDtags
+				setimgIDtags(tempid_tag);
+			}
+			else{ //若有相同pid進而去判斷是否有相同的tag
+				var photoid = element.pid;
+				//用現在的pid去抓出imgIDtags中已存在的該id之相片物件
+				var photo = imgIDtags.find(element => {
+					return element.pid === photoid;
+				});
+
+				//將該張相片原本有的tag取出
+				//並與新的tag做比較看是否已存在
+				var filtertag = photo.tag.filter(function(value) {
+					var tempeletag = element.tag.toString();
+					return value === tempeletag;
+				});
+				// console.log('filtertag:',filtertag);
+				//若無相同tag
+				if(!filtertag.length){
+					var phototag = element.tag.toString();
+					photo.tag.push(phototag);
+				}
+				
+			}
+		})
+
+		newcpid_tag.forEach(element=>{
 			//將pid取出存於id array
 			// console.log('imIDtags:',imgIDtags);
 			imgIDtags.forEach(element=>{

@@ -16,20 +16,19 @@ export function PagesTabNavigator(props) {
 	function index() {
 		return (
 			<PagesTab.Navigator
-				initialRouteName='Home'
+				initialRouteName='Gallery'
 				tabBarOptions={{
 					activeTintColor: '#F27B50',
 					inactiveTintColor: '#F2BD1D',
 				}}
 			>
 				<PagesTab.Screen
-					name='Home'
-					component={HomeScreen}
+					name='Gallery'
+					component={GalleryHome}
 					options={{
-						tabBarLabel: 'Albums',
-						// focused: boolean; color: string; size: number;
+						tabBarLabel: 'Gallary',
 						tabBarIcon: (props) => {
-							return <Ionicons name='images-outline' color={props.color} size={props.size} />
+							return <Ionicons name='ios-image-outline' color={props.color} size={props.size} />
 						}
 					}}
 				/>
@@ -50,23 +49,23 @@ export function PagesTabNavigator(props) {
 					}}
 				/>
 				<PagesTab.Screen
+					name='Home'
+					component={HomeScreen}
+					options={{
+						tabBarLabel: 'Albums',
+						// focused: boolean; color: string; size: number;
+						tabBarIcon: (props) => {
+							return <Ionicons name='images-outline' color={props.color} size={props.size} />
+						}
+					}}
+				/>
+				<PagesTab.Screen
 					name='Profile'
 					component={ProfileScreen}
 					options={{
 						tabBarLabel: 'Profile',
 						tabBarIcon: (props) => {
 							return <Ionicons name='person-outline' color={props.color} size={props.size} />
-						}
-					}}
-				/>
-
-				<PagesTab.Screen
-					name='Gallery'
-					component={GalleryHome}
-					options={{
-						tabBarLabel: 'Gallary',
-						tabBarIcon: (props) => {
-							return <Ionicons name='ios-image-outline' color={props.color} size={props.size} />
 						}
 					}}
 				/>
