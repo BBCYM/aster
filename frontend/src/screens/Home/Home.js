@@ -13,6 +13,7 @@ import FastImage from 'react-native-fast-image'
 import Axios from 'axios'
 import { AuthContext } from '../../contexts/AuthContext'
 import _ from 'lodash'
+import Ionicons from 'react-native-vector-icons/Ionicons'
 
 export default function HomeScreen(props) {
 	function useMergeState(initialState) {
@@ -129,6 +130,10 @@ export default function HomeScreen(props) {
 							</View>
 						</Modal>
 						<View style={styles.container}>
+							<View style={styles.titlebackground} >
+								<Text style={{fontSize: 40,color: '#FFD1A4',textShadowColor: '#FFDCB9'}}>A L B U M </Text>
+							</View>
+							
 							<FlatList
 								data={status.fastSource}
 								renderItem={({ item }) => (
@@ -171,10 +176,14 @@ const styles = StyleSheet.create({
 		marginLeft: 23,
 		marginTop: 30
 	},
-
 	container: {
 		height: '100%',
-		width: '100%'
+		width: '100%',
+	},
+	titlebackground: {
+		//height: 5,
+		width: '100%',
+		alignItems: 'center',
 	},
 	modalBtnTitle: { color: '#303960', fontWeight: 'bold' },
 	modalBtnStyle: { borderColor: '#303960', width: 90, borderWidth: 2 },
