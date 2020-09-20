@@ -130,7 +130,7 @@ class MainProcess:
                     print(e)
             waiting = []
             for mediaItem in mediaItems:
-                dbres = Photo.objects(Q(userId=self.userId) & Q(photoId=mediaItem['id']))
+                dbres = Photo.objects(photoId=mediaItem['id'])
                 if not dbres:
                     waiting.append(mediaItem)
             pool = ThreadPool(len(waiting))
