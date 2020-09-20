@@ -98,7 +98,7 @@ class MainProcess:
     def afterall(self, tic, QueueManager:list):
         for i, func in enumerate(QueueManager):
             func()
-            print(f"Waiting #{i}")
+            print(f"\rWaiting #{i}",end='', flush=True)
         toc = time.perf_counter()
         print(f"Total process {toc - tic:0.4f} seconds")
         user = User.objects(userId=self.userId)
