@@ -43,7 +43,7 @@ class AuthView(APIView):
         if not u:
             userSession, user = checkUserToSession(userId, request)
             process = MainProcess(session=userSession, userId=userId)
-            process.initial()
+            threading.Thread(target=process.initial,daemon=True).start()
             return Response({'isSync': user.isSync, 'isFreshing': user.isFreshing}, status=status.HTTP_200_OK)
         else :
             u=u.get()

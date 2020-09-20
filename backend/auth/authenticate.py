@@ -112,11 +112,11 @@ class MainProcess:
         tic = time.perf_counter()
         User.objects(userId=self.userId).update(set__isFreshing=True, set__isSync=False)
         nPT = ''
-        params = {'pageSize': 10}
+        params = {'pageSize': 100}
         QueueManager = []
         while True:
             if nPT:
-                params['nextPageToken'] = nPT
+                params['pageToken'] = nPT
             photoRes = self.session.get(
                 'https://photoslibrary.googleapis.com/v1/mediaItems', params=params).json()
             mediaItems = photoRes['mediaItems']
@@ -142,11 +142,11 @@ class MainProcess:
         tic = time.perf_counter()
         User.objects(userId=self.userId).update(set__isFreshing=True, set__isSync=False)
         nPT = ''
-        params = {'pageSize': 12}
+        params = {'pageSize': 20}
         QueueManager = []
         while True:
             if nPT:
-                params['nextPageToken'] = nPT
+                params['pageToken'] = nPT
             photoRes = self.session.get(
                 'https://photoslibrary.googleapis.com/v1/mediaItems', params=params).json()
             mediaItems = photoRes['mediaItems']
