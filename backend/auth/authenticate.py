@@ -114,9 +114,9 @@ class MainProcess:
         User.objects(userId=self.userId).update(set__isFreshing=True, set__isSync=False)
         nPT = ''
         params = {'pageSize': 20}
-        QueueManager = []
         i = 0
         while True:
+            QueueManager = []
             if nPT:
                 params['pageToken'] = nPT
             photoRes = self.session.get(
