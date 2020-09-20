@@ -20,6 +20,7 @@ from bot.views import BotView
 from line.views import callback
 from photo.views import PhotoView, EmotionView, TagView, PhotoListView
 from album.views import AlbumView, AlbumPDView, AlbumTagView, AlbumPhotoView
+from liff.views import LiffView
 
 
 photo_patterns = [
@@ -36,6 +37,7 @@ urlpatterns = [
     path('photos/<str:userId>', PhotoListView.as_view()),
     path('photo/', include(photo_patterns)),
     path('line/', callback),
+    path('liff/', LiffView.as_view()),
     path('album/<str:userId>', AlbumView.as_view()),
     path('album/PD/<str:albumId>', AlbumPDView.as_view()),
     path('album/tag/<str:albumId>', AlbumTagView.as_view()),
