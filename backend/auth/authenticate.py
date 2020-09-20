@@ -66,32 +66,32 @@ class MainProcess:
         if mimeType[0] == 'image':
             # get the image data
             filename = mediaItem['filename']
-            imagebinary = self.session.get(mediaItem['baseUrl']+'=d').content
-            image = types.Image(content = imagebinary)
-            labels = self.client.label_detection(image=image).label_annotations
-            tempcreationTime = mediaItem['mediaMetadata']['creationTime']
-            sliceTime = tempcreationTime.split('Z')[0].split('.')[0] if '.' in tempcreationTime else tempcreationTime.split('Z')[0]
-            realTime = datetime.datetime.strptime(sliceTime, "%Y-%m-%dT%H:%M:%S")    
-            ltemp = list(map(getLabelDescription, labels))
-            mLabels = toMandarin(ltemp)
-            t = Tag(
-                main_tag=mLabels[0].text
-            )
-            for ml, l in zip(mLabels[:3], labels[:3]):
-                t.top3_tag.append(ATag(tag=ml.text, precision=str(l.score)))
-            for ml, l in zip(mLabels[4:], labels[4:]):
-                t.all_tag.append(ATag(tag=ml.text, precision=str(l.score)))
-            pho = Photo(
-                photoId=mediaItem['id'],
-                userId=self.userId,
-                tag=t,
-                location=randLocation(),
-                createTime=make_aware(
-                    realTime, timezone=pytz.timezone(settings.TIME_ZONE)),
-            )
-            pho.save()
-            with open(f'{self.IFR}/{self.userId}/{filename}', mode='wb') as handler:
-                handler.write(imagebinary)
+            # imagebinary = self.session.get(mediaItem['baseUrl']+'=d').content
+            # image = types.Image(content = imagebinary)
+            # labels = self.client.label_detection(image=image).label_annotations
+            # tempcreationTime = mediaItem['mediaMetadata']['creationTime']
+            # sliceTime = tempcreationTime.split('Z')[0].split('.')[0] if '.' in tempcreationTime else tempcreationTime.split('Z')[0]
+            # realTime = datetime.datetime.strptime(sliceTime, "%Y-%m-%dT%H:%M:%S")    
+            # ltemp = list(map(getLabelDescription, labels))
+            # mLabels = toMandarin(ltemp)
+            # t = Tag(
+            #     main_tag=mLabels[0].text
+            # )
+            # for ml, l in zip(mLabels[:3], labels[:3]):
+            #     t.top3_tag.append(ATag(tag=ml.text, precision=str(l.score)))
+            # for ml, l in zip(mLabels[4:], labels[4:]):
+            #     t.all_tag.append(ATag(tag=ml.text, precision=str(l.score)))
+            # pho = Photo(
+            #     photoId=mediaItem['id'],
+            #     userId=self.userId,
+            #     tag=t,
+            #     location=randLocation(),
+            #     createTime=make_aware(
+            #         realTime, timezone=pytz.timezone(settings.TIME_ZONE)),
+            # )
+            # pho.save()
+            # with open(f'{self.IFR}/{self.userId}/{filename}', mode='wb') as handler:
+            #     handler.write(imagebinary)
         if callback:
             callback()
             
