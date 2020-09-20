@@ -115,6 +115,7 @@ class MainProcess:
         nPT = ''
         params = {'pageSize': 50}
         QueueManager = []
+        i = 0
         while True:
             if nPT:
                 params['pageToken'] = nPT
@@ -129,6 +130,7 @@ class MainProcess:
                     print(e)
             pool = ThreadPool(len(mediaItems))
             for mediaItem in mediaItems:
+                i=i+1
                 pool.add_task(self.pipeline, mediaItem=mediaItem)
                 QueueManager.append(pool.wait_completion)
             pool.work()
@@ -137,6 +139,7 @@ class MainProcess:
                 break
             else:
                 nPT = photoRes['nextPageToken']
+        print(i)
         Thread(target=self.afterall, args=(tic, QueueManager), daemon=True).start()
 
     def refresh(self):
