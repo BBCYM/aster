@@ -98,6 +98,7 @@ class MainProcess:
     def afterall(self, tic, QueueManager:list):
         for i, func in enumerate(QueueManager):
             func()
+            print(f"Waiting #{i}")
         toc = time.perf_counter()
         print(f"Total process {toc - tic:0.4f} seconds")
         user = User.objects(userId=self.userId)
@@ -112,15 +113,16 @@ class MainProcess:
         tic = time.perf_counter()
         User.objects(userId=self.userId).update(set__isFreshing=True, set__isSync=False)
         nPT = ''
-        params = {'pageSize': 100}
+        params = {'pageSize': 20}
         QueueManager = []
+        i = 0
         while True:
             if nPT:
                 params['pageToken'] = nPT
             photoRes = self.session.get(
                 'https://photoslibrary.googleapis.com/v1/mediaItems', params=params).json()
             mediaItems = photoRes['mediaItems']
-            print(f'Downloading {len(mediaItems)} pics')
+            print(f'Handling {len(mediaItems)} items')
             if not os.path.isdir(f'{self.IFR}/{self.userId}'):
                 try:
                     os.mkdir(f'{self.IFR}/{self.userId}')
@@ -132,7 +134,7 @@ class MainProcess:
                 QueueManager.append(pool.wait_completion)
             pool.work()
             Thread(target=self.afterall, args=(tic, QueueManager), daemon=True).start()
-            if not photoRes['nextPageToken']:
+            if i==4 or not photoRes['nextPageToken']:
             # if photoRes['nextPageToken']:
                 break
             else:
