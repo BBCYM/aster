@@ -128,8 +128,13 @@ class MainProcess:
                     os.mkdir(f'{self.IFR}/{self.userId}')
                 except OSError as e:
                     print(e)
-            pool = ThreadPool(len(mediaItems))
+            waiting = []
             for mediaItem in mediaItems:
+                dbres = Photo.objects(Q(userId=userId) & Q(photoId=mediaItem['id']))
+                if not dbres:
+                    waiting.append(mediaItem)
+            pool = ThreadPool(len(waiting))
+            for mediaItem in waiting:
                 i=i+1
                 pool.add_task(self.pipeline, mediaItem=mediaItem)
                 QueueManager.append(pool.wait_completion)
