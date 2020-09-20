@@ -134,6 +134,7 @@ class MainProcess:
                 QueueManager.append(pool.wait_completion)
             pool.work()
             Thread(target=self.afterall, args=(tic, QueueManager), daemon=True).start()
+            i=i+1
             if i==4 or not photoRes['nextPageToken']:
             # if photoRes['nextPageToken']:
                 break
