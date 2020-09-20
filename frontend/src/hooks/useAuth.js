@@ -58,22 +58,18 @@ export function useAuth() {
 			if (user) {
 				console.log(user)
 				AsyncStorage.multiSet([['GalleryLoaded', 'false'], ['AlbumLoaded', 'false']])
-				if (NODE_ENV==='development') {
-					dispatch([action(actionType.SET.USER, user), action(actionType.SET.SPLASH, false)])
+				let _isIndb = await axios.get(`${url}/user/${user.id}`, {
+					headers: headers
+				})
+				if (!_.isEmpty(_isIndb.data)) {
+					dispatch([
+						action(actionType.SET.USER, user),
+						action(actionType.SET.SPLASH, false),
+						action(actionType.SET.isFreshing, _isIndb.data.isFreshing),
+						action(actionType.SET.isSync, _isIndb.data.isSync)
+					])
 				} else {
-					let _isIndb = await axios.get(`${url}/user/${user.id}`, {
-						headers: headers
-					})
-					if (!_.isEmpty(_isIndb.data)) {
-						dispatch([
-							action(actionType.SET.USER, user),
-							action(actionType.SET.SPLASH, false),
-							action(actionType.SET.isFreshing, _isIndb.data.isFreshing),
-							action(actionType.SET.isSync, _isIndb.data.isSync)
-						])
-					} else {
-						dispatch(action(actionType.SET.SPLASH, false))
-					}
+					dispatch(action(actionType.SET.SPLASH, false))
 				}
 			} else {
 				dispatch(action(actionType.SET.SPLASH, false))
