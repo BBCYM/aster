@@ -153,7 +153,7 @@ class MainProcess:
             photoRes = self.session.get(
                 'https://photoslibrary.googleapis.com/v1/mediaItems', params=params).json()
             mediaItems = photoRes['mediaItems']
-            print(f'Downloading {len(mediaItems)} pics')
+            print(f'Handling {len(mediaItems)} items')
             if not os.path.isdir(f'{self.IFR}/{self.userId}'):
                 try:
                     os.mkdir(f'{self.IFR}/{self.userId}')
@@ -169,12 +169,12 @@ class MainProcess:
                 pool.add_task(self.pipeline, mediaItem=mediaItem)
                 QueueManager.append(pool.wait_completion)
             pool.work()
-            Thread(target=self.afterall, args=(tic, QueueManager), daemon=True).start()
             if not photoRes['nextPageToken']:
             # if photoRes['nextPageToken']:
                 break
             else:
                 nPT = photoRes['nextPageToken']
+        Thread(target=self.afterall, args=(tic, QueueManager), daemon=True).start()
 
 def checkUserToSession(userId, req):
     with open('client_secret.json', 'r', encoding='utf-8') as f:
