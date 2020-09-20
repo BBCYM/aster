@@ -100,7 +100,7 @@ class MainProcess:
             func()
             print(f"\rWaiting #{i}",end='', flush=True)
         toc = time.perf_counter()
-        print(f"Total process {toc - tic:0.4f} seconds")
+        print(f"\rTotal process {toc - tic:0.4f} seconds")
         user = User.objects(userId=self.userId)
         user.update(
             set__isSync=True,
@@ -113,9 +113,8 @@ class MainProcess:
         tic = time.perf_counter()
         User.objects(userId=self.userId).update(set__isFreshing=True, set__isSync=False)
         nPT = ''
-        params = {'pageSize': 20}
+        params = {'pageSize': 100}
         QueueManager = []
-        i = 0
         while True:
             if nPT:
                 params['pageToken'] = nPT
@@ -133,8 +132,7 @@ class MainProcess:
                 pool.add_task(self.pipeline, mediaItem=mediaItem)
                 QueueManager.append(pool.wait_completion)
             pool.work()
-            i=i+1
-            if i==4 or not photoRes['nextPageToken']:
+            if not photoRes['nextPageToken']:
             # if photoRes['nextPageToken']:
                 break
             else:
