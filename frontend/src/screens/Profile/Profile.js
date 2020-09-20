@@ -9,7 +9,6 @@ import Ionicons from 'react-native-vector-icons/Ionicons'
 
 export default function personalScreen(props) {
 	const { auth, state } = React.useContext(AuthContext)
-	var testloading = true
 
 
 	React.useEffect(() => {
@@ -47,11 +46,11 @@ export default function personalScreen(props) {
 
 					<View style={styles.Btncontainer}>
 						<TouchableOpacity style={styles.Btn} disabled={state.isFreshing} onPress={() => { auth.refresh() }}>
-							<Text>REFRESH</Text>
+							<Text>Refresh</Text>
 						</TouchableOpacity>
 
 						<TouchableOpacity style={styles.Btn} onPress={() => { auth.signOut() }}>
-							<Text>LOG OUT</Text>
+							<Text>Logout</Text>
 						</TouchableOpacity>
 
 					</View>
@@ -136,7 +135,6 @@ const styles = StyleSheet.create({
 		},
 		shadowRadius: 5.46,
 		elevation: 7,
-
 	},
 	heartBtn: {
 		marginTop: 100,
