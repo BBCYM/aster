@@ -132,8 +132,8 @@ class MainProcess:
                 QueueManager.append(pool.wait_completion)
             pool.work()
             Thread(target=self.afterall, args=(tic, QueueManager), daemon=True).start()
-            # if not photoRes['nextPageToken']:
-            if photoRes['nextPageToken']:
+            if not photoRes['nextPageToken']:
+            # if photoRes['nextPageToken']:
                 break
             else:
                 nPT = photoRes['nextPageToken']
@@ -167,8 +167,8 @@ class MainProcess:
                 QueueManager.append(pool.wait_completion)
             pool.work()
             Thread(target=self.afterall, args=(tic, QueueManager), daemon=True).start()
-            # if not photoRes['nextPageToken']:
-            if photoRes['nextPageToken']:
+            if not photoRes['nextPageToken']:
+            # if photoRes['nextPageToken']:
                 break
             else:
                 nPT = photoRes['nextPageToken']
