@@ -81,8 +81,17 @@ mongoengine.connect(
     host=MONGODB_DATABASES['default']['host'],
     port=MONGODB_DATABASES['default']['port']
 )
-
-
+# redis
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": os.getenv('REDIS_ADDR'),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "PASSWORD": os.getenv('REDIS_PWD'),
+        }
+    }
+}
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
