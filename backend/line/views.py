@@ -22,6 +22,7 @@ from linebot.exceptions import InvalidSignatureError
 # from linebot.models import MessageEvent, TextMessage, TextSendMessage
 from linebot.models import *
 
+from django.core.cache import cache
 
 # Get the value from environment variable 
 token = 'LINE_CHANNEL_ACCESS_TOKEN'
@@ -37,7 +38,13 @@ handler = WebhookHandler(secret_value)
 
 @csrf_exempt
 def callback(request: HttpRequest) -> HttpResponse:
-    
+    if request.method == "GET":
+        cache.set("foo", "hihihi", timeout=25)
+        # ans = cache.ttl("foo")
+        ans = cache.get("foo")
+        # print(ans)
+        return HttpResponse(ans)
+
     if request.method == "POST":
         # get X-Line-Signature header value
         signature = request.META['HTTP_X_LINE_SIGNATURE']
