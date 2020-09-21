@@ -113,7 +113,7 @@ class MainProcess:
         tic = time.perf_counter()
         User.objects(userId=self.userId).update(set__isFreshing=True, set__isSync=False)
         nPT = ''
-        params = {'pageSize': 50}
+        params = {'pageSize': 40}
         QueueManager = []
         i = 0
         while True:
