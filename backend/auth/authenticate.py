@@ -121,7 +121,10 @@ class MainProcess:
                 params['pageToken'] = nPT
             photoRes = self.session.get(
                 'https://photoslibrary.googleapis.com/v1/mediaItems', params=params).json()
-            mediaItems = photoRes['mediaItems']
+            print(photoRes.keys())
+            mediaItems = photoRes.get('mediaItems', None)
+            if not mediaItems:
+                break
             print(f'Handling {len(mediaItems)} items')
             if not os.path.isdir(f'{self.IFR}/{self.userId}'):
                 try:
