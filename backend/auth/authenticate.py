@@ -56,7 +56,7 @@ class ThreadPool:
         self.tasks.join()
 
 class MainProcess:
-    def __init__(self, session, userId):
+    def __init__(self, session:AuthorizedSession, userId):
         self.IFR = './static'
         self.session = session
         self.userId = userId
@@ -106,6 +106,7 @@ class MainProcess:
                 pho.save()
                 with open(f'{self.IFR}/{self.userId}/{filename}', mode='wb') as handler:
                     handler.write(imagebinary)
+                self.session.close()
         except Exception as e:
             logging.error(e)
             print(e)
@@ -158,8 +159,8 @@ class MainProcess:
                 pool.add_task(self.pipeline, mediaItem=mediaItem)
                 # QueueManager.append(pool.wait_completion)
             pool.work()
-            if not photoRes.get('nextPageToken', None):
-            # if photoRes['nextPageToken']:
+            # if not photoRes.get('nextPageToken', None):
+            if photoRes['nextPageToken']:
                 break
             else:
                 nPT = photoRes['nextPageToken']
