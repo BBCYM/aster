@@ -20,7 +20,7 @@ from mongoengine.queryset.visitor import Q
 import queue
 from threading import Thread
 import logging
-logging.basicConfig(filename=f'{__name__}.log', level=logging.INFO, filemode='w+', format='%(name)s  %(asctime)s -> %(message)s')
+logging.basicConfig(filename=f'{__name__}.log', level=logging.INFO, filemode='w+', format='%(name)s %(levelname)s %(asctime)s -> %(message)s')
 
 def checkisSync(session,userId):
     params = {'pageSize':10}
@@ -131,7 +131,7 @@ class MainProcess:
         User.objects(userId=self.userId).update(set__isFreshing=True, set__isSync=False)
         nPT = ''
         params = {'pageSize': 40}
-        QueueManager = []
+        # QueueManager = []
         i = 0
         while True:
             if nPT:
@@ -156,15 +156,15 @@ class MainProcess:
             for mediaItem in waiting:
                 i=i+1
                 pool.add_task(self.pipeline, mediaItem=mediaItem)
-                QueueManager.append(pool.wait_completion)
+                # QueueManager.append(pool.wait_completion)
             pool.work()
             if not photoRes.get('nextPageToken', None):
             # if photoRes['nextPageToken']:
                 break
             else:
                 nPT = photoRes['nextPageToken']
-        print(i)
-        Thread(target=self.afterall, args=(tic, QueueManager), daemon=True).start()
+        logging.info(f'Done {i}')
+        # Thread(target=self.afterall, args=(tic, QueueManager), daemon=True).start()
 
     def refresh(self):
         tic = time.perf_counter()
