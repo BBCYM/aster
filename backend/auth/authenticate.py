@@ -133,7 +133,7 @@ class MainProcess:
         User.objects(userId=self.userId).update(set__isFreshing=True, set__isSync=False)
         nPT = ''
         params = {'pageSize': 40}
-        # QueueManager = []
+        QueueManager = []
         i = 0
         while True:
             if nPT:
@@ -158,7 +158,7 @@ class MainProcess:
             for mediaItem in waiting:
                 i=i+1
                 pool.add_task(self.pipeline, mediaItem=mediaItem)
-                # QueueManager.append(pool.wait_completion)
+                QueueManager.append(pool.wait_completion)
             pool.work()
             if not photoRes.get('nextPageToken', None):
             # if photoRes['nextPageToken']:
@@ -166,7 +166,7 @@ class MainProcess:
             else:
                 nPT = photoRes['nextPageToken']
         logging.info(f'Done {i}')
-        # Thread(target=self.afterall, args=(tic, QueueManager), daemon=True).start()
+        Thread(target=self.afterall, args=(tic, QueueManager), daemon=True).start()
 
     def refresh(self):
         tic = time.perf_counter()
