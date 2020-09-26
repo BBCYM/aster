@@ -68,9 +68,13 @@ class MainProcess:
                 # get the image data
                 filename = mediaItem['filename']
                 imagebinary = self.session.get(mediaItem['baseUrl']+'=d').content
-                # image = types.Image(content = imagebinary)
-                # labels = self.client.label_detection(image=image).label_annotations
-                # ltemp = list(map(getLabelDescription, labels))
+                image = types.Image(content = imagebinary)
+                response = self.client.label_detection(image=image)
+                if response.error.message:
+                    raise Exception(response.error.message)
+                labels = response.label_annotations
+                ltemp = list(map(getLabelDescription, labels))
+                print(ltemp)
                 # mLabels = toMandarin(ltemp)
                 # t = Tag(
                 #     main_tag=mLabels[0].text if len(mLabels) > 0 else "None"
@@ -144,8 +148,8 @@ class MainProcess:
                 pool.add_task(self.pipeline, mediaItem=mediaItem)
                 # QueueManager.append(pool.wait_completion)
             pool.work()
-            if not photoRes.get('nextPageToken', None):
-            # if photoRes['nextPageToken']:
+            # if not photoRes.get('nextPageToken', None):
+            if photoRes['nextPageToken']:
                 break
             else:
                 nPT = photoRes['nextPageToken']
