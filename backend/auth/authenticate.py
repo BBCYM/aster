@@ -60,7 +60,7 @@ class MainProcess:
     def __init__(self, session:AuthorizedSession, userId):
         self.IFR = './static'
         self.session = session
-        self.session.mount('https://', HTTPAdapter(pool_connections=12, pool_maxsize=12, pool_block=True))
+        self.session.mount('https://', HTTPAdapter(pool_connections=15, pool_maxsize=15, max_retries=5,pool_block=True))
         self.userId = userId
         self.client = ImageAnnotatorClient(credentials=service_account.Credentials.from_service_account_file('anster-1593361678608.json'))
 
@@ -116,8 +116,8 @@ class MainProcess:
             
     def afterall(self, tic, QueueManager:list):
         for i, func in enumerate(QueueManager):
-            func()
             print(f"\rWaiting #{i}",end='', flush=True)
+            func()
         toc = time.perf_counter()
         print(f"\rTotal process {toc - tic:0.4f} seconds")
         user = User.objects(userId=self.userId)
