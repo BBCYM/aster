@@ -63,35 +63,40 @@ class MainProcess:
     def pipeline(self, mediaItem, callback=None):
         mimeType = mediaItem['mimeType'].split('/')
         # only download images
-        if mimeType[0] == 'image':
-            # get the image data
-            filename = mediaItem['filename']
-            imagebinary = self.session.get(mediaItem['baseUrl']+'=d').content
-            image = types.Image(content = imagebinary)
-            labels = self.client.label_detection(image=image).label_annotations
-            tempcreationTime = mediaItem['mediaMetadata']['creationTime']
-            sliceTime = tempcreationTime.split('Z')[0].split('.')[0] if '.' in tempcreationTime else tempcreationTime.split('Z')[0]
-            realTime = datetime.datetime.strptime(sliceTime, "%Y-%m-%dT%H:%M:%S")    
-            ltemp = list(map(getLabelDescription, labels))
-            mLabels = toMandarin(ltemp)
-            t = Tag(
-                main_tag=mLabels[0].text
-            )
-            for ml, l in zip(mLabels[:3], labels[:3]):
-                t.top3_tag.append(ATag(tag=ml.text, precision=str(l.score)))
-            for ml, l in zip(mLabels[4:], labels[4:]):
-                t.all_tag.append(ATag(tag=ml.text, precision=str(l.score)))
-            pho = Photo(
-                photoId=mediaItem['id'],
-                userId=self.userId,
-                tag=t,
-                location=randLocation(),
-                createTime=make_aware(
-                    realTime, timezone=pytz.timezone(settings.TIME_ZONE)),
-            )
-            pho.save()
-            with open(f'{self.IFR}/{self.userId}/{filename}', mode='wb') as handler:
-                handler.write(imagebinary)
+        try:
+            if mimeType[0] == 'image':
+                # get the image data
+                filename = mediaItem['filename']
+                imagebinary = self.session.get(mediaItem['baseUrl']+'=d').content
+                image = types.Image(content = imagebinary)
+                labels = self.client.label_detection(image=image).label_annotations
+                tempcreationTime = mediaItem['mediaMetadata']['creationTime']
+                sliceTime = tempcreationTime.split('Z')[0].split('.')[0] if '.' in tempcreationTime else tempcreationTime.split('Z')[0]
+                realTime = datetime.datetime.strptime(sliceTime, "%Y-%m-%dT%H:%M:%S")    
+                ltemp = list(map(getLabelDescription, labels))
+                mLabels = toMandarin(ltemp)
+                print(type(mLabels))
+                print(mLabels)
+                t = Tag(
+                    main_tag=mLabels[0].text if len(mLabels) > 0 else "None"
+                )
+                for ml, l in zip(mLabels[:3], labels[:3]):
+                    t.top3_tag.append(ATag(tag=ml.text, precision=str(l.score)))
+                for ml, l in zip(mLabels[3:], labels[3:]):
+                    t.all_tag.append(ATag(tag=ml.text, precision=str(l.score)))
+                pho = Photo(
+                    photoId=mediaItem['id'],
+                    userId=self.userId,
+                    tag=t,
+                    location=randLocation(),
+                    createTime=make_aware(
+                        realTime, timezone=pytz.timezone(settings.TIME_ZONE)),
+                )
+                pho.save()
+                with open(f'{self.IFR}/{self.userId}/{filename}', mode='wb') as handler:
+                    handler.write(imagebinary)
+        except Exception as e:
+            print(e)
         if callback:
             callback()
             
@@ -121,7 +126,6 @@ class MainProcess:
                 params['pageToken'] = nPT
             photoRes = self.session.get(
                 'https://photoslibrary.googleapis.com/v1/mediaItems', params=params).json()
-            print(photoRes.keys())
             mediaItems = photoRes.get('mediaItems', None)
             if not mediaItems:
                 break
