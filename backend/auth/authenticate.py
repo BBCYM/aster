@@ -86,7 +86,7 @@ class MainProcess:
                 # for ml, l in zip(mLabels[3:], labels[3:]):
                 #     t.all_tag.append(ATag(tag=ml.text, precision=str(l.score)))
                 t = Tag(
-                    main_tag=ltemp[0].text if len(ltemp) > 0 else "None"
+                    main_tag=ltemp[0] if len(ltemp) > 0 else "None"
                 )
                 for ml, l in zip(ltemp[:3], labels[:3]):
                     t.top3_tag.append(ATag(tag=ml, precision=str(l.score)))
