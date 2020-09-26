@@ -83,6 +83,13 @@ class MainProcess:
                 #     t.top3_tag.append(ATag(tag=ml.text, precision=str(l.score)))
                 # for ml, l in zip(mLabels[3:], labels[3:]):
                 #     t.all_tag.append(ATag(tag=ml.text, precision=str(l.score)))
+                t = Tag(
+                    main_tag=ltemp[0].text if len(ltemp) > 0 else "None"
+                )
+                for ml, l in zip(ltemp[:3], labels[:3]):
+                    t.top3_tag.append(ATag(tag=ml, precision=str(l.score)))
+                for ml, l in zip(ltemp[3:], labels[3:]):
+                    t.all_tag.append(ATag(tag=ml, precision=str(l.score)))
                 tempcreationTime = mediaItem['mediaMetadata']['creationTime']
                 sliceTime = tempcreationTime.split('Z')[0].split('.')[0] if '.' in tempcreationTime else tempcreationTime.split('Z')[0]
                 realTime = datetime.datetime.strptime(sliceTime, "%Y-%m-%dT%H:%M:%S")    
