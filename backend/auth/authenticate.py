@@ -38,86 +38,87 @@ def checkisSync(session,userId):
 class Worker():
     def __init__(self, tasks:queue.Queue):
         self.tasks = tasks
-        self.daemon = True
         self.go()
+
     def go(self):
-        func, args, kwargs = self.tasks.get()
-        kwargs['callback'] = self.tasks.task_done
-        Thread(target=func, args=args, kwargs=kwargs, daemon=self.daemon).start()
+        while True:
+            func, args, kwargs = self.tasks.get()
+            func(*args, **kwargs)
 
 class ThreadPool:
-    def __init__(self, num_threads:int):
-        self.tasks = queue.Queue(num_threads)
-    def add_task(self, func, *args, **kargs):
-        self.tasks.put((func, args, kargs))
-    def work(self):
-        for _ in range(self.tasks.maxsize):
-            Worker(self.tasks)
-    def wait_completion(self):
-        self.tasks.join()
+        def __init__(self, QueueManager:queue.Queue()):
+            self.maxCore = 8
+            self.tasks = QueueManager
+            self.daemon = True
+            self.work()
+
+        def add_task(self, func, *args, **kargs):
+            self.tasks.put((func, args, kargs))
+
+        def work(self):
+            for _ in range(self.maxCore):
+                Thread(target=Worker, args=(self.tasks,), daemon=self.daemon).start()
+
 
 class MainProcess:
     def __init__(self, session:AuthorizedSession, userId):
         self.IFR = './static'
         self.session = session
+        self.queue = queue.Queue()
         self.session.mount('https://', HTTPAdapter(pool_connections=15, pool_maxsize=15, max_retries=5,pool_block=True))
         self.userId = userId
         self.client = ImageAnnotatorClient(credentials=service_account.Credentials.from_service_account_file('anster-1593361678608.json'))
 
     def pipeline(self, mediaItem, callback=None):
-        mimeType = mediaItem['mimeType'].split('/')
         # only download images
         try:
-            if mimeType[0] == 'image':
-                # get the image data
-                filename = mediaItem['filename']
-                imagebinary = self.session.get(mediaItem['baseUrl']+'=d').content
-                image = types.Image(content = imagebinary)
-                response = self.client.label_detection(image=image)
-                if response.error.message:
-                    raise Exception(response.error.message)
-                labels = response.label_annotations
-                ltemp = list(map(getLabelDescription, labels))
-                logging.info(ltemp)
-                # mLabels = toMandarin(ltemp)
-                # t = Tag(
-                #     main_tag=mLabels[0].text if len(mLabels) > 0 else "None"
-                # )
-                # for ml, l in zip(mLabels[:3], labels[:3]):
-                #     t.top3_tag.append(ATag(tag=ml.text, precision=str(l.score)))
-                # for ml, l in zip(mLabels[3:], labels[3:]):
-                #     t.all_tag.append(ATag(tag=ml.text, precision=str(l.score)))
-                t = Tag(
-                    main_tag=ltemp[0] if len(ltemp) > 0 else "None"
-                )
-                for ml, l in zip(ltemp[:3], labels[:3]):
-                    t.top3_tag.append(ATag(tag=ml, precision=str(l.score)))
-                for ml, l in zip(ltemp[3:], labels[3:]):
-                    t.all_tag.append(ATag(tag=ml, precision=str(l.score)))
-                tempcreationTime = mediaItem['mediaMetadata']['creationTime']
-                sliceTime = tempcreationTime.split('Z')[0].split('.')[0] if '.' in tempcreationTime else tempcreationTime.split('Z')[0]
-                realTime = datetime.datetime.strptime(sliceTime, "%Y-%m-%dT%H:%M:%S")    
-                pho = Photo(
-                    photoId=mediaItem['id'],
-                    userId=self.userId,
-                    # tag=t,
-                    location=randLocation(),
-                    createTime=make_aware(
-                        realTime, timezone=pytz.timezone(settings.TIME_ZONE)),
-                )
-                pho.save()
-                with open(f'{self.IFR}/{self.userId}/{filename}', mode='wb') as handler:
-                    handler.write(imagebinary)
+            # get the image data
+            filename = mediaItem['filename']
+            imagebinary = self.session.get(mediaItem['baseUrl']+'=d').content
+            image = types.Image(content = imagebinary)
+            response = self.client.label_detection(image=image)
+            if response.error.message:
+                raise Exception(response.error.message)
+            labels = response.label_annotations
+            ltemp = list(map(getLabelDescription, labels))
+            logging.info(ltemp)
+            # mLabels = toMandarin(ltemp)
+            # t = Tag(
+            #     main_tag=mLabels[0].text if len(mLabels) > 0 else "None"
+            # )
+            # for ml, l in zip(mLabels[:3], labels[:3]):
+            #     t.top3_tag.append(ATag(tag=ml.text, precision=str(l.score)))
+            # for ml, l in zip(mLabels[3:], labels[3:]):
+            #     t.all_tag.append(ATag(tag=ml.text, precision=str(l.score)))
+            t = Tag(
+                main_tag=ltemp[0] if len(ltemp) > 0 else "None"
+            )
+            for ml, l in zip(ltemp[:3], labels[:3]):
+                t.top3_tag.append(ATag(tag=ml, precision=str(l.score)))
+            for ml, l in zip(ltemp[3:], labels[3:]):
+                t.all_tag.append(ATag(tag=ml, precision=str(l.score)))
+            tempcreationTime = mediaItem['mediaMetadata']['creationTime']
+            sliceTime = tempcreationTime.split('Z')[0].split('.')[0] if '.' in tempcreationTime else tempcreationTime.split('Z')[0]
+            realTime = datetime.datetime.strptime(sliceTime, "%Y-%m-%dT%H:%M:%S")    
+            pho = Photo(
+                photoId=mediaItem['id'],
+                userId=self.userId,
+                # tag=t,
+                location=randLocation(),
+                createTime=make_aware(
+                    realTime, timezone=pytz.timezone(settings.TIME_ZONE)),
+            )
+            pho.save()
+            with open(f'{self.IFR}/{self.userId}/{filename}', mode='wb') as handler:
+                handler.write(imagebinary)
         except Exception as e:
             logging.error(e)
             print(e)
         if callback:
             callback()
             
-    def afterall(self, tic, QueueManager:list):
-        for i, func in enumerate(QueueManager):
-            print(f"\rWaiting #{i}",end='', flush=True)
-            func()
+    def afterall(self, tic):
+        self.queue.join()
         toc = time.perf_counter()
         print(f"\rTotal process {toc - tic:0.4f} seconds")
         user = User.objects(userId=self.userId)
@@ -127,14 +128,18 @@ class MainProcess:
             set__lastSync=make_aware(datetime.datetime.utcnow(),
                                     timezone=pytz.timezone(settings.TIME_ZONE))
         )
-
     def initial(self):
         tic = time.perf_counter()
         User.objects(userId=self.userId).update(set__isFreshing=True, set__isSync=False)
         nPT = ''
+        pool=ThreadPool(self.queue)
         params = {'pageSize': 40}
-        QueueManager = []
         i = 0
+        if not os.path.isdir(f'{self.IFR}/{self.userId}'):
+            try:
+                os.mkdir(f'{self.IFR}/{self.userId}')
+            except OSError as e:
+                logging.error(e)
         while True:
             if nPT:
                 params['pageToken'] = nPT
@@ -144,29 +149,23 @@ class MainProcess:
             if not mediaItems:
                 break
             print(f'Handling {len(mediaItems)} items')
-            if not os.path.isdir(f'{self.IFR}/{self.userId}'):
-                try:
-                    os.mkdir(f'{self.IFR}/{self.userId}')
-                except OSError as e:
-                    print(e)
-            waiting = []
             for mediaItem in mediaItems:
                 dbres = Photo.objects(photoId=mediaItem['id'])
-                if not dbres:
-                    waiting.append(mediaItem)
-            pool = ThreadPool(len(waiting))
-            for mediaItem in waiting:
-                i=i+1
-                pool.add_task(self.pipeline, mediaItem=mediaItem)
-                QueueManager.append(pool.wait_completion)
-            pool.work()
-            if not photoRes.get('nextPageToken', None):
-            # if photoRes['nextPageToken']:
+                mimeType, _ = mediaItem['mimeType'].split('/')
+                if not dbres and mimeType == 'image':
+                    ThreadPool.add_task(self.pipeline, mediaItem=mediaItem, callback=QueueManager.task_done)
+            # for mediaItem in waiting:
+            #     i=i+1
+            #     pool.add_task(self.pipeline, mediaItem=mediaItem)
+            #     QueueManager.append(pool.wait_completion)
+            # pool.work()
+            # if not photoRes.get('nextPageToken', None):
+            if photoRes['nextPageToken']:
                 break
             else:
                 nPT = photoRes['nextPageToken']
         logging.info(f'Done {i}')
-        Thread(target=self.afterall, args=(tic, QueueManager), daemon=True).start()
+        Thread(target=self.afterall, args=(tic,), daemon=True).start()
 
     def refresh(self):
         tic = time.perf_counter()
