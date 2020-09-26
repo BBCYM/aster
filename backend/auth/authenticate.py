@@ -135,35 +135,36 @@ class MainProcess:
         pool=ThreadPool(self.queue)
         params = {'pageSize': 40}
         i = 0
-        if not os.path.isdir(f'{self.IFR}/{self.userId}'):
-            try:
+        try:
+            if not os.path.isdir(f'{self.IFR}/{self.userId}'):
                 os.mkdir(f'{self.IFR}/{self.userId}')
-            except OSError as e:
+            while True:
+                if nPT:
+                    params['pageToken'] = nPT
+                photoRes = self.session.get(
+                    'https://photoslibrary.googleapis.com/v1/mediaItems', params=params).json()
+                mediaItems = photoRes.get('mediaItems', None)
+                if not mediaItems:
+                    break
+                print(f'Handling {len(mediaItems)} items')
+                for mediaItem in mediaItems:
+                    dbres = Photo.objects(photoId=mediaItem['id'])
+                    mimeType, _ = mediaItem['mimeType'].split('/')
+                    if not dbres and mimeType == 'image':
+                        ThreadPool.add_task(self.pipeline, mediaItem=mediaItem, callback=QueueManager.task_done)
+                # for mediaItem in waiting:
+                #     i=i+1
+                #     pool.add_task(self.pipeline, mediaItem=mediaItem)
+                #     QueueManager.append(pool.wait_completion)
+                # pool.work()
+                # if not photoRes.get('nextPageToken', None):
+                if photoRes['nextPageToken']:
+                    break
+                else:
+                    nPT = photoRes['nextPageToken']
+        except Exception as e:
                 logging.error(e)
-        while True:
-            if nPT:
-                params['pageToken'] = nPT
-            photoRes = self.session.get(
-                'https://photoslibrary.googleapis.com/v1/mediaItems', params=params).json()
-            mediaItems = photoRes.get('mediaItems', None)
-            if not mediaItems:
-                break
-            print(f'Handling {len(mediaItems)} items')
-            for mediaItem in mediaItems:
-                dbres = Photo.objects(photoId=mediaItem['id'])
-                mimeType, _ = mediaItem['mimeType'].split('/')
-                if not dbres and mimeType == 'image':
-                    ThreadPool.add_task(self.pipeline, mediaItem=mediaItem, callback=QueueManager.task_done)
-            # for mediaItem in waiting:
-            #     i=i+1
-            #     pool.add_task(self.pipeline, mediaItem=mediaItem)
-            #     QueueManager.append(pool.wait_completion)
-            # pool.work()
-            # if not photoRes.get('nextPageToken', None):
-            if photoRes['nextPageToken']:
-                break
-            else:
-                nPT = photoRes['nextPageToken']
+                print(e)
         logging.info(f'Done {i}')
         Thread(target=self.afterall, args=(tic,), daemon=True).start()
 
