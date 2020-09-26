@@ -44,6 +44,7 @@ class Worker():
         while True:
             func, args, kwargs = self.tasks.get()
             func(*args, **kwargs)
+            self.tasks.task_done()
 
 class ThreadPool:
         def __init__(self, QueueManager:queue.Queue()):
@@ -69,7 +70,7 @@ class MainProcess:
         self.userId = userId
         self.client = ImageAnnotatorClient(credentials=service_account.Credentials.from_service_account_file('anster-1593361678608.json'))
 
-    def pipeline(self, mediaItem, callback=None):
+    def pipeline(self, mediaItem):
         # only download images
         try:
             # get the image data
@@ -114,8 +115,6 @@ class MainProcess:
         except Exception as e:
             logging.error(e)
             print(e)
-        if callback:
-            callback()
             
     def afterall(self, tic):
         self.queue.join()
@@ -151,7 +150,7 @@ class MainProcess:
                     dbres = Photo.objects(photoId=mediaItem['id'])
                     mimeType, _ = mediaItem['mimeType'].split('/')
                     if not dbres and mimeType == 'image':
-                        ThreadPool.add_task(self.pipeline, mediaItem=mediaItem, callback=QueueManager.task_done)
+                        ThreadPool.add_task(self.pipeline, mediaItem=mediaItem)
                 # for mediaItem in waiting:
                 #     i=i+1
                 #     pool.add_task(self.pipeline, mediaItem=mediaItem)
