@@ -82,15 +82,15 @@ class MainProcess:
                 raise Exception(response.error.message)
             labels = response.label_annotations
             ltemp = list(map(getLabelDescription, labels))
-            logging.info(ltemp)
             mLabels = toMandarin(ltemp)
+            logging.info(mLabels)
             t = Tag(
-                main_tag=mLabels[0].text if len(mLabels) > 0 else "None"
+                main_tag=mLabels if len(mLabels) > 0 else "None"
             )
             for ml, l in zip(mLabels[:3], labels[:3]):
-                t.top3_tag.append(ATag(tag=ml.text, precision=str(l.score)))
+                t.top3_tag.append(ATag(tag=ml, precision=str(l.score)))
             for ml, l in zip(mLabels[3:], labels[3:]):
-                t.all_tag.append(ATag(tag=ml.text, precision=str(l.score)))
+                t.all_tag.append(ATag(tag=ml, precision=str(l.score)))
             # t = Tag(
             #     main_tag=ltemp[0] if len(ltemp) > 0 else "None"
             # )
