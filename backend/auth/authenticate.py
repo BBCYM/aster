@@ -85,19 +85,12 @@ class MainProcess:
             mLabels = toMandarin(ltemp)
             logging.info(mLabels)
             t = Tag(
-                main_tag=mLabels if len(mLabels) > 0 else "None"
+                main_tag=mLabels[0] if len(mLabels) > 0 else "None"
             )
             for ml, l in zip(mLabels[:3], labels[:3]):
                 t.top3_tag.append(ATag(tag=ml, precision=str(l.score)))
             for ml, l in zip(mLabels[3:], labels[3:]):
                 t.all_tag.append(ATag(tag=ml, precision=str(l.score)))
-            # t = Tag(
-            #     main_tag=ltemp[0] if len(ltemp) > 0 else "None"
-            # )
-            # for ml, l in zip(ltemp[:3], labels[:3]):
-            #     t.top3_tag.append(ATag(tag=ml, precision=str(l.score)))
-            # for ml, l in zip(ltemp[3:], labels[3:]):
-            #     t.all_tag.append(ATag(tag=ml, precision=str(l.score)))
             tempcreationTime = mediaItem['mediaMetadata']['creationTime']
             sliceTime = tempcreationTime.split('Z')[0].split('.')[0] if '.' in tempcreationTime else tempcreationTime.split('Z')[0]
             realTime = datetime.datetime.strptime(sliceTime, "%Y-%m-%dT%H:%M:%S")    
@@ -147,17 +140,11 @@ class MainProcess:
                     break
                 print(f'Handling {len(mediaItems)} items')
                 for mediaItem in mediaItems:
-                    dbres = Photo.objects(photoId=mediaItem['id'])
                     mimeType, _ = mediaItem['mimeType'].split('/')
-                    if not dbres and mimeType == 'image':
+                    if mimeType == 'image':
                         pool.add_task(self.pipeline, mediaItem=mediaItem)
                         i=i+1
-                # for mediaItem in waiting:
-                #     pool.add_task(self.pipeline, mediaItem=mediaItem)
-                #     QueueManager.append(pool.wait_completion)
-                # pool.work()
                 if not photoRes.get('nextPageToken', None):
-                # if photoRes['nextPageToken']:
                     break
                 else:
                     nPT = photoRes['nextPageToken']
@@ -170,36 +157,35 @@ class MainProcess:
         tic = time.perf_counter()
         User.objects(userId=self.userId).update(set__isFreshing=True, set__isSync=False)
         nPT = ''
-        params = {'pageSize': 20}
-        QueueManager = []
-        while True:
-            if nPT:
-                params['pageToken'] = nPT
-            photoRes = self.session.get(
-                'https://photoslibrary.googleapis.com/v1/mediaItems', params=params).json()
-            mediaItems = photoRes['mediaItems']
-            print(f'Handling {len(mediaItems)} items')
+        pool=ThreadPool(self.queue)
+        params = {'pageSize': 40}
+        i = 0
+        try:
             if not os.path.isdir(f'{self.IFR}/{self.userId}'):
-                try:
-                    os.mkdir(f'{self.IFR}/{self.userId}')
-                except OSError as e:
-                    print(e)
-            waiting = []
-            for mediaItem in mediaItems:
-                dbres = Photo.objects(Q(userId=self.userId) & Q(photoId=mediaItem['id']))
-                if not dbres:
-                    waiting.append(mediaItem)
-            pool = ThreadPool(len(waiting))
-            for mediaItem in waiting:
-                pool.add_task(self.pipeline, mediaItem=mediaItem)
-                QueueManager.append(pool.wait_completion)
-            pool.work()
-            if not photoRes.get('nextPageToken', None):
-            # if photoRes['nextPageToken']:
-                break
-            else:
-                nPT = photoRes['nextPageToken']
-        Thread(target=self.afterall, args=(tic, QueueManager), daemon=True).start()
+                os.mkdir(f'{self.IFR}/{self.userId}')
+            while True:
+                if nPT:
+                    params['pageToken'] = nPT
+                photoRes = self.session.get(
+                    'https://photoslibrary.googleapis.com/v1/mediaItems', params=params).json()
+                mediaItems = photoRes.get('mediaItems', None)
+                if not mediaItems:
+                    break
+                print(f'Handling {len(mediaItems)} items')
+                for mediaItem in mediaItems:
+                    dbres = Photo.objects(photoId=mediaItem['id'])
+                    mimeType, _ = mediaItem['mimeType'].split('/')
+                    if not dbres and mimeType == 'image':
+                        pool.add_task(self.pipeline, mediaItem=mediaItem)
+                        i=i+1
+                if not photoRes.get('nextPageToken', None):
+                    break
+                else:
+                    nPT = photoRes['nextPageToken']
+        except Exception as e:
+            logging.error(e)
+            print(e)
+        Thread(target=self.afterall, args=(tic,i), daemon=True).start()
 
 def checkUserToSession(userId, req):
     with open('client_secret.json', 'r', encoding='utf-8') as f:
