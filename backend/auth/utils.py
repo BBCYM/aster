@@ -9,8 +9,8 @@ def getLabelDescription(data):
 
 def toMandarin(data):
     translator = Translator()
-    return translator.translate(data, dest='zh-tW')
-
+    return list(map(lambda l: l.text, translator.translate(data, dest='zh-tW')))
+     
 
 def stringify(data: dict):
     return json.dumps(data)
