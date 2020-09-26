@@ -76,7 +76,7 @@ class MainProcess:
                 ltemp = list(map(getLabelDescription, labels))
                 mLabels = toMandarin(ltemp)
                 print(type(mLabels))
-                print(mLabels)
+                # print(mLabels)
                 t = Tag(
                     main_tag=mLabels[0].text if len(mLabels) > 0 else "None"
                 )
@@ -119,7 +119,7 @@ class MainProcess:
         User.objects(userId=self.userId).update(set__isFreshing=True, set__isSync=False)
         nPT = ''
         params = {'pageSize': 40}
-        QueueManager = []
+        # QueueManager = []
         i = 0
         while True:
             if nPT:
@@ -144,7 +144,7 @@ class MainProcess:
             for mediaItem in waiting:
                 i=i+1
                 pool.add_task(self.pipeline, mediaItem=mediaItem)
-                QueueManager.append(pool.wait_completion)
+                # QueueManager.append(pool.wait_completion)
             pool.work()
             if not photoRes.get('nextPageToken', None):
             # if photoRes['nextPageToken']:
@@ -152,7 +152,7 @@ class MainProcess:
             else:
                 nPT = photoRes['nextPageToken']
         print(i)
-        Thread(target=self.afterall, args=(tic, QueueManager), daemon=True).start()
+        # Thread(target=self.afterall, args=(tic, QueueManager), daemon=True).start()
 
     def refresh(self):
         tic = time.perf_counter()
