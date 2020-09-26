@@ -159,8 +159,8 @@ class MainProcess:
                 pool.add_task(self.pipeline, mediaItem=mediaItem)
                 # QueueManager.append(pool.wait_completion)
             pool.work()
-            # if not photoRes.get('nextPageToken', None):
-            if photoRes['nextPageToken']:
+            if not photoRes.get('nextPageToken', None):
+            # if photoRes['nextPageToken']:
                 break
             else:
                 nPT = photoRes['nextPageToken']
