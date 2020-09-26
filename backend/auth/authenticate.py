@@ -144,7 +144,8 @@ class MainProcess:
                     if mimeType == 'image':
                         pool.add_task(self.pipeline, mediaItem=mediaItem)
                         i=i+1
-                if not photoRes.get('nextPageToken', None):
+                # if not photoRes.get('nextPageToken', None):
+                if photoRes.get('nextPageToken', None):
                     break
                 else:
                     nPT = photoRes['nextPageToken']
@@ -178,7 +179,8 @@ class MainProcess:
                     if not dbres and mimeType == 'image':
                         pool.add_task(self.pipeline, mediaItem=mediaItem)
                         i=i+1
-                if not photoRes.get('nextPageToken', None):
+                # if not photoRes.get('nextPageToken', None):
+                if photoRes.get('nextPageToken', None):
                     break
                 else:
                     nPT = photoRes['nextPageToken']
