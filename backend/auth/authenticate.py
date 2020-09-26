@@ -47,18 +47,18 @@ class Worker():
             self.tasks.task_done()
 
 class ThreadPool:
-        def __init__(self, QueueManager:queue.Queue()):
-            self.maxCore = 8
-            self.tasks = QueueManager
-            self.daemon = True
-            self.work()
+    def __init__(self, QueueManager:queue.Queue()):
+        self.maxCore = 8
+        self.tasks = QueueManager
+        self.daemon = True
+        self.work()
 
-        def add_task(self, func, *args, **kargs):
-            self.tasks.put((func, args, kargs))
+    def add_task(self, func, *args, **kargs):
+        self.tasks.put((func, args, kargs))
 
-        def work(self):
-            for _ in range(self.maxCore):
-                Thread(target=Worker, args=(self.tasks,), daemon=self.daemon).start()
+    def work(self):
+        for _ in range(self.maxCore):
+            Thread(target=Worker, args=(self.tasks,), daemon=self.daemon).start()
 
 
 class MainProcess:
@@ -150,7 +150,7 @@ class MainProcess:
                     dbres = Photo.objects(photoId=mediaItem['id'])
                     mimeType, _ = mediaItem['mimeType'].split('/')
                     if not dbres and mimeType == 'image':
-                        ThreadPool.add_task(self.pipeline, mediaItem=mediaItem)
+                        pool.add_task(self.pipeline, mediaItem=mediaItem)
                 # for mediaItem in waiting:
                 #     i=i+1
                 #     pool.add_task(self.pipeline, mediaItem=mediaItem)
