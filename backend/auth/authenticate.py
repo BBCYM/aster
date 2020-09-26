@@ -20,6 +20,7 @@ from mongoengine.queryset.visitor import Q
 import queue
 from threading import Thread
 import logging
+from requests.adapters import HTTPAdapter
 logging.basicConfig(filename=f'{__name__}.log', level=logging.INFO, filemode='w+', format='%(name)s %(levelname)s %(asctime)s -> %(message)s')
 
 def checkisSync(session,userId):
@@ -59,6 +60,7 @@ class MainProcess:
     def __init__(self, session:AuthorizedSession, userId):
         self.IFR = './static'
         self.session = session
+        self.session.mount('https://', HTTPAdapter(pool_connections=12, pool_maxsize=12, pool_block=True))
         self.userId = userId
         self.client = ImageAnnotatorClient(credentials=service_account.Credentials.from_service_account_file('anster-1593361678608.json'))
 
@@ -106,7 +108,6 @@ class MainProcess:
                 pho.save()
                 with open(f'{self.IFR}/{self.userId}/{filename}', mode='wb') as handler:
                     handler.write(imagebinary)
-                self.session.close()
         except Exception as e:
             logging.error(e)
             print(e)
