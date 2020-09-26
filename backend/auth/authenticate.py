@@ -48,7 +48,7 @@ class Worker():
 
 class ThreadPool:
     def __init__(self, QueueManager:queue.Queue()):
-        self.maxCore = 8
+        self.maxCore = 16
         self.tasks = QueueManager
         self.daemon = True
         self.work()
@@ -83,28 +83,28 @@ class MainProcess:
             labels = response.label_annotations
             ltemp = list(map(getLabelDescription, labels))
             logging.info(ltemp)
-            # mLabels = toMandarin(ltemp)
-            # t = Tag(
-            #     main_tag=mLabels[0].text if len(mLabels) > 0 else "None"
-            # )
-            # for ml, l in zip(mLabels[:3], labels[:3]):
-            #     t.top3_tag.append(ATag(tag=ml.text, precision=str(l.score)))
-            # for ml, l in zip(mLabels[3:], labels[3:]):
-            #     t.all_tag.append(ATag(tag=ml.text, precision=str(l.score)))
+            mLabels = toMandarin(ltemp)
             t = Tag(
-                main_tag=ltemp[0] if len(ltemp) > 0 else "None"
+                main_tag=mLabels[0].text if len(mLabels) > 0 else "None"
             )
-            for ml, l in zip(ltemp[:3], labels[:3]):
-                t.top3_tag.append(ATag(tag=ml, precision=str(l.score)))
-            for ml, l in zip(ltemp[3:], labels[3:]):
-                t.all_tag.append(ATag(tag=ml, precision=str(l.score)))
+            for ml, l in zip(mLabels[:3], labels[:3]):
+                t.top3_tag.append(ATag(tag=ml.text, precision=str(l.score)))
+            for ml, l in zip(mLabels[3:], labels[3:]):
+                t.all_tag.append(ATag(tag=ml.text, precision=str(l.score)))
+            # t = Tag(
+            #     main_tag=ltemp[0] if len(ltemp) > 0 else "None"
+            # )
+            # for ml, l in zip(ltemp[:3], labels[:3]):
+            #     t.top3_tag.append(ATag(tag=ml, precision=str(l.score)))
+            # for ml, l in zip(ltemp[3:], labels[3:]):
+            #     t.all_tag.append(ATag(tag=ml, precision=str(l.score)))
             tempcreationTime = mediaItem['mediaMetadata']['creationTime']
             sliceTime = tempcreationTime.split('Z')[0].split('.')[0] if '.' in tempcreationTime else tempcreationTime.split('Z')[0]
             realTime = datetime.datetime.strptime(sliceTime, "%Y-%m-%dT%H:%M:%S")    
             pho = Photo(
                 photoId=mediaItem['id'],
                 userId=self.userId,
-                # tag=t,
+                tag=t,
                 location=randLocation(),
                 createTime=make_aware(
                     realTime, timezone=pytz.timezone(settings.TIME_ZONE)),
@@ -116,10 +116,10 @@ class MainProcess:
             logging.error(e)
             print(e)
             
-    def afterall(self, tic):
+    def afterall(self, tic, i):
         self.queue.join()
         toc = time.perf_counter()
-        print(f"\rTotal process {toc - tic:0.4f} seconds")
+        print(f"\rTotal process {i} images in {toc - tic:0.4f} seconds")
         user = User.objects(userId=self.userId)
         user.update(
             set__isSync=True,
@@ -164,8 +164,7 @@ class MainProcess:
         except Exception as e:
             logging.error(e)
             print(e)
-        logging.info(f'Done {i}')
-        Thread(target=self.afterall, args=(tic,), daemon=True).start()
+        Thread(target=self.afterall, args=(tic,i), daemon=True).start()
 
     def refresh(self):
         tic = time.perf_counter()
