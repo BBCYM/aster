@@ -151,19 +151,19 @@ class MainProcess:
                     mimeType, _ = mediaItem['mimeType'].split('/')
                     if not dbres and mimeType == 'image':
                         pool.add_task(self.pipeline, mediaItem=mediaItem)
+                        i=i+1
                 # for mediaItem in waiting:
-                #     i=i+1
                 #     pool.add_task(self.pipeline, mediaItem=mediaItem)
                 #     QueueManager.append(pool.wait_completion)
                 # pool.work()
-                # if not photoRes.get('nextPageToken', None):
-                if photoRes['nextPageToken']:
+                if not photoRes.get('nextPageToken', None):
+                # if photoRes['nextPageToken']:
                     break
                 else:
                     nPT = photoRes['nextPageToken']
         except Exception as e:
-                logging.error(e)
-                print(e)
+            logging.error(e)
+            print(e)
         logging.info(f'Done {i}')
         Thread(target=self.afterall, args=(tic,), daemon=True).start()
 
