@@ -19,6 +19,8 @@ import pytz
 from mongoengine.queryset.visitor import Q
 import queue
 from threading import Thread
+import logging
+logging.basicConfig(filename=f'{__name__}.log', level=logging.INFO, filemode='w+', format='%(name)s  %(asctime)s -> %(message)s')
 
 def checkisSync(session,userId):
     params = {'pageSize':10}
@@ -74,7 +76,7 @@ class MainProcess:
                     raise Exception(response.error.message)
                 labels = response.label_annotations
                 ltemp = list(map(getLabelDescription, labels))
-                print(ltemp)
+                logging.info(ltemp)
                 # mLabels = toMandarin(ltemp)
                 # t = Tag(
                 #     main_tag=mLabels[0].text if len(mLabels) > 0 else "None"
@@ -105,6 +107,7 @@ class MainProcess:
                 with open(f'{self.IFR}/{self.userId}/{filename}', mode='wb') as handler:
                     handler.write(imagebinary)
         except Exception as e:
+            logging.error(e)
             print(e)
         if callback:
             callback()
@@ -155,8 +158,8 @@ class MainProcess:
                 pool.add_task(self.pipeline, mediaItem=mediaItem)
                 # QueueManager.append(pool.wait_completion)
             pool.work()
-            # if not photoRes.get('nextPageToken', None):
-            if photoRes['nextPageToken']:
+            if not photoRes.get('nextPageToken', None):
+            # if photoRes['nextPageToken']:
                 break
             else:
                 nPT = photoRes['nextPageToken']
