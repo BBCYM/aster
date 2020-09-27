@@ -85,14 +85,15 @@ export default function RoomScreen({navigation}) {
 		var data = await response.json();
 		var message = JSON.parse(data);
 		// testing(all) response
-		var json_message = JSON.parse(message.dialog);
+		// var json_message = JSON.parse(message.dialog);
 		// general(custom) response
-		var json_message1 = JSON.parse(message.dialog1);
+		// var json_message1 = JSON.parse(message.dialog1);
 
 		//////////////拿回應//////////////
 		//將所有response message都拿出來，並用成giftedchat的msg format
 		//先試testing agent在試general agent
 		try { // statements to try
+			var json_message = JSON.parse(message.dialog);
 			json_message.fulfillmentMessages.forEach(element => {
 				var resmsg = element.text.text[0];
 				console.log(resmsg);
@@ -113,6 +114,7 @@ export default function RoomScreen({navigation}) {
 		}
 		catch (e) {
 			try {
+				var json_message1 = JSON.parse(message.dialog1);
 				json_message1.fulfillmentMessages.forEach(element => {
 					var resmsg = element.text.text[0];
 					console.log(resmsg);
