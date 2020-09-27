@@ -13,7 +13,9 @@ export default function personalScreen(props) {
 
 
 	React.useEffect(() => {
-		auth.checkNetwork(state)
+		// auth.checkNetwork(state, function(canload){
+		// 	console.log(canload)
+		// })
 		console.log('init_isSync:', state.isSync)
 		console.log('init_isFreshing:', state.isFreshing)
 		// console.log('userId:', state.user.id)
