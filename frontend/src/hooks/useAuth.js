@@ -8,13 +8,15 @@ import { asyncErrorHandling } from '../utils/utils'
 import axios from 'axios'
 import _ from 'lodash'
 import { APP, NODE_ENV, API_URL, ACCESS_CODE} from '../../env.json'
+import NetInfo from '@react-native-community/netinfo'
 /**
  * initial state
  */
 const initialState = {
 	user: null,
-	splash: true
+	splash: true,
 }
+
 export function useAuth() {
 
 	const [state, dispatch] = React.useReducer(authReducer, initialState)
@@ -66,7 +68,8 @@ export function useAuth() {
 						action(actionType.SET.USER, user),
 						action(actionType.SET.SPLASH, false),
 						action(actionType.SET.isFreshing, _isIndb.data.isFreshing),
-						action(actionType.SET.isSync, _isIndb.data.isSync)
+						action(actionType.SET.isSync, _isIndb.data.isSync),
+						action(actionType.SET.useWifi, JSON.parse(await AsyncStorage.getItem('useWifi')))
 					])
 				} else {
 					dispatch(action(actionType.SET.SPLASH, false))
@@ -82,7 +85,7 @@ export function useAuth() {
 				await GoogleSignin.hasPlayServices()
 				userInfo = await GoogleSignin.signIn()
 			}, () => {
-				AsyncStorage.multiSet([['GalleryLoaded', 'false'], ['AlbumLoaded', 'false']])
+				AsyncStorage.multiSet([['GalleryLoaded', 'false'], ['AlbumLoaded', 'false'], ['useWifi','true']])
 				axios.post(`${url}/auth/${userInfo.user.id}`, {
 					scopes: userInfo.scopes,
 					serverAuthCode: userInfo.serverAuthCode
@@ -94,7 +97,8 @@ export function useAuth() {
 					dispatch([
 						action(actionType.SET.USER, userInfo.user),
 						action(actionType.SET.isFreshing, res.data.isFreshing),
-						action(actionType.SET.isSync, res.data.isSync)
+						action(actionType.SET.isSync, res.data.isSync),
+						action(actionType.SET.useWifi, true)
 					])
 				})
 			})
@@ -143,7 +147,24 @@ export function useAuth() {
 			callback(_isIndb.data.isFreshing, _isIndb.data.isSync)
 		},
 		headers: headers,
-		url:url
+		url:url,
+		checkNetwork:(status, callback)=>{
+			const disallowtype = ['none', 'unknown']
+			NetInfo.fetch().then((netinfostate)=>{
+				// console.log(netinfostate.type)
+				// console.log(status.useWifi)
+				if((status.useWifi&&netinfostate.type==='wifi')||(!status.useWifi&&!disallowtype.includes(netinfostate))) {
+					callback(true)
+				} else {
+					callback(false)
+				}
+			})
+		},
+		changeWifi:(setUse)=>{
+			console.log(setUse)
+			AsyncStorage.setItem('useWifi', setUse.toString())
+			dispatch(action(actionType.SET.useWifi,setUse))
+		}
 	}), [])
 	return { auth, state }
 }

@@ -14,6 +14,8 @@ import Axios from 'axios'
 import { AuthContext } from '../../contexts/AuthContext'
 import _ from 'lodash'
 import Ionicons from 'react-native-vector-icons/Ionicons'
+import Snackbar from 'react-native-snackbar'
+
 
 export default function HomeScreen(props) {
 	function useMergeState(initialState) {
@@ -69,7 +71,22 @@ export default function HomeScreen(props) {
 	React.useEffect(() => {
 		fetchAlbumSource(() => {
 			console.log('hi album')
-			setStatus({ isLoading: false })
+			auth.checkNetwork(state,(verified)=>{
+				if (verified){
+					setStatus({isLoading:false})
+				} else {
+					Snackbar.show({
+						text: 'Wifi only!!',
+						textColor:'#F6C570',
+						backgroundColor:'#303960',
+						duration:Snackbar.LENGTH_LONG,
+						action:{
+							text:'Go Fix',
+							textColor:'#F6C570'
+						}
+					})
+				}
+			})
 		})
 
 	}, [])

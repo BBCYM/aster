@@ -19,6 +19,9 @@ import pytz
 from mongoengine.queryset.visitor import Q
 import queue
 from threading import Thread
+import logging
+from requests.adapters import HTTPAdapter
+logging.basicConfig(filename=f'{__name__}.log', level=logging.INFO, filemode='w+', format='%(name)s %(levelname)s %(asctime)s -> %(message)s')
 
 def checkisSync(session,userId):
     params = {'pageSize':10}
@@ -35,52 +38,62 @@ def checkisSync(session,userId):
 class Worker():
     def __init__(self, tasks:queue.Queue):
         self.tasks = tasks
-        self.daemon = True
         self.go()
+
     def go(self):
-        func, args, kwargs = self.tasks.get()
-        kwargs['callback'] = self.tasks.task_done
-        Thread(target=func, args=args, kwargs=kwargs, daemon=self.daemon).start()
+        while True:
+            func, args, kwargs = self.tasks.get()
+            func(*args, **kwargs)
+            self.tasks.task_done()
 
 class ThreadPool:
-    def __init__(self, num_threads:int):
-        self.tasks = queue.Queue(num_threads)
+    def __init__(self, QueueManager:queue.Queue()):
+        self.maxCore = 16
+        self.tasks = QueueManager
+        self.daemon = True
+        self.work()
+
     def add_task(self, func, *args, **kargs):
         self.tasks.put((func, args, kargs))
+
     def work(self):
-        for _ in range(self.tasks.maxsize):
-            Worker(self.tasks)
-    def wait_completion(self):
-        self.tasks.join()
+        for _ in range(self.maxCore):
+            Thread(target=Worker, args=(self.tasks,), daemon=self.daemon).start()
+
 
 class MainProcess:
-    def __init__(self, session, userId):
+    def __init__(self, session:AuthorizedSession, userId):
         self.IFR = './static'
         self.session = session
+        self.queue = queue.Queue()
+        self.session.mount('https://', HTTPAdapter(pool_connections=15, pool_maxsize=15, max_retries=5,pool_block=True))
         self.userId = userId
         self.client = ImageAnnotatorClient(credentials=service_account.Credentials.from_service_account_file('anster-1593361678608.json'))
 
-    def pipeline(self, mediaItem, callback=None):
-        mimeType = mediaItem['mimeType'].split('/')
+    def pipeline(self, mediaItem):
         # only download images
-        if mimeType[0] == 'image':
+        try:
             # get the image data
             filename = mediaItem['filename']
             imagebinary = self.session.get(mediaItem['baseUrl']+'=d').content
             image = types.Image(content = imagebinary)
-            labels = self.client.label_detection(image=image).label_annotations
+            response = self.client.label_detection(image=image)
+            if response.error.message:
+                raise Exception(response.error.message)
+            labels = response.label_annotations
+            ltemp = list(map(getLabelDescription, labels))
+            mLabels = toMandarin(ltemp)
+            logging.info(mLabels)
+            t = Tag(
+                main_tag=mLabels[0] if len(mLabels) > 0 else "None"
+            )
+            for ml, l in zip(mLabels[:3], labels[:3]):
+                t.top3_tag.append(ATag(tag=ml, precision=str(l.score)))
+            for ml, l in zip(mLabels[3:], labels[3:]):
+                t.all_tag.append(ATag(tag=ml, precision=str(l.score)))
             tempcreationTime = mediaItem['mediaMetadata']['creationTime']
             sliceTime = tempcreationTime.split('Z')[0].split('.')[0] if '.' in tempcreationTime else tempcreationTime.split('Z')[0]
             realTime = datetime.datetime.strptime(sliceTime, "%Y-%m-%dT%H:%M:%S")    
-            ltemp = list(map(getLabelDescription, labels))
-            mLabels = toMandarin(ltemp)
-            t = Tag(
-                main_tag=mLabels[0].text
-            )
-            for ml, l in zip(mLabels[:3], labels[:3]):
-                t.top3_tag.append(ATag(tag=ml.text, precision=str(l.score)))
-            for ml, l in zip(mLabels[4:], labels[4:]):
-                t.all_tag.append(ATag(tag=ml.text, precision=str(l.score)))
             pho = Photo(
                 photoId=mediaItem['id'],
                 userId=self.userId,
@@ -92,14 +105,14 @@ class MainProcess:
             pho.save()
             with open(f'{self.IFR}/{self.userId}/{filename}', mode='wb') as handler:
                 handler.write(imagebinary)
-        if callback:
-            callback()
+        except Exception as e:
+            logging.error(e)
+            print(e)
             
-    def afterall(self, tic, QueueManager:list):
-        for i, func in enumerate(QueueManager):
-            func()
+    def afterall(self, tic, i):
+        self.queue.join()
         toc = time.perf_counter()
-        print(f"Total process {toc - tic:0.4f} seconds")
+        print(f"\rTotal process {i} images in {toc - tic:0.4f} seconds")
         user = User.objects(userId=self.userId)
         user.update(
             set__isSync=True,
@@ -107,71 +120,74 @@ class MainProcess:
             set__lastSync=make_aware(datetime.datetime.utcnow(),
                                     timezone=pytz.timezone(settings.TIME_ZONE))
         )
-
     def initial(self):
         tic = time.perf_counter()
         User.objects(userId=self.userId).update(set__isFreshing=True, set__isSync=False)
         nPT = ''
-        params = {'pageSize': 10}
-        QueueManager = []
-        while True:
-            if nPT:
-                params['nextPageToken'] = nPT
-            photoRes = self.session.get(
-                'https://photoslibrary.googleapis.com/v1/mediaItems', params=params).json()
-            mediaItems = photoRes['mediaItems']
-            print(f'Downloading {len(mediaItems)} pics')
+        pool=ThreadPool(self.queue)
+        params = {'pageSize': 40}
+        i = 0
+        try:
             if not os.path.isdir(f'{self.IFR}/{self.userId}'):
-                try:
-                    os.mkdir(f'{self.IFR}/{self.userId}')
-                except OSError as e:
-                    print(e)
-            pool = ThreadPool(len(mediaItems))
-            for mediaItem in mediaItems:
-                pool.add_task(self.pipeline, mediaItem=mediaItem)
-                QueueManager.append(pool.wait_completion)
-            pool.work()
-            Thread(target=self.afterall, args=(tic, QueueManager), daemon=True).start()
-            # if not photoRes['nextPageToken']:
-            if photoRes['nextPageToken']:
-                break
-            else:
-                nPT = photoRes['nextPageToken']
+                os.mkdir(f'{self.IFR}/{self.userId}')
+            while True:
+                if nPT:
+                    params['pageToken'] = nPT
+                photoRes = self.session.get(
+                    'https://photoslibrary.googleapis.com/v1/mediaItems', params=params).json()
+                mediaItems = photoRes.get('mediaItems', None)
+                if not mediaItems:
+                    break
+                print(f'Handling {len(mediaItems)} items')
+                for mediaItem in mediaItems:
+                    mimeType, _ = mediaItem['mimeType'].split('/')
+                    if mimeType == 'image':
+                        pool.add_task(self.pipeline, mediaItem=mediaItem)
+                        i=i+1
+                # if not photoRes.get('nextPageToken', None):
+                if photoRes.get('nextPageToken', None):
+                    break
+                else:
+                    nPT = photoRes['nextPageToken']
+        except Exception as e:
+            logging.error(e)
+            print(e)
+        Thread(target=self.afterall, args=(tic,i), daemon=True).start()
 
     def refresh(self):
         tic = time.perf_counter()
         User.objects(userId=self.userId).update(set__isFreshing=True, set__isSync=False)
         nPT = ''
-        params = {'pageSize': 12}
-        QueueManager = []
-        while True:
-            if nPT:
-                params['nextPageToken'] = nPT
-            photoRes = self.session.get(
-                'https://photoslibrary.googleapis.com/v1/mediaItems', params=params).json()
-            mediaItems = photoRes['mediaItems']
-            print(f'Downloading {len(mediaItems)} pics')
+        pool=ThreadPool(self.queue)
+        params = {'pageSize': 40}
+        i = 0
+        try:
             if not os.path.isdir(f'{self.IFR}/{self.userId}'):
-                try:
-                    os.mkdir(f'{self.IFR}/{self.userId}')
-                except OSError as e:
-                    print(e)
-            waiting = []
-            for mediaItem in mediaItems:
-                dbres = Photo.objects(Q(userId=userId) & Q(photoId=mediaItem['id']))
-                if not dbres:
-                    waiting.append(mediaItem)
-            pool = ThreadPool(len(waiting))
-            for mediaItem in waiting:
-                pool.add_task(self.pipeline, mediaItem=mediaItem)
-                QueueManager.append(pool.wait_completion)
-            pool.work()
-            Thread(target=self.afterall, args=(tic, QueueManager), daemon=True).start()
-            # if not photoRes['nextPageToken']:
-            if photoRes['nextPageToken']:
-                break
-            else:
-                nPT = photoRes['nextPageToken']
+                os.mkdir(f'{self.IFR}/{self.userId}')
+            while True:
+                if nPT:
+                    params['pageToken'] = nPT
+                photoRes = self.session.get(
+                    'https://photoslibrary.googleapis.com/v1/mediaItems', params=params).json()
+                mediaItems = photoRes.get('mediaItems', None)
+                if not mediaItems:
+                    break
+                print(f'Handling {len(mediaItems)} items')
+                for mediaItem in mediaItems:
+                    dbres = Photo.objects(photoId=mediaItem['id'])
+                    mimeType, _ = mediaItem['mimeType'].split('/')
+                    if not dbres and mimeType == 'image':
+                        pool.add_task(self.pipeline, mediaItem=mediaItem)
+                        i=i+1
+                # if not photoRes.get('nextPageToken', None):
+                if photoRes.get('nextPageToken', None):
+                    break
+                else:
+                    nPT = photoRes['nextPageToken']
+        except Exception as e:
+            logging.error(e)
+            print(e)
+        Thread(target=self.afterall, args=(tic,i), daemon=True).start()
 
 def checkUserToSession(userId, req):
     with open('client_secret.json', 'r', encoding='utf-8') as f:
