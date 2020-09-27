@@ -1,7 +1,8 @@
 import * as React from 'react'
 import { AuthContext } from '../../contexts/AuthContext'
 import { StyleSheet, Text, View, Image, TouchableOpacity, ActivityIndicator } from 'react-native'
-import Ionicons from 'react-native-vector-icons/Ionicons'
+import ToggleSwitch from 'toggle-switch-react-native'
+// import Ionicons from 'react-native-vector-icons/Ionicons'
 
 
 
@@ -12,7 +13,9 @@ export default function personalScreen(props) {
 
 
 	React.useEffect(() => {
-
+		// auth.checkNetwork(state, function(canload){
+		// 	console.log(canload)
+		// })
 		console.log('init_isSync:', state.isSync)
 		console.log('init_isFreshing:', state.isFreshing)
 		// console.log('userId:', state.user.id)
@@ -36,10 +39,6 @@ export default function personalScreen(props) {
 		<View >
 			<View style={styles.header}></View>
 			<Image style={styles.avatar} source={{ uri: `${state.user.photo}` }} />
-			{/* https://lh3.googleusercontent.com/a-/AOh14GixVww8PP-TJc7CrmOa9z5zPM8bsbPbh08A6Fq-Og=s96-c */}
-			{/* <Image source={{ uri: state.user.photo }} /> */}
-			{/* <Image source={{ uri: `https://lh3.googleusercontent.com/a-/AOh14GixVww8PP-TJc7CrmOa9z5zPM8bsbPbh08A6Fq-Og=s96-c` }} /> */}
-			{/* <Image source={Images.pic.camera} /> */}
 			<View style={styles.body}>
 				<View style={styles.bodyContent}>
 					<Text style={styles.name}>{state.user.name}</Text>
@@ -52,7 +51,15 @@ export default function personalScreen(props) {
 						<TouchableOpacity style={styles.Btn} onPress={() => { auth.signOut() }}>
 							<Text>Logout</Text>
 						</TouchableOpacity>
-
+						<ToggleSwitch
+							isOn={state.useWifi}
+							onColor="green"
+							offColor="grey"
+							label="Wifi only"
+							labelStyle={{ color: 'black', fontWeight: '900' }}
+							size="large"
+							onToggle={isOn => auth.changeWifi(isOn)}
+						/>
 					</View>
 
 					{/* refresh loading animation */}

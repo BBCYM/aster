@@ -10,6 +10,7 @@ import {
 	Text,
 	ActivityIndicator
 } from 'react-native'
+import Snackbar from 'react-native-snackbar'
 import { Overlay, SearchBar, Button } from 'react-native-elements'
 import FastImage from 'react-native-fast-image'
 import ImageViewer from 'react-native-image-zoom-viewer'
@@ -129,7 +130,22 @@ export default function GalleryScreen(that) {
 				let temp = await AsyncStorage.multiGet(['fSource', 'mSource'])
 				setStatus({ fastSource: JSON.parse(temp[0][1]), modalSource: JSON.parse(temp[1][1]) })
 			}
-			setStatus({isLoading:false})
+			auth.checkNetwork(state,(verified)=>{
+				if (verified){
+					setStatus({isLoading:false})
+				} else {
+					Snackbar.show({
+						text: 'Wifi only!!',
+						textColor:'#F6C570',
+						backgroundColor:'#303960',
+						duration:Snackbar.LENGTH_LONG,
+						action:{
+							text:'Go Fix',
+							textColor:'#F6C570'
+						}
+					})
+				}
+			})
 		})
 	}, [])
 
