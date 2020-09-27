@@ -199,7 +199,7 @@ export default function AlbumDetails(props) {
 							data={status.fastSource}
 							extraData={status}
 							renderItem={({ item }) => (
-								<View style={{ flex: 1, flexDirection: 'column', margin: 1 }}>
+								<View style={{ flex: 1, flexDirection: 'column', margin: 1 }} style={styles.photoSize}>
 									<TouchableOpacity onPress={() => showImage(item)} onLongPress={() => setStatus({ bModal: true, currentPhotoId: item.imgId })}>
 										<FastImage
 											style={styles.imageThumbnail}
@@ -391,5 +391,11 @@ const styles = StyleSheet.create({
 		justifyContent: 'flex-start',
 		alignItems: 'center',
 		padding: 10,
+	},
+	photoSize: {
+		resizeMode: 'center',
+		width:130,
+		height:null,
+		margin:2
 	}
 })
