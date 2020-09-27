@@ -52,7 +52,7 @@ class BotView(views.APIView):
             query_input = dialogflow.types.QueryInput(text=text_input)
             try:
                 res = session_client.detect_intent(session=session, query_input=query_input)
-                print('res:',res)
+                # print('res:',res)
                 return res
             except InvalidArgument:
                 return response.Response("InvalidArgument",status=status.HTTP_400_BAD_REQUEST)
@@ -266,13 +266,23 @@ class BotView(views.APIView):
         # for general(custom) agent
         res1 = get_res_cus(data)
         pid_tag1 = get_url_cus(res1)
-        re1 = MessageToJson(res1.query_result)
+        print("pid_tag1:",pid_tag1)
+        print("pid_tag len:",len(pid_tag1))
+        
+        # re1 = MessageToJson(res1.query_result)
+        # print(re1)
 
         # for testing agent
         res = get_res(data)
         pid_tag = get_url(res)
         re = MessageToJson(res.query_result)
+        print("pid_tag:",pid_tag)
 
+        if(len(pid_tag1) == 0):
+            re1 = re
+        else:
+            re1 = MessageToJson(res1.query_result)
+        
         res = {"dialog" : re, "pid" : pid, "pid_tag" : pid_tag, "dialog1" : re1, "pid_tag1" : pid_tag1}
         # print('res:',res)
         res = json.dumps(res)
