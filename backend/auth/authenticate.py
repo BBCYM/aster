@@ -21,7 +21,7 @@ import queue
 from threading import Thread
 import logging
 from requests.adapters import HTTPAdapter
-logging.basicConfig(filename=f'{__name__}.log', level=logging.INFO, filemode='w+', format='%(name)s %(levelname)s %(asctime)s -> %(message)s')
+logging.basicConfig(filename=f'./log/{__name__}.log',level=logging.INFO, filemode='w+', format='%(name)s %(levelname)s %(asctime)s -> %(message)s')
 
 def checkisSync(session,userId):
     params = {'pageSize':10}
