@@ -187,7 +187,7 @@ export default function SomeGalleryScreen(props) {
 											data={item.pics}
 											extraData={status}
 											renderItem={(block) => (
-												<View style={{ flex: 1, flexDirection: 'column', margin: 1 }}>
+												<View style={{ flex: 1, flexDirection: 'column', margin: 1 }} style={styles.photoSize}>
 													<TouchableOpacity onPress={() => showImage(block.item)}>
 														<FastImage
 															style={styles.imageThumbnail}
@@ -369,5 +369,12 @@ const styles = StyleSheet.create({
 	emotion: {
 		width: 50,
 		height: 50,
+	},
+	photoSize: {
+		resizeMode: 'contain',
+		width:120,
+		height:null,
+		margin:2
 	}
+
 })
