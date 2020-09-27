@@ -266,8 +266,8 @@ class BotView(views.APIView):
         # for general(custom) agent
         res1 = get_res_cus(data)
         pid_tag1 = get_url_cus(res1)
-        print("pid_tag1:",pid_tag1)
-        print("pid_tag len:",len(pid_tag1))
+        # print("pid_tag1:",pid_tag1)
+        # print("pid_tag len:",len(pid_tag1))
         
         # re1 = MessageToJson(res1.query_result)
         # print(re1)
@@ -276,7 +276,7 @@ class BotView(views.APIView):
         res = get_res(data)
         pid_tag = get_url(res)
         re = MessageToJson(res.query_result)
-        print("pid_tag:",pid_tag)
+        # print("pid_tag:",pid_tag)
 
         if(len(pid_tag1) == 0):
             re1 = re
