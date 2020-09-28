@@ -99,9 +99,9 @@ export default function HomeScreen(props) {
 	}
 	//delete album
 	async function deleteAlbum() {
-		const response = await fetch(`${auth.url}/album/${status.toDel}`, {
-			method: 'DELETE',
-			hesders: auth.headers 
+		const response = await fetch(`${auth.url}/album/PD/${status.toDel}`, {
+			method: 'delete',
+			headers: auth.headers 
 		})
 		let slicedAlbum = [...status.fastSource]
 		var result = slicedAlbum.findIndex((v, i) => {
@@ -175,7 +175,7 @@ export default function HomeScreen(props) {
 								)}
 								numColumns={2}
 								keyExtractor={(item, index) => index}
-								style={{borderColor:'green', borderWidth:1}}
+								// style={{borderColor:'green', borderWidth:1}}
 							/>
 						</View>
 					</View>
@@ -199,8 +199,8 @@ const styles = StyleSheet.create({
 		width: '100%',
 	},
 	titlebackground: {
-		borderColor:'black',
-		borderWidth:1,
+		// borderColor:'black',
+		// borderWidth:1,
 		width: '100%',
 		alignItems: 'center',
 	},
