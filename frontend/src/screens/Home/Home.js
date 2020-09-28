@@ -148,13 +148,13 @@ export default function HomeScreen(props) {
 						</Modal>
 						<View style={styles.container}>
 							<View style={styles.titlebackground} >
-								<Text style={{fontSize: 40,color: '#FFD1A4',textShadowColor: '#FFDCB9'}}>A L B U M </Text>
+								<Text style={{fontSize: 40,color: '#303960', letterSpacing:5}}>ALBUM</Text>
 							</View>
 							
 							<FlatList
 								data={status.fastSource}
 								renderItem={({ item }) => (
-									<View style={{ flex: 1, flexDirection: 'column', margin: 1 }}>
+									<View style={{ flex: 1, flexDirection: 'column', margin:1}}>
 										<TouchableOpacity
 											key={item.id}
 											style={{ flex: 1 }}
@@ -169,12 +169,13 @@ export default function HomeScreen(props) {
 													priority: FastImage.priority.high,
 												}}
 											/>
-											<Text style={{ marginLeft: 30, fontSize: 18 }}>{item.title}</Text>
+											<Text style={{ marginLeft: 15, fontSize: 15 }}>{item.title}</Text>
 										</TouchableOpacity>
 									</View>
 								)}
 								numColumns={2}
 								keyExtractor={(item, index) => index}
+								style={{borderColor:'green', borderWidth:1}}
 							/>
 						</View>
 					</View>
@@ -190,15 +191,16 @@ const styles = StyleSheet.create({
 		width: 150,
 		borderRadius: 20,
 		overflow: 'hidden',
-		marginLeft: 23,
-		marginTop: 30
+		marginLeft: 15,
+		marginTop: 10
 	},
 	container: {
 		height: '100%',
 		width: '100%',
 	},
 	titlebackground: {
-		//height: 5,
+		borderColor:'black',
+		borderWidth:1,
 		width: '100%',
 		alignItems: 'center',
 	},
