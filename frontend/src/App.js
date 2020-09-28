@@ -8,6 +8,10 @@ import { SplashScreen } from './screens/Auth/Splash'
 import { useAuth } from './hooks/useAuth'
 import { ThemeProvider } from 'react-native-elements'
 import {setCustomText} from 'react-native-global-props'
+import { LogBox } from 'react-native'
+
+LogBox.ignoreAllLogs()
+
 const MainStack = createStackNavigator()
 
 

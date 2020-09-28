@@ -61,34 +61,6 @@ class AlbumView(APIView):
         album.save()
         return Response(simpleMessage('POST/AlbumView'), status=status.HTTP_201_CREATED)
 
-    # # CREATE 測試建立資料
-
-    # def post(self, request):
-    #     """
-    #     (測試用)
-    #     產生一筆假資料
-    #     Args:
-    #         None
-    #     Returns:
-    #         None
-    #     """
-    #     album = Album(
-    #         coverPhotoId='1234579',
-    #         albumName='12345',
-    #         userId='daioaufio',
-    #         albumPhoto=[{'photoId': 'asdfklkajhsl',
-    #                      'isDeleted': False},
-    #                     {'photoId': 'aagdzzkajhsl',
-    #                      'isDeleted': False}],
-    #         albumTag=[{'tag': 'album5', 'isDeleted': False}, {
-    #             'tag': 'michelle2345', 'isDeleted': False}],
-    #         createTime=datetime.utcnow())
-    #     album.save()
-
-    #     return Response(simpleMessage('POST/AlbumView'), status=status.HTTP_201_CREATED)
-
-
-
 class AlbumPDView(APIView):
 
     # 更改相簿名稱 OK
@@ -213,20 +185,11 @@ class AlbumTagView(APIView):
         Returns:
             剩下的tag
         """
-        # album_id = request.query_params["_id"]
-        # album_tag = request.query_params["albumTag"]
-        album_tag = request.data["albumTag"]
+        album_tag = request.query_params["albumTag"]
 
         try:
+            Album.objects(_id=albumId, albumTag__match={'tag': album_tag, 'isDeleted': False}).update_one(set__albumTag__S__isDeleted=True)
 
-            album = Album.objects(
-                _id=albumId, albumTag__match={'tag': album_tag, 'isDeleted': False}).first()
-
-            for single_tag in album.albumTag:
-
-                if single_tag.tag == album_tag:
-                    single_tag.isDeleted = True
-            album.save()
 
         except Exception as e:
             print(e)
