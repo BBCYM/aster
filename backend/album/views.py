@@ -92,15 +92,16 @@ class AlbumPDView(APIView):
         # _id = request.data["_id"]
 
         try:
-
-            update_rows = Album.objects(_id__exact=albumId).update(
-                isDeleted=True)
-            print(f'Album/View: AlbumView.delete, db:{update_rows} rows')
-
+            album= Album.objects(_id=albumId).get()
+            album.isDeleted=True
+            for tag in album.albumTag:
+                tag.isDeleted = True
+            album.save()
+            print("Album Deleted")
         except Exception as e:
             print(e)
             return Response("AlbumViewError", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        return Response(simpleMessage('DELETE/AlbumView'), status=status.HTTP_201_CREATED)
+        return Response(simpleMessage('DELETE/AlbumView'), status=status.HTTP_200_OK)
 
 
 class AlbumTagView(APIView):

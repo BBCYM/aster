@@ -39,7 +39,7 @@
     "react-native-snackbar": "^2.2.3",
     "react-native-swipe-list-view": "^3.2.3",
     "react-native-uuid": "^1.4.9",
-    "react-native-vector-icons": "^7.0.0",
+    "react-native-vector-icons": "^7.1.0",
     "toggle-switch-react-native": "^2.2.0"
   },
   "devDependencies": {
