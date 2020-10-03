@@ -27,7 +27,8 @@ class AsterMiddleware:
         XRequestedWith = request.headers.get('X-Requested-With',None)
         Authorization = request.headers.get('Authorization',None)
         LineSignature = request.headers.get('X-Line-Signature', None)
-        if LineSignature and view_func.__name__ == "callback":
+        print(view_func.__name__)
+        if LineSignature and view_func.__name__ == "callback" or "LiffView":
             return None
         #     hashval = hmac.new(self.channel_secret.encode('utf-8'),str(request.body).encode('utf-8'), hashlib.sha256).digest()
         #     signature = base64.b64encode(hashval)

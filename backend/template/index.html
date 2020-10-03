@@ -5,7 +5,8 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LIFF Starter</title>
-    <link rel="stylesheet" href="style.css">
+    {% load static %}
+    <link rel="stylesheet" href="{% static "style.css" %}">
 </head>
 
 <body>
@@ -146,7 +147,7 @@
         <p>Unable to receive the LIFF ID as an environment variable.</p>
     </div>
     <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-    <script src="liff-starter.js"></script>
+    <script src="{% static "liff-starter.js" %}"></script>
 </body>
 
 </html>
