@@ -8,6 +8,7 @@ import base64
 import hashlib
 import hmac
 import inspect
+import pprint
 class AsterMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
@@ -27,6 +28,7 @@ class AsterMiddleware:
         XRequestedWith = request.headers.get('X-Requested-With',None)
         Authorization = request.headers.get('Authorization',None)
         LineSignature = request.headers.get('X-Line-Signature', None)
+        pprint.pprint(request.headers)
         if LineSignature and view_func.__name__ == "callback":
             return None
         #     hashval = hmac.new(self.channel_secret.encode('utf-8'),str(request.body).encode('utf-8'), hashlib.sha256).digest()
