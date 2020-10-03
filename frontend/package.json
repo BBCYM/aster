@@ -23,7 +23,7 @@
     "lodash": "^4.17.20",
     "object-hash": "^2.0.3",
     "react": "16.11.0",
-    "react-native": "^0.63.2",
+    "react-native": "0.62.2",
     "react-native-action-button": "^2.8.5",
     "react-native-dash": "0.0.11",
     "react-native-elements": "^2.3.1",
