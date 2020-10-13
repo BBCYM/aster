@@ -37,15 +37,15 @@ export default function App() {
 							state.splash ? (
 								<MainStack.Screen name='Splash' component={SplashScreen} />
 							) : (
-									state.user ? (
-										console.log('hello user'),
-										<MainStack.Screen name='Pages' component={PagesTabNavigator} />
+								state.user ? (
+									console.log('hello user'),
+									<MainStack.Screen name='Pages' component={PagesTabNavigator} />
 
-									) : (
-											console.log('need auth'),
-											<MainStack.Screen name='Auth' component={AuthStackNavigator} />
-										)
+								) : (
+									console.log('need auth'),
+									<MainStack.Screen name='Auth' component={AuthStackNavigator} />
 								)
+							)
 						}
 					</MainStack.Navigator>
 				</NavigationContainer>

@@ -58,8 +58,10 @@ export default function SomeGalleryScreen(props) {
 	}
 	React.useEffect(() => {
 		fetchImageSource(() => {
-			setStatus({ isLoading: false })
 			console.log('hello from some screen')
+			setStatus({ isLoading: false })
+			// setTimeout(()=>{
+			// },3000)
 		})
 	}, [])
 	async function fetchImageSource(callback) {
@@ -71,33 +73,50 @@ export default function SomeGalleryScreen(props) {
 		let fSource = []
 		let mSource = []
 		let i = 0
-		hashTag.forEach(async (v, k) => {
+		await hashTag.forEach(async (v, k) => {
 			fSource.push({ key: k, tags: v.tag, pics: [] })
 			let m = _.findIndex(fSource, function (o) { return o.key === k })
-			for (const onePid of v.pid) {
+			var chunked = _.chunk(v.pid,50)
+			for (const chunkpids of chunked) {
 				try {
-					let res = await Axios.get(`https://photoslibrary.googleapis.com/v1/mediaItems/${onePid}`, {
-						headers: {
+					let res = await Axios.get('https://photoslibrary.googleapis.com/v1/mediaItems:batchGet',{
+						headers:{
 							'Authorization': `Bearer ${accessToken}`,
 							'Content-type': 'application/json'
+						},
+						params:{
+							mediaItems: chunkpids
 						}
 					})
-					var item = res.data
-					var width = 400
-					var height = 400
-					var img = {
-						id: i++,
-						imgId: item['id'],
-						src: `${item['baseUrl']}=w${width}-h${height}`,
-						headers: { Authorization: `Bearer ${accessToken}` }
-					}
-					fSource[m].pics.push(img)
-					mSource.push({ url: item['baseUrl'] })
+					console.log(res)
 				} catch (err) {
 					console.log(err)
 				}
-				setStatus({ fastSource: fSource, modalSource: mSource })
 			}
+			// for (const onePid of v.pid) {
+			// 	try {
+			// 		let res = await Axios.get(`https://photoslibrary.googleapis.com/v1/mediaItems/${onePid}`, {
+			// 			headers: {
+			// 				'Authorization': `Bearer ${accessToken}`,
+			// 				'Content-type': 'application/json'
+			// 			}
+			// 		})
+			// 		var item = res.data
+			// 		var width = 400
+			// 		var height = 400
+			// 		var img = {
+			// 			id: i++,
+			// 			imgId: item['id'],
+			// 			src: `${item['baseUrl']}=w${width}-h${height}`,
+			// 			headers: { Authorization: `Bearer ${accessToken}` }
+			// 		}
+			// 		fSource[m].pics.push(img)
+			// 		mSource.push({ url: item['baseUrl'] })
+			// 		setStatus({ fastSource: fSource, modalSource: mSource })
+			// 	} catch (err) {
+			// 		console.log(err)
+			// 	}
+			// }
 		})
 		callback()
 	}
@@ -194,6 +213,7 @@ export default function SomeGalleryScreen(props) {
 															source={{
 																uri: block.item.src,
 																headers: block.item.headers,
+																priority: FastImage.priority.high,
 															}}
 														/>
 													</TouchableOpacity>
