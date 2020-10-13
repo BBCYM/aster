@@ -59,9 +59,9 @@ export default function SomeGalleryScreen(props) {
 	React.useEffect(() => {
 		fetchImageSource(() => {
 			console.log('hello from some screen')
-			setStatus({ isLoading: false })
-			// setTimeout(()=>{
-			// },3000)
+			setTimeout(()=>{
+				setStatus({ isLoading: false })
+			},2000)
 		})
 	}, [])
 	async function fetchImageSource(callback) {
@@ -73,56 +73,49 @@ export default function SomeGalleryScreen(props) {
 		let fSource = []
 		let mSource = []
 		let i = 0
-		await hashTag.forEach(async (v, k) => {
+		hashTag.forEach(async (v, k) => {
 			fSource.push({ key: k, tags: v.tag, pics: [] })
 			let m = _.findIndex(fSource, function (o) { return o.key === k })
 			var chunked = _.chunk(v.pid,50)
 			for (const chunkpids of chunked) {
+				let parial = new URLSearchParams()
+				chunkpids.forEach((v=>{
+					parial.append('mediaItemIds', v)
+				}))
 				try {
 					let res = await Axios.get('https://photoslibrary.googleapis.com/v1/mediaItems:batchGet',{
 						headers:{
 							'Authorization': `Bearer ${accessToken}`,
 							'Content-type': 'application/json'
 						},
-						params:{
-							mediaItems: chunkpids
-						}
+						params:parial
 					})
-					console.log(res)
+					// eslint-disable-next-line no-loop-func
+					res.data.mediaItemResults.forEach((v=>{
+						if(v.mediaItem){
+							const item = v.mediaItem
+							const width = 400
+							const height = 400
+							var img = {
+								id: i++,
+								imgId: item['id'],
+								src: `${item['baseUrl']}=w${width}-h${height}`,
+								headers: { Authorization: `Bearer ${accessToken}` }
+							}
+							fSource[m].pics.push(img)
+							mSource.push({ url: item['baseUrl'] })
+							setStatus({ fastSource: fSource, modalSource: mSource })
+						}
+					}))
 				} catch (err) {
 					console.log(err)
 				}
 			}
-			// for (const onePid of v.pid) {
-			// 	try {
-			// 		let res = await Axios.get(`https://photoslibrary.googleapis.com/v1/mediaItems/${onePid}`, {
-			// 			headers: {
-			// 				'Authorization': `Bearer ${accessToken}`,
-			// 				'Content-type': 'application/json'
-			// 			}
-			// 		})
-			// 		var item = res.data
-			// 		var width = 400
-			// 		var height = 400
-			// 		var img = {
-			// 			id: i++,
-			// 			imgId: item['id'],
-			// 			src: `${item['baseUrl']}=w${width}-h${height}`,
-			// 			headers: { Authorization: `Bearer ${accessToken}` }
-			// 		}
-			// 		fSource[m].pics.push(img)
-			// 		mSource.push({ url: item['baseUrl'] })
-			// 		setStatus({ fastSource: fSource, modalSource: mSource })
-			// 	} catch (err) {
-			// 		console.log(err)
-			// 	}
-			// }
 		})
 		callback()
 	}
 
 	async function showImage(item) {
-		console.log(item.id)
 		await setStatus({
 			currentId: item.id,
 			isVisible: true,
@@ -206,7 +199,7 @@ export default function SomeGalleryScreen(props) {
 											data={item.pics}
 											extraData={status}
 											renderItem={(block) => (
-												<View style={{ flex: 1, flexDirection: 'column', margin: 1 }} style={styles.photoSize}>
+												<View style={styles.photoSize}>
 													<TouchableOpacity onPress={() => showImage(block.item)}>
 														<FastImage
 															style={styles.imageThumbnail}
@@ -392,8 +385,7 @@ const styles = StyleSheet.create({
 	},
 	photoSize: {
 		resizeMode: 'contain',
-		width:120,
-		height:null,
+		width:(screenWidth-35)/3,
 		margin:2
 	}
 
