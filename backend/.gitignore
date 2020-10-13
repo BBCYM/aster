@@ -133,4 +133,5 @@ anster-1593361678608.json
 *.env
 *.log
 Pipfile.lock
+ngrok.exe
 # End of https://www.gitignore.io/api/django,visualstudiocode
