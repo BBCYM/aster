@@ -276,7 +276,7 @@ export default function RoomScreen({navigation}) {
 			placeholder="Type here ..."
 			parsePatterns={linkStyle => [
 				{
-					pattern: /結果/,
+					pattern: /顯示結果/,
 					style: { color: "white", textDecorationLine: "underline" },
 					onPress: (tag) => {
 						navigation.navigate('SomeGallery',{

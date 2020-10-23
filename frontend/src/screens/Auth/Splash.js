@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { View, StyleSheet, ImageBackground, Image } from 'react-native'
+import { View, StyleSheet, Image } from 'react-native'
 import { AuthContext } from '../../contexts/AuthContext'
 export function SplashScreen(props) {
 	const { auth } = React.useContext(AuthContext)
@@ -9,14 +9,9 @@ export function SplashScreen(props) {
 		})
 	})
 	return (
-
-		<ImageBackground source={require('../../pic/white.png')} style={styles.back}>
-			<View style={styles.main}>
-				{/* <Ionicon name='md-shapes-outline' size={100} color='#303960' />
-				<Text style={styles.text}>Aster</Text> */}
-				<Image source={require('../../pic/blacklogo.png')} style={styles.logo}></Image>
-			</View>
-		</ImageBackground>
+		<View style={styles.main}>
+			<Image source={require('../../pic/blacklogo.png')} style={styles.logo}></Image>
+		</View>
 	)
 }
 const styles = StyleSheet.create({
@@ -25,20 +20,19 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		justifyContent: 'center',
 		flexDirection: 'column',
-		// resizeMode: 'cover',
 	},
 	text: {
 		fontSize: 70,
 		color: '#303960',
-		lineHeight:68,
+		lineHeight: 68,
 	},
 	back: {
-		flex:1,
+		flex: 1,
 		resizeMode: 'cover',
 		justifyContent: 'center'
 	},
 	logo: {
-        height: 150,
-        width: 150
+		height: 150,
+		width: 150
 	},
 })
