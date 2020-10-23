@@ -95,11 +95,12 @@ class MainProcess:
             tempcreationTime = mediaItem['mediaMetadata']['creationTime']
             sliceTime = tempcreationTime.split('Z')[0].split('.')[0] if '.' in tempcreationTime else tempcreationTime.split('Z')[0]
             realTime = datetime.datetime.strptime(sliceTime, "%Y-%m-%dT%H:%M:%S")    
+            ranloca = randLocation()
             pho = Photo(
                 photoId=mediaItem['id'],
                 userId=self.userId,
                 tag=t,
-                location=get_location(randLocation()),
+                location=get_location(ranloca),
                 createTime=make_aware(
                     realTime, timezone=pytz.timezone(settings.TIME_ZONE)),
             )
