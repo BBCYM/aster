@@ -189,9 +189,7 @@ class AlbumTagView(APIView):
         album_tag = request.query_params["albumTag"]
 
         try:
-            print(albumId)
-            print(album_tag)
-            result = Album.objects(_id=albumId, albumTag__match={'tag': album_tag, 'isDeleted': False}).update_one(set__albumTag__i__isDeleted=True)
+            result = Album.objects(_id=albumId, albumTag__match={'tag': album_tag, 'isDeleted': False}).update_one(set__albumTag__S__isDeleted=True)
             print(result)
 
         except Exception as e:
