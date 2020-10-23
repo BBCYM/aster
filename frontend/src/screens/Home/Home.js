@@ -169,13 +169,12 @@ export default function HomeScreen(props) {
 													priority: FastImage.priority.high,
 												}}
 											/>
-											<Text style={{ marginLeft: 15, fontSize: 15 }}>{item.title}</Text>
+											<Text style={{ marginLeft: 20, marginTop: 3, fontSize: 15 }}>{item.title}</Text>
 										</TouchableOpacity>
 									</View>
 								)}
 								numColumns={2}
 								keyExtractor={(item, index) => index}
-								// style={{borderColor:'green', borderWidth:1}}
 							/>
 						</View>
 					</View>
@@ -188,11 +187,10 @@ export default function HomeScreen(props) {
 const styles = StyleSheet.create({
 	image: {
 		height: 125,
-		width: 150,
-		borderRadius: 20,
+		borderRadius: 15,
 		overflow: 'hidden',
-		marginLeft: 15,
-		marginTop: 10
+		margin:5
+		// marginTop: 10
 	},
 	container: {
 		height: '100%',

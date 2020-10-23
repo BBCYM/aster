@@ -156,7 +156,7 @@ class BotView(views.APIView):
                     # print('custom:',custom)
                     addpid(custom, key)
 
-                    location = Photo.objects(Q(userId=userid) & Q(location=key))
+                    location = Photo.objects(Q(userId=userid) & Q(location__contains=key))
                     # print('location:',location)
                     addpid(location, key)
 
