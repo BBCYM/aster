@@ -26,12 +26,6 @@ export default function personalScreen(props) {
 				console.log('check_isFreshing:', isFreshing)
 			})
 		}
-
-
-		// GET isSync isFreshing status first
-		// var status = auth.checkisFreshing()
-		// console.log(status)
-
 	}, [state.isFreshing])
 
 
