@@ -11,6 +11,7 @@ from color_detect import color_detection
 credent = service_account.Credentials.from_service_account_file(
     '../anster-1593361678608.json')
 
+
 def localize_objects(path):
     """Localize objects in the local image.
 
@@ -25,8 +26,9 @@ def localize_objects(path):
     image = vision.types.Image(content=content)
 
     objects = client.object_localization(
-        image=image).localized_object_annotations           
+        image=image).localized_object_annotations
     return objects
+
 
 if __name__ == "__main__":
     path = "blue_suit2.jpg"
