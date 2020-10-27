@@ -36,39 +36,42 @@ export default function personalScreen(props) {
 
 
 	return (
-		<View >
-			<View style={styles.header}></View>
-			<Image style={styles.avatar} source={{ uri: `${state.user.photo}` }} />
+		<View style={{flex:1, flexDirection:'column'}}>
+			<View>
+				<Image style={styles.avatar} source={{ uri: `${state.user.photo}` }} />
+			</View>
 			<View style={styles.body}>
-				<View style={styles.bodyContent}>
-					<Text style={styles.name}>{state.user.name}</Text>
+				<Text style={styles.name}>{state.user.name}</Text>
 
-					<View style={styles.Btncontainer}>
-						<TouchableOpacity style={styles.Btn} disabled={state.isFreshing} onPress={() => { auth.refresh() }}>
-							<Text>Refresh</Text>
-						</TouchableOpacity>
+				<View style={styles.Btncontainer}>
+					<TouchableOpacity style={styles.Btn} disabled={state.isFreshing} onPress={() => { auth.refresh() }}>
+						<Text>Refresh</Text>
+					</TouchableOpacity>
+					
+					<TouchableOpacity style={styles.Btn} onPress={() => { console.log('Third party') }}>
+						<Text>Third Party Module</Text>
+					</TouchableOpacity>
+					<TouchableOpacity style={styles.Btn} onPress={() => { auth.signOut() }}>
+						<Text>Logout</Text>
+					</TouchableOpacity>
+					
+				</View>
+				<View>
+					<ToggleSwitch
+						isOn={state.useWifi}
+						onColor="green"
+						offColor="grey"
+						label="Wifi only"
+						labelStyle={{ color: 'black', fontWeight: '900' }}
+						size="large"
+						onToggle={isOn => auth.changeWifi(isOn)}
+					/>
+				</View>
+				{/* refresh loading animation */}
+				<View style={[styles.container, { opacity: state.isFreshing ? 100 : 0 }]}>
 
-						<TouchableOpacity style={styles.Btn} onPress={() => { auth.signOut() }}>
-							<Text>Logout</Text>
-						</TouchableOpacity>
-						<ToggleSwitch
-							isOn={state.useWifi}
-							onColor="green"
-							offColor="grey"
-							label="Wifi only"
-							labelStyle={{ color: 'black', fontWeight: '900' }}
-							size="large"
-							onToggle={isOn => auth.changeWifi(isOn)}
-						/>
-					</View>
-
-					{/* refresh loading animation */}
-					<View style={[styles.container, { opacity: state.isFreshing ? 100 : 0 }]}>
-
-						<ActivityIndicator style={styles.loding} size="large" color="#FF6130" />
-						<Text style={styles.textREFRESH}>REFRESHING</Text>
-
-					</View>
+					<ActivityIndicator style={styles.loding} size="large" color="#FF6130" />
+					<Text style={styles.textREFRESH}>REFRESHING</Text>
 
 				</View>
 			</View>
@@ -80,40 +83,28 @@ export default function personalScreen(props) {
 }
 
 const styles = StyleSheet.create({
-	header: {
-		height: 120,
-	},
+
 	avatar: {
 		width: 130,
 		height: 130,
 		borderRadius: 63,
 		borderWidth: 4,
-		borderColor: 'white',
-		marginBottom: 10,
 		alignSelf: 'center',
-		position: 'absolute',
-		marginTop: 40
+		marginTop: 20,
+		borderColor:'#303960'
 	},
-
-	body: {
-		//marginTop: 30,
-		marginVertical: 60,
-		//paddingVertical: 60,
-
-	},
-	bodyContent: {
+	body:{
 		flex: 1,
 		alignItems: 'center',
-		paddingVertical: 20,
-		paddingHorizontal: 50
 
 	},
 	name: {
+		marginTop: 25,
+		marginBottom:25,
 		fontSize: 30,
-		color: '#696969',
-		fontWeight: '600'
+		fontWeight: '600',
+		color:'#303960'
 	},
-
 	description: {
 		fontSize: 16,
 		color: '#696969',
@@ -121,12 +112,7 @@ const styles = StyleSheet.create({
 		textAlign: 'center'
 
 	},
-
-	Btncontainer: {
-		marginVertical: 30,
-	},
 	Btn: {
-		//marginTop: 10,
 		height: 35,
 		flexDirection: 'row',
 		justifyContent: 'center',
@@ -147,15 +133,13 @@ const styles = StyleSheet.create({
 		marginTop: 100,
 		width: 50,
 		height: 50,
-		// borderRadius: 30,
-		// backgroundColor: "white",
+
 		shadowColor: '#000',
 		shadowOffset: {
 			width: 0,
 			height: 0,
 		},
 		shadowRadius: 5.46,
-		// elevation: 7,
 	},
 	container: {
 		marginTop: 170,
@@ -168,5 +152,4 @@ const styles = StyleSheet.create({
 		fontSize: 15,
 		marginTop: 30,
 	}
-
 })

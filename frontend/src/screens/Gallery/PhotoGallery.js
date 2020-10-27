@@ -296,8 +296,6 @@ export default function GalleryScreen(that) {
 									flexDirection: 'row',
 									width: 140,
 									height: 200,
-									// borderColor: 'black',
-									// borderWidth: 1,
 									zIndex: 1
 								}}
 							/>
@@ -411,8 +409,6 @@ const styles = StyleSheet.create({
 		padding: 10,
 	},
 	titlebackground: {
-		// borderColor:'black',
-		// borderWidth:1,
 		width: '100%',
 		alignItems: 'center',
 	},

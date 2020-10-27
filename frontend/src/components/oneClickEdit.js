@@ -95,16 +95,16 @@ export function AlbumModal([status, setStatus], state, props, auth) {
 							</View>
 						)}
 						renderHiddenItem={(data, rowMap) => (
-
-							<TouchableOpacity onPress={() => deleteTag(data.item.key, data.item.text)}>
-								<ListItem
-									key={data.item.key}
-									rightElement={
-										<Ionicons name='trash-outline' size={30} />
-									}
-									containerStyle={{ backgroundColor: 'pink' }}
-								/>
-							</TouchableOpacity>
+							<ListItem
+								key={data.item.key}
+								containerStyle={{ backgroundColor: 'pink'}}
+							>
+								<View style={{flex:1, flexDirection:'row', justifyContent:'flex-end'}}>
+									<TouchableOpacity onPress={() => deleteTag(data.item.key, data.item.text)} >
+										<Ionicons name='trash-outline' size={30}/>
+									</TouchableOpacity>
+								</View>
+							</ListItem>
 						)}
 						disableRightSwipe
 						rightOpenValue={-65}
@@ -161,9 +161,8 @@ const styles = StyleSheet.create({
 		color: '#303960',
 	},
 	modal4: {
-		height: 600,
+		height: '100%',
 		backgroundColor: 'transparent'
-
 	},
 	modal: {
 		flex: 1,
@@ -179,14 +178,10 @@ const styles = StyleSheet.create({
 		paddingLeft: 15,
 		paddingBottom: 0,
 		margin: 0,
-		// borderColor: 'red',
-		// borderWidth: 1
 	},
 	AlbumText: {
 		justifyContent: 'flex-start',
 		alignItems: 'center',
 		padding: 10,
-		// borderColor: 'black',
-		// borderWidth: 1
 	}
 })

@@ -293,8 +293,6 @@ export default function AlbumDetails(props) {
 									flexDirection: 'row',
 									width: 140,
 									height: 200,
-									// borderColor: 'black',
-									// borderWidth: 1,
 									zIndex: 1
 								}}
 							/>
@@ -394,8 +392,8 @@ const styles = StyleSheet.create({
 	},
 	photoSize: {
 		resizeMode: 'center',
-		flex: 1, 
+		width: (screenWidth - 9)/3,
 		flexDirection: 'column',
-		margin:2
+		margin:1.5
 	}
 })
