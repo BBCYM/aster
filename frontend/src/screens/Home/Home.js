@@ -6,6 +6,7 @@ import {
 	TouchableOpacity,
 	Text,
 	ActivityIndicator,
+	Dimensions
 } from 'react-native'
 import Modal from 'react-native-modalbox'
 import { Button } from 'react-native-elements'
@@ -13,7 +14,6 @@ import FastImage from 'react-native-fast-image'
 import Axios from 'axios'
 import { AuthContext } from '../../contexts/AuthContext'
 import _ from 'lodash'
-import Ionicons from 'react-native-vector-icons/Ionicons'
 import Snackbar from 'react-native-snackbar'
 
 
@@ -63,7 +63,6 @@ export default function HomeScreen(props) {
 				await setStatus({ fastSource: fSource })
 			}
 		} catch (err) {
-			console.log('error')
 			console.log(err)
 		}
 		callback()
@@ -154,7 +153,7 @@ export default function HomeScreen(props) {
 							<FlatList
 								data={status.fastSource}
 								renderItem={({ item }) => (
-									<View style={{ flex: 1, flexDirection: 'column', margin:1}}>
+									<View style={{flex:1}}>
 										<TouchableOpacity
 											key={item.id}
 											style={{ flex: 1 }}
@@ -183,22 +182,20 @@ export default function HomeScreen(props) {
 		</View>
 	)
 }
-
+const screenWidth = Math.round(Dimensions.get('window').width)
 const styles = StyleSheet.create({
 	image: {
 		height: 125,
 		borderRadius: 15,
 		overflow: 'hidden',
+		width:(screenWidth-20)/2,
 		margin:5
-		// marginTop: 10
 	},
 	container: {
 		height: '100%',
 		width: '100%',
 	},
 	titlebackground: {
-		// borderColor:'black',
-		// borderWidth:1,
 		width: '100%',
 		alignItems: 'center',
 	},
