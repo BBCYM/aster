@@ -6,14 +6,16 @@ import {
 	TouchableOpacity,
 	Text,
 	ActivityIndicator,
+	Dimensions
 } from 'react-native'
 import Modal from 'react-native-modalbox'
 import { Button } from 'react-native-elements'
 import FastImage from 'react-native-fast-image'
 import Axios from 'axios'
 import { AuthContext } from '../../contexts/AuthContext'
-import { ipv4 } from '../../utils/dev';
 import _ from 'lodash'
+import Snackbar from 'react-native-snackbar'
+
 
 export default function HomeScreen(props) {
 	function useMergeState(initialState) {
@@ -34,20 +36,16 @@ export default function HomeScreen(props) {
 		const accessToken = await auth.getAccessToken()
 		const userId = await state.user.id
 		try {
-			const response = await fetch(`http://${ipv4}:3000/album?userId=${userId}`, {
+			const response = await fetch(`${auth.url}/album/${userId}`, {
 				method: 'GET',
-				headers: {
-					'Accept': 'application/json',
-					'Content-Type': 'application/json',
-					'X-Requested-With': 'com.rnexparea',
-				},
+				headers: auth.headers
 			})
 			var data = await response.json()
 			let fSource = []
 			let i = 0
 			for (const [_id, _title, _coverId] of _.zip(data._idArray, data.albumNameArray, data.coverPhotoIdArray)) {
 				let res = await Axios.get(`https://photoslibrary.googleapis.com/v1/mediaItems/${_coverId}`, {
-					headers: {
+					headers:  {
 						'Authorization': `Bearer ${accessToken}`,
 						'Content-type': 'application/json'
 					}
@@ -65,7 +63,6 @@ export default function HomeScreen(props) {
 				await setStatus({ fastSource: fSource })
 			}
 		} catch (err) {
-			console.log('error')
 			console.log(err)
 		}
 		callback()
@@ -73,7 +70,22 @@ export default function HomeScreen(props) {
 	React.useEffect(() => {
 		fetchAlbumSource(() => {
 			console.log('hi album')
-			setStatus({ isLoading: false })
+			auth.checkNetwork(state,(verified)=>{
+				if (verified){
+					setStatus({isLoading:false})
+				} else {
+					Snackbar.show({
+						text: 'Wifi only!!',
+						textColor:'#F6C570',
+						backgroundColor:'#303960',
+						duration:Snackbar.LENGTH_LONG,
+						action:{
+							text:'Go Fix',
+							textColor:'#F6C570'
+						}
+					})
+				}
+			})
 		})
 
 	}, [])
@@ -86,12 +98,9 @@ export default function HomeScreen(props) {
 	}
 	//delete album
 	async function deleteAlbum() {
-		await fetch(`http://${ipv4}:3000/album?_id=${status.toDel}`, {
-			method: 'DELETE',
-			hesders: {
-				'Content-Type': 'application/json',
-				'X-Requested-With': 'com.rnexparea'
-			},
+		const response = await fetch(`${auth.url}/album/PD/${status.toDel}`, {
+			method: 'delete',
+			headers: auth.headers 
 		})
 		let slicedAlbum = [...status.fastSource]
 		var result = slicedAlbum.findIndex((v, i) => {
@@ -137,10 +146,14 @@ export default function HomeScreen(props) {
 							</View>
 						</Modal>
 						<View style={styles.container}>
+							<View style={styles.titlebackground} >
+								<Text style={{fontSize: 40,color: '#303960', letterSpacing:5}}>ALBUM</Text>
+							</View>
+							
 							<FlatList
 								data={status.fastSource}
 								renderItem={({ item }) => (
-									<View style={{ flex: 1, flexDirection: 'column', margin: 1 }}>
+									<View style={{flex:1}}>
 										<TouchableOpacity
 											key={item.id}
 											style={{ flex: 1 }}
@@ -155,7 +168,7 @@ export default function HomeScreen(props) {
 													priority: FastImage.priority.high,
 												}}
 											/>
-											<Text style={{ marginLeft: 30, fontSize: 18 }}>{item.title}</Text>
+											<Text style={{ marginLeft: 20, marginTop: 3, fontSize: 15 }}>{item.title}</Text>
 										</TouchableOpacity>
 									</View>
 								)}
@@ -169,20 +182,22 @@ export default function HomeScreen(props) {
 		</View>
 	)
 }
-
+const screenWidth = Math.round(Dimensions.get('window').width)
 const styles = StyleSheet.create({
 	image: {
 		height: 125,
-		width: 150,
-		borderRadius: 20,
+		borderRadius: 15,
 		overflow: 'hidden',
-		marginLeft: 23,
-		marginTop: 30
+		width:(screenWidth-20)/2,
+		margin:5
 	},
-
 	container: {
 		height: '100%',
-		width: '100%'
+		width: '100%',
+	},
+	titlebackground: {
+		width: '100%',
+		alignItems: 'center',
 	},
 	modalBtnTitle: { color: '#303960', fontWeight: 'bold' },
 	modalBtnStyle: { borderColor: '#303960', width: 90, borderWidth: 2 },

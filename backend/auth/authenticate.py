@@ -15,15 +15,18 @@ from google.cloud.vision import ImageAnnotatorClient, types
 import time
 from photo.models import Photo, Tag, ATag
 from aster import settings
-import shutil
 import pytz
 from mongoengine.queryset.visitor import Q
-from pprint import pprint
+import queue
+from threading import Thread
+import logging
+from requests.adapters import HTTPAdapter
+from ontology.onto import get_location
+logging.basicConfig(filename=f'./log/{__name__}.log',level=logging.INFO, filemode='w+', format='%(name)s %(levelname)s %(asctime)s -> %(message)s')
 
 def checkisSync(session,userId):
     params = {'pageSize':10}
     photoRes = session.get('https://photoslibrary.googleapis.com/v1/mediaItems', params=params).json()
-    # pprint(photoRes)
     mediaItems = photoRes['mediaItems']
     print(f'Checking {len(mediaItems)} pics')
     for mediaItem in mediaItems:
@@ -33,154 +36,160 @@ def checkisSync(session,userId):
             return False
     return True
 
+class Worker():
+    def __init__(self, tasks:queue.Queue):
+        self.tasks = tasks
+        self.go()
 
-def fetchNewImage(session, userId, q):
-    nPT = ''
-    params = {'pageSize': 12}
-    while True:
-        if nPT:
-            params['nextPageToken'] = nPT
-        photoRes = session.get(
-            'https://photoslibrary.googleapis.com/v1/mediaItems', params=params).json()
-        mediaItems = photoRes['mediaItems']
-        print(f'Fetching {len(mediaItems)} pics')
-        for mediaItem in mediaItems:
-            # can do better using time
-            dbRes = Photo.objects(
-                Q(userId=userId) & Q(photoId=mediaItem['id']))
-            if not dbRes:
-                mimeType = mediaItem['mimeType'].split('/')
-                if not os.path.isdir(f'./{userId}'):
-                    try:
-                        os.mkdir(userId)
-                    except OSError:
-                        print("Creation of the directory failed")
-                # only download images
-                if mimeType[0] == 'image':
-                    # get the image data
-                    filename = mediaItem['filename']
-                    res = session.get(mediaItem['baseUrl']+'=d').content
-                    print(f'{filename} downloaded')
-                    with open(f'{userId}/{filename}', mode='wb') as handler:
-                        handler.write(res)
-                    q.put(mediaItem)
-        # if not photoRes['nextPageToken']:
-        if photoRes['nextPageToken']:
-            break
-        else:
-            nPT = photoRes['nextPageToken']
+    def go(self):
+        while True:
+            func, args, kwargs = self.tasks.get()
+            func(*args, **kwargs)
+            self.tasks.task_done()
+
+class ThreadPool:
+    def __init__(self, QueueManager:queue.Queue()):
+        self.maxCore = 16
+        self.tasks = QueueManager
+        self.daemon = True
+        self.work()
+
+    def add_task(self, func, *args, **kargs):
+        self.tasks.put((func, args, kargs))
+
+    def work(self):
+        for _ in range(self.maxCore):
+            Thread(target=Worker, args=(self.tasks,), daemon=self.daemon).start()
 
 
-def afterAll(userId, q, thread):
-    # wait all task done
-    tic = time.perf_counter()
-    thread.join()
-    q.join()
-    toc = time.perf_counter()
-    print(f"Total process {toc - tic:0.4f} seconds")
-    # delete images
-    shutil.rmtree(userId)
-    print('process done')
-    user = User.objects(userId=userId)
-    user.update(
-        set__isSync=True,
-        set__isFreshing=False,
-        set__lastSync=make_aware(datetime.datetime.utcnow(),
-                                 timezone=pytz.timezone(settings.TIME_ZONE))
-    )
-    print('User isSync, not freshing')
+class MainProcess:
+    def __init__(self, session:AuthorizedSession, userId):
+        self.IFR = './static'
+        self.session = session
+        self.queue = queue.Queue()
+        self.session.mount('https://', HTTPAdapter(pool_connections=15, pool_maxsize=15, max_retries=5,pool_block=True))
+        self.userId = userId
+        self.client = ImageAnnotatorClient(credentials=service_account.Credentials.from_service_account_file('anster-1593361678608.json'))
 
-
-def toVisionApiLabel(userId, q):
-    credent = service_account.Credentials.from_service_account_file(
-        'anster-1593361678608.json')
-    client = ImageAnnotatorClient(credentials=credent)
-    while True:
-        mediaItem = q.get()
-        filename = mediaItem['filename']
-        while not os.path.exists(f'{userId}/{filename}'):
-            time.sleep(0.1)
-        with open(f'{userId}/{filename}', 'rb') as f:
-            content = f.read()
-        image = types.Image(content=content)
-        tic = time.perf_counter()
-        res = client.label_detection(image=image)
+    def pipeline(self, mediaItem):
+        # only download images
+        try:
+            # get the image data
+            filename = mediaItem['filename']
+            imagebinary = self.session.get(mediaItem['baseUrl']+'=d').content
+            image = types.Image(content = imagebinary)
+            response = self.client.label_detection(image=image)
+            if response.error.message:
+                raise Exception(response.error.message)
+            labels = response.label_annotations
+            ltemp = list(map(getLabelDescription, labels))
+            mLabels = toMandarin(ltemp)
+            logging.info(mLabels)
+            t = Tag(
+                main_tag=mLabels[0] if len(mLabels) > 0 else "None"
+            )
+            for ml, l in zip(mLabels[:3], labels[:3]):
+                t.top3_tag.append(ATag(tag=ml, precision=str(l.score)))
+            for ml, l in zip(mLabels[3:], labels[3:]):
+                t.all_tag.append(ATag(tag=ml, precision=str(l.score)))
+            tempcreationTime = mediaItem['mediaMetadata']['creationTime']
+            sliceTime = tempcreationTime.split('Z')[0].split('.')[0] if '.' in tempcreationTime else tempcreationTime.split('Z')[0]
+            realTime = datetime.datetime.strptime(sliceTime, "%Y-%m-%dT%H:%M:%S")    
+            ranloca = randLocation()
+            pho = Photo(
+                photoId=mediaItem['id'],
+                userId=self.userId,
+                tag=t,
+                location=get_location(ranloca),
+                createTime=make_aware(
+                    realTime, timezone=pytz.timezone(settings.TIME_ZONE)),
+            )
+            pho.save()
+            with open(f'{self.IFR}/{self.userId}/{filename}', mode='wb') as handler:
+                handler.write(imagebinary)
+        except Exception as e:
+            logging.error(e)
+            print(e)
+            
+    def afterall(self, tic, i):
+        self.queue.join()
         toc = time.perf_counter()
-        print(f"API process {toc - tic:0.4f} seconds")
-        labels = res.label_annotations
-        sliceTime = mediaItem['mediaMetadata']['creationTime'].split('Z')[0]
-        if '.' in mediaItem['mediaMetadata']['creationTime']:
-            sliceTime = sliceTime.split('.')[0]
-        sliceTime = datetime.datetime.strptime(sliceTime, "%Y-%m-%dT%H:%M:%S")
-        print(sliceTime)
-        # 這個才是正確的
-        ltemp = list(map(getLabelDescription, labels))
-        mLabels = toMandarin(ltemp)
-        print(mLabels[0].text)
-        t = Tag(
-            main_tag=mLabels[0].text
+        print(f"\rTotal process {i} images in {toc - tic:0.4f} seconds")
+        user = User.objects(userId=self.userId)
+        user.update(
+            set__isSync=True,
+            set__isFreshing=False,
+            set__lastSync=make_aware(datetime.datetime.utcnow(),
+                                    timezone=pytz.timezone(settings.TIME_ZONE))
         )
-        for ml, l in zip(mLabels[:3], labels[:3]):
-            t.top3_tag.append(ATag(tag=ml.text, precision=str(l.score)))
-        for ml, l in zip(mLabels[4:], labels[4:]):
-            t.all_tag.append(ATag(tag=ml.text, precision=str(l.score)))
-        pho = Photo(
-            photoId=mediaItem['id'],
-            userId=userId,
-            tag=t,
-            location=randLocation(),
-            createTime=make_aware(
-                sliceTime, timezone=pytz.timezone(settings.TIME_ZONE)),
-        )
-        pho.save()
-        q.task_done()
-        print('done one')
-        if res.error.message:
-            raise Exception('{}\nFor more info on error messages, check: '
-                            'https://cloud.google.com/apis/design/errors'.format(
-                                res.error.message))
+    def initial(self):
+        tic = time.perf_counter()
+        User.objects(userId=self.userId).update(set__isFreshing=True, set__isSync=False)
+        nPT = ''
+        pool=ThreadPool(self.queue)
+        params = {'pageSize': 40}
+        i = 0
+        try:
+            if not os.path.isdir(f'{self.IFR}/{self.userId}'):
+                os.mkdir(f'{self.IFR}/{self.userId}')
+            while True:
+                if nPT:
+                    params['pageToken'] = nPT
+                photoRes = self.session.get(
+                    'https://photoslibrary.googleapis.com/v1/mediaItems', params=params).json()
+                mediaItems = photoRes.get('mediaItems', None)
+                if not mediaItems:
+                    break
+                print(f'Handling {len(mediaItems)} items')
+                for mediaItem in mediaItems:
+                    mimeType, _ = mediaItem['mimeType'].split('/')
+                    if mimeType == 'image':
+                        pool.add_task(self.pipeline, mediaItem=mediaItem)
+                        i=i+1
+                if not os.getenv('CV_RELEASE', None) == "True" or not photoRes.get('nextPageToken', None):
+                    break
+                else:
+                    nPT = photoRes['nextPageToken']
+        except Exception as e:
+            logging.error(e)
+            print(e)
+        Thread(target=self.afterall, args=(tic,i), daemon=True).start()
 
+    def refresh(self):
+        tic = time.perf_counter()
+        User.objects(userId=self.userId).update(set__isFreshing=True, set__isSync=False)
+        nPT = ''
+        pool=ThreadPool(self.queue)
+        params = {'pageSize': 40}
+        i = 0
+        try:
+            if not os.path.isdir(f'{self.IFR}/{self.userId}'):
+                os.mkdir(f'{self.IFR}/{self.userId}')
+            while True:
+                if nPT:
+                    params['pageToken'] = nPT
+                photoRes = self.session.get(
+                    'https://photoslibrary.googleapis.com/v1/mediaItems', params=params).json()
+                mediaItems = photoRes.get('mediaItems', None)
+                if not mediaItems:
+                    break
+                print(f'Handling {len(mediaItems)} items')
+                for mediaItem in mediaItems:
+                    dbres = Photo.objects(photoId=mediaItem['id'])
+                    mimeType, _ = mediaItem['mimeType'].split('/')
+                    if not dbres and mimeType == 'image':
+                        pool.add_task(self.pipeline, mediaItem=mediaItem)
+                        i=i+1
+                if not os.getenv('CV_RELEASE', None) == "True" or not photoRes.get('nextPageToken', None):
+                    break
+                else:
+                    nPT = photoRes['nextPageToken']
+        except Exception as e:
+            logging.error(e)
+            print(e)
+        Thread(target=self.afterall, args=(tic,i), daemon=True).start()
 
-
-def downloadImage(session, userId, q):
-    User.objects(userId=userId).update(set__isFreshing=True)
-    nPT = ''
-    params = {'pageSize': 8}
-    while True:
-        if nPT:
-            params['nextPageToken'] = nPT
-        photoRes = session.get(
-            'https://photoslibrary.googleapis.com/v1/mediaItems', params=params).json()
-        mediaItems = photoRes['mediaItems']
-        print(f'Downloading {len(mediaItems)} pics')
-        for mediaItem in mediaItems:
-            mimeType = mediaItem['mimeType'].split('/')
-            if not os.path.isdir(f'./{userId}'):
-                try:
-                    os.mkdir(userId)
-                except OSError:
-                    print("Creation of the directory failed")
-            # only download images
-            if mimeType[0] == 'image':
-                # get the image data
-                filename = mediaItem['filename']
-                res = session.get(mediaItem['baseUrl']+'=d').content
-                print(f'{filename} downloaded')
-                with open(f'./{userId}/{filename}', mode='wb') as handler:
-                    handler.write(res)
-                q.put(mediaItem)
-        # if not photoRes['nextPageToken']:
-        if photoRes['nextPageToken']:
-            break
-        else:
-            nPT = photoRes['nextPageToken']
-
-
-def checkUserToSession(data, req):
-
-    if not req.headers.get('X-Requested-With') or req.headers.get('X-Requested-With') != 'com.aster':
-        print('X-R-not-pass')
-        return Response('CSRF', status=status.HTTP_403_FORBIDDEN)
+def checkUserToSession(userId, req):
     with open('client_secret.json', 'r', encoding='utf-8') as f:
         appSecret = json.load(f).get('web')
     CLIENT_ID, CLIENT_SECRET, TOKEN_URI = itemgetter(
@@ -188,35 +197,28 @@ def checkUserToSession(data, req):
         'client_secret',
         'token_uri'
     )(appSecret)
-    print('Hello')
-    user = User.objects(userId=data['sub'])
+    user = User.objects(userId=userId)
     access_token = ''
     if not user:
         oauth = OAuth2Session(
             client_id=CLIENT_ID,
             client_secret=CLIENT_SECRET,
-            scope=data['scopes']
+            scope=req.data['scopes']
         )
         token = oauth.fetch_token(
             url=TOKEN_URI,
             grant_type="authorization_code",
-            code=data['serverAuthCode'],
+            code=req.data['serverAuthCode'],
             redirect_url='http://localhost:3000/auth/callabck'
         )
-        print('Hello')
-        print(token)
         access_token = token['access_token']
         newUser = User(
-            userId=data['sub'],
-            expiresAt=datetime.datetime.utcnow() + datetime.timedelta(0,
-                                                                      token['expires_in']),
+            userId=userId,
+            expiresAt=datetime.datetime.utcnow() + datetime.timedelta(0,token['expires_in']),
             refreshToken=token['refresh_token']
         )
         newUser.save()
-        print('new user created')
-        user = User.objects(userId=data['sub'])
-        print('create new user')
-    # userData = user.values()[0]
+        user = User.objects(userId=userId)
     userData = user.get()
     credent = credentials.Credentials(
         access_token,
@@ -227,15 +229,11 @@ def checkUserToSession(data, req):
     )
     credent.expiry = userData.expiresAt.replace(tzinfo=None)
     now = datetime.datetime.utcnow()
-    print(credent.expiry)
-    print(now)
     if now > credent.expiry:
-        print('refreshing accessToken')
         try:
             credent.refresh(Request())
             user.update(set__expiresAt=make_aware(credent.expiry),
                         set__refreshToken=credent.refresh_token)
         except RefreshError as e:
             return Response(e, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    print('auth done')
     return AuthorizedSession(credent), userData

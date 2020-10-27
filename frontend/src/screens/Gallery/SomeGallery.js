@@ -18,7 +18,6 @@ import Ionicons from 'react-native-vector-icons/Ionicons'
 import Axios from 'axios'
 import { AuthContext } from '../../contexts/AuthContext'
 import { checkEmotion, preCleanPid, concatLocalTag } from '../../utils/utils'
-import { ipv4 } from '../../utils/dev'
 import Dash from 'react-native-dash'
 import _ from 'lodash'
 
@@ -49,22 +48,20 @@ export default function SomeGalleryScreen(props) {
 	const { auth, state } = React.useContext(AuthContext)
 	function setEmotion(n) {
 		let newEmotion = checkEmotion(status.emotionStatus, n).indexOf(true)
-		Axios.put(`http://${ipv4}:3000/photo/emotion`, JSON.stringify({
-			userId: state.user.id,
-			photoId: status.currentPhotoId,
+		Axios.put(`${auth.url}/photo/emotion/${status.currentPhotoId}`, JSON.stringify({
 			emotion_tag: newEmotion
 		}), {
-			headers: {
-				'Content-Type': 'application/json'
-			}
+			headers: auth.headers
 		}).then((res) => {
 			setStatus({ emotionStatus: newEmotion, isEmotionModalVisi: false })
 		})
 	}
 	React.useEffect(() => {
 		fetchImageSource(() => {
-			setStatus({ isLoading: false })
 			console.log('hello from some screen')
+			setTimeout(()=>{
+				setStatus({ isLoading: false })
+			},2000)
 		})
 	}, [])
 	async function fetchImageSource(callback) {
@@ -79,36 +76,46 @@ export default function SomeGalleryScreen(props) {
 		hashTag.forEach(async (v, k) => {
 			fSource.push({ key: k, tags: v.tag, pics: [] })
 			let m = _.findIndex(fSource, function (o) { return o.key === k })
-			for (const onePid of v.pid) {
+			var chunked = _.chunk(v.pid,50)
+			for (const chunkpids of chunked) {
+				let parial = new URLSearchParams()
+				chunkpids.forEach((v=>{
+					parial.append('mediaItemIds', v)
+				}))
 				try {
-					let res = await Axios.get(`https://photoslibrary.googleapis.com/v1/mediaItems/${onePid}`, {
-						headers: {
+					let res = await Axios.get('https://photoslibrary.googleapis.com/v1/mediaItems:batchGet',{
+						headers:{
 							'Authorization': `Bearer ${accessToken}`,
 							'Content-type': 'application/json'
-						}
+						},
+						params:parial
 					})
-					var item = res.data
-					var width = 400
-					var height = 400
-					var img = {
-						id: i++,
-						imgId: item['id'],
-						src: `${item['baseUrl']}=w${width}-h${height}`,
-						headers: { Authorization: `Bearer ${accessToken}` }
-					}
-					fSource[m].pics.push(img)
-					mSource.push({ url: item['baseUrl'] })
+					// eslint-disable-next-line no-loop-func
+					res.data.mediaItemResults.forEach((v=>{
+						if(v.mediaItem){
+							const item = v.mediaItem
+							const width = 400
+							const height = 400
+							var img = {
+								id: i++,
+								imgId: item['id'],
+								src: `${item['baseUrl']}=w${width}-h${height}`,
+								headers: { Authorization: `Bearer ${accessToken}` }
+							}
+							fSource[m].pics.push(img)
+							mSource.push({ url: item['baseUrl'] })
+							setStatus({ fastSource: fSource, modalSource: mSource })
+						}
+					}))
 				} catch (err) {
 					console.log(err)
 				}
-				setStatus({ fastSource: fSource, modalSource: mSource })
 			}
 		})
 		callback()
 	}
 
 	async function showImage(item) {
-		console.log(item.id)
 		await setStatus({
 			currentId: item.id,
 			isVisible: true,
@@ -129,14 +136,10 @@ export default function SomeGalleryScreen(props) {
 			}
 			tags.unshift({ key: String(t), text: status.inputTag })
 			setStatus({ tag: tags, inputTag: '' })
-			Axios.put(`http://${ipv4}:3000/photo/tag`, JSON.stringify({
-				userId: state.user.id,
-				photoId: status.currentPhotoId,
+			Axios.put(`${auth.url}/photo/tag/${status.currentPhotoId}`, JSON.stringify({
 				customTag: status.inputTag
 			}), {
-				headers: {
-					'Content-Type': 'application/json'
-				}
+				headers: auth.headers
 			})
 		} else {
 			setStatus({ inputTag: '' })
@@ -196,13 +199,14 @@ export default function SomeGalleryScreen(props) {
 											data={item.pics}
 											extraData={status}
 											renderItem={(block) => (
-												<View style={{ flex: 1, flexDirection: 'column', margin: 1 }}>
+												<View style={styles.photoSize}>
 													<TouchableOpacity onPress={() => showImage(block.item)}>
 														<FastImage
 															style={styles.imageThumbnail}
 															source={{
 																uri: block.item.src,
 																headers: block.item.headers,
+																priority: FastImage.priority.high,
 															}}
 														/>
 													</TouchableOpacity>
@@ -220,7 +224,7 @@ export default function SomeGalleryScreen(props) {
 							}}
 						/>
 
-						{AlbumModal([status, setStatus], state, props)}
+						{AlbumModal([status, setStatus], state, props, auth)}
 						{OneClickAction([status, setStatus])}
 						<Overlay
 							isVisible={status.isTagModalVisi}
@@ -241,7 +245,7 @@ export default function SomeGalleryScreen(props) {
 										containerStyle={{ padding: 5 }}
 									/>
 								</View>
-								{TagList([status, setStatus])}
+								{TagList([status, setStatus], auth)}
 							</View>
 						</Overlay>
 						<Overlay isVisible={status.isEmotionModalVisi}
@@ -291,7 +295,7 @@ export default function SomeGalleryScreen(props) {
 									}
 								}}
 								renderIndicator={() => null}
-								renderFooter={(currentIndex) => photoFooter(props, [status, setStatus], currentIndex, state)}
+								renderFooter={(currentIndex) => photoFooter(props, [status, setStatus], currentIndex, state, auth)}
 								footerContainerStyle={{
 									flex: 1,
 									alignSelf: 'flex-end',
@@ -378,5 +382,11 @@ const styles = StyleSheet.create({
 	emotion: {
 		width: 50,
 		height: 50,
+	},
+	photoSize: {
+		resizeMode: 'contain',
+		width:(screenWidth-35)/3,
+		margin:2
 	}
+
 })

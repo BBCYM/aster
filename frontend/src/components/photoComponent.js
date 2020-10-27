@@ -9,19 +9,17 @@ import ActionButton from 'react-native-action-button'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import { SwipeListView } from 'react-native-swipe-list-view'
 import Axios from 'axios'
-import { ipv4 } from '../utils/dev'
 import _ from 'lodash'
 import { resToEmotionStatus, asyncErrorHandling } from '../utils/utils'
 
 
-export function TagList([status, setStatus], state) {
+export function TagList([status, setStatus], auth) {
 	function deleteTag(id, text) {
-		Axios.delete(`http://${ipv4}:3000/photo/tag`, {
+		Axios.delete(`${auth.url}/photo/tag/${status.currentPhotoId}`, {
 			params: {
-				userId: state.user.id,
-				photoId: status.currentPhotoId,
 				custom_tag: text
-			}
+			},
+			headers:auth.headers
 		}).then(() => {
 			console.log(`deleting tag id:${id}`)
 			let slicedTag = [...status.tag]
@@ -65,7 +63,7 @@ export function TagList([status, setStatus], state) {
 }
 
 
-export function photoFooter(that, [status, setStatus], currentIndex, state) {
+export function photoFooter(that, [status, setStatus], currentIndex, state, auth) {
 
 	function fetchTags(currentIndex) {
 		const temp = _.flatMap(status.fastSource, (v) => {
@@ -73,13 +71,10 @@ export function photoFooter(that, [status, setStatus], currentIndex, state) {
 		})
 		const now = _.find(temp, (o) => { return o.id === currentIndex })
 		setStatus({ currentPhotoId: now.imgId, currentId: now.id })
-		Axios.get(`http://${ipv4}:3000/photo/tag`, {
-			params: {
-				userId: state.user.id,
-				photoId: now.imgId
-			}
+		Axios.get(`${auth.url}/photo/tag/${now.imgId}`, {
+			headers:auth.headers
 		}).then((res) => {
-			let data = JSON.parse(res.data)
+			let data = res.data
 			if (data.custom_tag) {
 				let len = data.custom_tag.length
 				setStatus({ tag: data.custom_tag.map((v, i) => ({ key: len - i - 1, text: v })) })
@@ -99,14 +94,11 @@ export function photoFooter(that, [status, setStatus], currentIndex, state) {
 		})
 		const now = _.find(temp, (o) => { return o.id === currentIndex })
 		setStatus({ currentPhotoId: now.imgId, currentId: now.id })
-		Axios.get(`http://${ipv4}:3000/photo/emotion`, {
-			params: {
-				userId: state.user.id,
-				photoId: now.imgId
-			}
+		Axios.get(`${auth.url}/photo/emotion/${now.imgId}`, {
+			headers:auth.headers
 		}).then((res) => {
-			let data = JSON.parse(res.data)
-			let emotionState = resToEmotionStatus(status.emotionStatus, data.message)
+			let data = res.data
+			let emotionState = resToEmotionStatus(status.emotionStatus, data.emotion)
 			setStatus({ emotionStatus: emotionState })
 		}).then(() => {
 			setStatus({ isEmotionModalVisi: true, actionBtnVisi: false })
@@ -121,13 +113,10 @@ export function photoFooter(that, [status, setStatus], currentIndex, state) {
 				return v.pics.map((v) => { return _.pick(v, ['id', 'imgId']) })
 			})
 			const now = _.find(temp, (o) => { return o.id === currentIndex })
-			let res = await Axios.get(`http://${ipv4}:3000/photo`, {
-				params: {
-					userId: state.user.id,
-					photoId: now.imgId
-				}
+			let res = await Axios.get(`${auth.url}/photo/${now.imgId}`, {
+				headers:auth.headers
 			})
-			let pObject = JSON.parse(res.data.photo_object)
+			let pObject = res.data
 			if (_.isEmpty(pObject)) {
 				setStatus({ isBug: true })
 				throw Error('Not in server, need Refresh')

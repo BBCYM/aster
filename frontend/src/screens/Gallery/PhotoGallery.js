@@ -10,6 +10,7 @@ import {
 	Text,
 	ActivityIndicator
 } from 'react-native'
+import Snackbar from 'react-native-snackbar'
 import { Overlay, SearchBar, Button } from 'react-native-elements'
 import FastImage from 'react-native-fast-image'
 import ImageViewer from 'react-native-image-zoom-viewer'
@@ -20,7 +21,6 @@ import ModalBox from 'react-native-modalbox'
 import { AuthContext } from '../../contexts/AuthContext'
 import AsyncStorage from '@react-native-community/async-storage'
 import { checkEmotion, asyncErrorHandling} from '../../utils/utils'
-import { ipv4 } from '../../utils/dev'
 import _ from 'lodash'
 export default function GalleryScreen(that) {
 	function useMergeState(initialState) {
@@ -48,26 +48,23 @@ export default function GalleryScreen(that) {
 	const { auth, state } = React.useContext(AuthContext)
 	function setEmotion(n) {
 		let newEmotion = checkEmotion(status.emotionStatus, n).indexOf(true)
-		Axios.put(`http://${ipv4}:3000/photo/emotion`, JSON.stringify({
-			userId: state.user.id,
-			photoId: status.currentPhotoId,
+		Axios.put(`${auth.url}/photo/emotion/${status.currentPhotoId}`, JSON.stringify({
 			emotion_tag: newEmotion
 		}), {
-			headers: {
-				'Content-Type': 'application/json'
-			}
+			headers: auth.headers
 		}).then((res) => {
 			setStatus({ emotionStatus: newEmotion, isEmotionModalVisi: false })
 		})
 	}
 
 	async function fetchImageSource(callback) {
-		let deletedPid = await Axios.get(`http://${ipv4}:3000/photo`, {
+		let temp = await Axios.get(`${auth.url}/photos/${state.user.id}`, {
 			params: {
-				userId: state.user.id,
 				isDeleted:true
-			}
+			},
+			headers:auth.headers
 		})
+		let deletedPid = temp.data['photos'].map((v)=>{return v[0]})
 		const isLoaded = await AsyncStorage.getItem('GalleryLoaded')
 		if (isLoaded === 'false') {
 			console.log('Loading photo')
@@ -95,7 +92,7 @@ export default function GalleryScreen(that) {
 					let fSource = status.fastSource
 					let mSource = status.modalSource
 					for (const item of mediaItems) {
-						if (deletedPid.data.includes(item['id'])){
+						if (deletedPid.includes(item['id'])){
 							continue
 						}
 						var width = 400
@@ -133,7 +130,22 @@ export default function GalleryScreen(that) {
 				let temp = await AsyncStorage.multiGet(['fSource', 'mSource'])
 				setStatus({ fastSource: JSON.parse(temp[0][1]), modalSource: JSON.parse(temp[1][1]) })
 			}
-			setStatus({isLoading:false})
+			auth.checkNetwork(state,(verified)=>{
+				if (verified){
+					setStatus({isLoading:false})
+				} else {
+					Snackbar.show({
+						text: 'Wifi only!!',
+						textColor:'#F6C570',
+						backgroundColor:'#303960',
+						duration:Snackbar.LENGTH_LONG,
+						action:{
+							text:'Go Fix',
+							textColor:'#F6C570'
+						}
+					})
+				}
+			})
 		})
 	}, [])
 
@@ -161,14 +173,10 @@ export default function GalleryScreen(that) {
 			}
 			tags.unshift({ key: String(t), text: status.inputTag })
 			setStatus({ tag: tags, inputTag: '' })
-			Axios.put(`http://${ipv4}:3000/photo/tag`, JSON.stringify({
-				userId: state.user.id,
-				photoId: status.currentPhotoId,
+			Axios.put(`${auth.url}/photo/tag/${status.currentPhotoId}`, JSON.stringify({
 				customTag: status.inputTag
 			}), {
-				headers: {
-					'Content-Type': 'application/json'
-				}
+				headers: auth.headers
 			})
 		} else {
 			setStatus({ inputTag: '' })
@@ -187,10 +195,8 @@ export default function GalleryScreen(that) {
 	}
 	function deletePhoto() {
 		asyncErrorHandling(async () => {
-			let res = await Axios.delete(`http://${ipv4}:3000/photo/${status.currentPhotoId}`, {
-				params: {
-					userId: state.user.id,
-				}
+			let res = await Axios.delete(`${auth.url}/photo/${status.currentPhotoId}`, {
+				headers:auth.headers
 			})
 			if (res.status !== 200) {
 				throw Error('Delete not success')
@@ -233,7 +239,7 @@ export default function GalleryScreen(that) {
 										containerStyle={{ padding: 5 }}
 									/>
 								</View>
-								{TagList([status, setStatus], state)}
+								{TagList([status, setStatus], auth)}
 							</View>
 						</Overlay>
 						<Overlay isVisible={status.isEmotionModalVisi}
@@ -283,19 +289,20 @@ export default function GalleryScreen(that) {
 										}
 									}
 								}}
-								renderFooter={(currentIndex) => photoFooter(that, [status, setStatus], currentIndex, state)}
+								renderFooter={(currentIndex) => photoFooter(that, [status, setStatus], currentIndex, state, auth)}
 								footerContainerStyle={{
 									flex: 1,
 									alignSelf: 'flex-end',
 									flexDirection: 'row',
 									width: 140,
 									height: 200,
-									// borderColor: 'black',
-									// borderWidth: 1,
 									zIndex: 1
 								}}
 							/>
 						</Modal>
+						<View style={styles.titlebackground} >
+							<Text style={{fontSize: 40,color: '#303960', letterSpacing:5}}>ALBUM</Text>
+						</View>
 						<FlatList
 							data={status.fastSource}
 							renderItem={({ item }) => (
@@ -400,5 +407,9 @@ const styles = StyleSheet.create({
 		justifyContent: 'flex-start',
 		alignItems: 'center',
 		padding: 10,
-	}
+	},
+	titlebackground: {
+		width: '100%',
+		alignItems: 'center',
+	},
 })

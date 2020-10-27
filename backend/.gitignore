@@ -130,5 +130,10 @@ client_secret.json
 [1-9]*
 Anster-4bf921cd3b7b.json
 anster-1593361678608.json
-.env
+
+*.env
+*.log
+Pipfile.lock
+ngrok.exe
+
 # End of https://www.gitignore.io/api/django,visualstudiocode

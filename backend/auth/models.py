@@ -5,7 +5,7 @@ from mongoengine import Document, fields, signals
 
 
 class User(Document):
-    userId = fields.StringField()
+    userId = fields.StringField(unique=True)
     expiresAt = fields.DateTimeField()
     refreshToken = fields.StringField()
     lastUpdateTime = fields.DateTimeField(default=datetime.utcnow())
