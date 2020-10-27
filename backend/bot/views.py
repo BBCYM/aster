@@ -117,6 +117,11 @@ class BotView(views.APIView):
             dateperiod = parameters.fields['date-period'].list_value
             vision = parameters.fields['visionAPI_1000'].list_value
             location = parameters.fields['location'].list_value
+            # vision_origin = parameters.fields['visionAPI_1000_original'].list_value
+            # print("origin:",vision_origin)
+            # for i in vision_origin.values:
+            #     print("origin抓:",i.string_value)
+
             pid = []
             pid_tag = []
             def addpid(pidarr, key):
@@ -266,7 +271,7 @@ class BotView(views.APIView):
         # for general(custom) agent
         res1 = get_res_cus(data)
         pid_tag1 = get_url_cus(res1)
-        # print("pid_tag1:",pid_tag1)
+        print("pid_tag1:",pid_tag1)
         # print("pid_tag len:",len(pid_tag1))
         re1 = MessageToJson(res1.query_result)
         # print(re1)
@@ -276,7 +281,7 @@ class BotView(views.APIView):
         pid_tag = get_url(res)
         re = MessageToJson(res.query_result)
         # print("re",re)
-        # print("pid_tag:",pid_tag)
+        print("pid_tag:",pid_tag)
 
 
         if(len(pid_tag1) == 0 and len(pid_tag) == 0):
