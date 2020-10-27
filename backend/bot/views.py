@@ -13,6 +13,7 @@ from album.models import Album
 from mongoengine.queryset.visitor import Q
 from datetime import datetime
 from datetime import timedelta
+from ordered_set import OrderedSet
 
 class BotView(views.APIView):
     # global uri
@@ -117,53 +118,55 @@ class BotView(views.APIView):
             dateperiod = parameters.fields['date-period'].list_value
             vision = parameters.fields['visionAPI_1000'].list_value
             location = parameters.fields['location'].list_value
-            # vision_origin = parameters.fields['visionAPI_1000_original'].list_value
-            # print("origin:",vision_origin)
-            # for i in vision_origin.values:
-            #     print("origin抓:",i.string_value)
+            vision_origin = parameters.fields['visionAPI_1000_original'].list_value
 
             pid = []
             pid_tag = []
-            def addpid(pidarr, key):
+            def addpid(pidarr, key, orkey):
                 for i in pidarr:
                     tag = []
                     photoid = i.photoId
                     # print('photoid:',photoid)
                     pid.append(photoid)
                     # print('key in add:',key)
-                    tag.append(key)
+                    if orkey == "null":
+                        # print("null")
+                        tag.append(key)
+                    else:
+                        # print("ok")
+                        tag.append(orkey)
                     temptag = tag
                     # print('tag:',tag)
                     pid_tag.append({"pid":photoid, "tag":temptag})
                     # print('pid_tag',pid_tag)
 
-            def getpid(key):
+            def getpid(key,orkey):
                 try:
                     # print('key',key)
 
                     emo = Photo.objects(Q(userId=userid) & Q(tag__emotion_tag=key))
                     # print('emotion:',emo)
-                    addpid(emo, key)
+                    addpid(emo, key, orkey)
 
                     main = Photo.objects(Q(userId=userid) & Q(tag__main_tag=key))
                     # print('main:',main)
-                    addpid(main, key)
+                    addpid(main, key, orkey)
 
                     top3 = Photo.objects(Q(userId=userid) & Q(tag__top3_tag__tag=key))
                     # print('top3:',top3)
-                    addpid(top3, key)
+                    addpid(top3, key, orkey)
 
                     alltag = Photo.objects(Q(userId=userid) & Q(tag__all_tag__tag=key))
                     # print('alltag:',alltag)
-                    addpid(alltag, key)
+                    addpid(alltag, key, orkey)
 
                     custom = Photo.objects(Q(userId=userid) & Q(tag__custom_tag__is_deleted=False) & Q(tag__custom_tag__tag=key))
                     # print('custom:',custom)
-                    addpid(custom, key)
+                    addpid(custom, key, orkey)
 
                     location = Photo.objects(Q(userId=userid) & Q(location__contains=key))
                     # print('location:',location)
-                    addpid(location, key)
+                    addpid(location, key, orkey)
 
                     album = Album.objects(Q(userId=userid) & Q(albumTag__isDeleted=False) & Q(albumTag__tag=key))
                     # print('album:',album)
@@ -186,7 +189,7 @@ class BotView(views.APIView):
 
             if len(emotion) is not 0:
                 emokey = emotion.values[0].string_value
-                getpid(emokey)
+                getpid(emokey,"null")
 
             # 抓單一日期(ex:昨天)
             if len(date) is not 0:
@@ -200,7 +203,7 @@ class BotView(views.APIView):
                 # print('tomorrow',tomorrow)
                 date = Photo.objects(Q(userId=userid) & Q(createTime__lt=tomorrow) & Q(createTime__gt=datekey))
                 # print('date:',date)
-                addpid(date, datekey)
+                addpid(date, datekey, "null")
             
             # 抓時間區間(ex:今年,上禮拜)
             if len(dateperiod) is not 0:
@@ -219,52 +222,58 @@ class BotView(views.APIView):
                 # print('dateperiod:',dateperiod)
                 periodkey = start + '-' + end
                 # print('periodkey:',periodkey)
-                addpid(dateperiod, periodkey)
+                addpid(dateperiod, periodkey, "null")
 
             if len(vision) is not 0:
                 vikeyArray = map(lambda k: k.string_value,vision.values)
-                vikeyArray = set(vikeyArray)
+                # vikeyArray = set(vikeyArray)
+                vikeyArray = OrderedSet(vikeyArray)
                 vikeyArray = list(vikeyArray)
-                for i in vikeyArray:
-                    getpid(i)
+                originArray = map(lambda k: k.string_value,vision_origin.values)
+                originArray = OrderedSet(originArray)
+                originArray = list(originArray)
+                # print("vikeyArray:",vikeyArray)
+                # print("originArray:",originArray)
+                for i in range(len(vikeyArray)):
+                    getpid(vikeyArray[i],originArray[i])
 
             if len(location) is not 0:
                 admin_areakey = location.values[0].struct_value.fields['admin-area'].string_value
                 if(admin_areakey != ''):
                     # print(admin_areakey)
-                    getpid(admin_areakey)
+                    getpid(admin_areakey,"null")
                 bus_namekey = location.values[0].struct_value.fields['business-name'].string_value
                 if(bus_namekey != ''):
                     # print(bus_namekey)
-                    getpid(bus_namekey)
+                    getpid(bus_namekey,"null")
                 citykey = location.values[0].struct_value.fields['city'].string_value
                 if(citykey != ''):
                     # print(citykey)
-                    getpid(citykey)
+                    getpid(citykey,"null")
                 countrykey = location.values[0].struct_value.fields['country'].string_value
                 if(countrykey != ''):
                     # print(countrykey)
-                    getpid(countrykey)
+                    getpid(countrykey,"null")
                 islandkey = location.values[0].struct_value.fields['island'].string_value
                 if(islandkey != ''):
                     # print(islandkey)
-                    getpid(islandkey)
+                    getpid(islandkey,"null")
                 shortcutkey = location.values[0].struct_value.fields['shortcut'].string_value
                 if(shortcutkey != ''):
                     # print(shortcutkey)
-                    getpid(shortcutkey)
+                    getpid(shortcutkey,"null")
                 street_addresskey = location.values[0].struct_value.fields['street-address'].string_value
                 if(street_addresskey != ''):
                     # print(street_addresskey)
-                    getpid(street_addresskey)
+                    getpid(street_addresskey,"null")
                 subadmin_areakey = location.values[0].struct_value.fields['subadmin-area'].string_value
                 if(subadmin_areakey != ''):
                     # print(subadmin_areakey)
-                    getpid(subadmin_areakey)
+                    getpid(subadmin_areakey,"null")
                 zip_codekey = location.values[0].struct_value.fields['zip-code'].string_value
                 if(zip_codekey != ''):
                     # print(zip_codekey)
-                    getpid(zip_codekey)
+                    getpid(zip_codekey,"null")
             return pid_tag
 
         pid = []
