@@ -21,6 +21,7 @@ import queue
 from threading import Thread
 import logging
 from requests.adapters import HTTPAdapter
+from ontology.onto import get_location
 logging.basicConfig(filename=f'./log/{__name__}.log',level=logging.INFO, filemode='w+', format='%(name)s %(levelname)s %(asctime)s -> %(message)s')
 
 def checkisSync(session,userId):
@@ -94,11 +95,12 @@ class MainProcess:
             tempcreationTime = mediaItem['mediaMetadata']['creationTime']
             sliceTime = tempcreationTime.split('Z')[0].split('.')[0] if '.' in tempcreationTime else tempcreationTime.split('Z')[0]
             realTime = datetime.datetime.strptime(sliceTime, "%Y-%m-%dT%H:%M:%S")    
+            ranloca = randLocation()
             pho = Photo(
                 photoId=mediaItem['id'],
                 userId=self.userId,
                 tag=t,
-                location=randLocation(),
+                location=get_location(ranloca),
                 createTime=make_aware(
                     realTime, timezone=pytz.timezone(settings.TIME_ZONE)),
             )

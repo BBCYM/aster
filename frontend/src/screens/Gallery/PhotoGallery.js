@@ -296,12 +296,13 @@ export default function GalleryScreen(that) {
 									flexDirection: 'row',
 									width: 140,
 									height: 200,
-									// borderColor: 'black',
-									// borderWidth: 1,
 									zIndex: 1
 								}}
 							/>
 						</Modal>
+						<View style={styles.titlebackground} >
+							<Text style={{fontSize: 40,color: '#303960', letterSpacing:5}}>ALBUM</Text>
+						</View>
 						<FlatList
 							data={status.fastSource}
 							renderItem={({ item }) => (
@@ -406,5 +407,9 @@ const styles = StyleSheet.create({
 		justifyContent: 'flex-start',
 		alignItems: 'center',
 		padding: 10,
-	}
+	},
+	titlebackground: {
+		width: '100%',
+		alignItems: 'center',
+	},
 })

@@ -4,7 +4,6 @@ import {
 	StyleSheet,
 	View,
 	Text,
-	Dimensions,
 	TouchableOpacity
 } from 'react-native'
 import { Input, ListItem, Button } from 'react-native-elements'
@@ -16,11 +15,11 @@ import _ from 'lodash'
 import { ErrorHandling } from '../utils/utils'
 export function AlbumModal([status, setStatus], state, props, auth) {
 	function createAlbum() {
-        let imgIDRes = _.flatMap(status.fastSource.map((v, i) => { return v.pics }))
-        imgIDRes = imgIDRes.map((v)=>{return v.imgId})
+		let imgIDRes = _.flatMap(status.fastSource.map((v, i) => { return v.pics }))
+		imgIDRes = imgIDRes.map((v) => { return v.imgId })
 		let albumName = status.aName
 		let userId = state.user.id
-        let coverPhotoId = _.sample(imgIDRes)
+		let coverPhotoId = _.sample(imgIDRes)
 		let albumPhoto = imgIDRes
 		let albumTag = status.doubleCheese.map((v, i) => { return v.text })
 		ErrorHandling(() => {
@@ -51,7 +50,7 @@ export function AlbumModal([status, setStatus], state, props, auth) {
 		slicedTag.splice(result, 1)
 		setStatus({ doubleCheese: slicedTag })
 	}
-	function addTag(){
+	function addTag() {
 		let temp = [...status.doubleCheese]
 		let t
 		if (temp.length > 0) {
@@ -72,7 +71,7 @@ export function AlbumModal([status, setStatus], state, props, auth) {
 					<Input label='Album Name' labelStyle={{ color: '#ffffff' }} onChangeText={value => setStatus({ aName: value })} value={status.aName ? status.aName : ''} inputContainerStyle={{ borderBottomColor: '#ffffff' }} />
 				</View>
 				<View style={styles.AlbumTitle}>
-					<Input label='Add Tag' labelStyle={{ color: '#ffffff' }} onChangeText={value => setStatus({ TagtoAdd: value })} value={status.TagtoAdd} placeholder={'Enter new Tag'} onSubmitEditing={()=>addTag()} inputContainerStyle={{ borderBottomColor: '#ffffff' }} />
+					<Input label='Add Tag' labelStyle={{ color: '#ffffff' }} onChangeText={value => setStatus({ TagtoAdd: value })} value={status.TagtoAdd} placeholder={'Enter new Tag'} onSubmitEditing={() => addTag()} inputContainerStyle={{ borderBottomColor: '#ffffff' }} />
 				</View>
 				<View style={{ flex: 1 }}>
 					<SwipeListView
@@ -87,15 +86,17 @@ export function AlbumModal([status, setStatus], state, props, auth) {
 							</View>
 						)}
 						renderHiddenItem={(data, rowMap) => (
-
 							<TouchableOpacity onPress={() => deleteTag(data.item.key, data.item.text)}>
 								<ListItem
 									key={data.item.key}
-									rightElement={
-										<Ionicons name='trash-outline' size={30} />
-									}
-									containerStyle={{ backgroundColor: 'pink' }}
-								/>
+									containerStyle={{ backgroundColor: 'pink'}}
+								>
+									<View style={{flex:1, flexDirection:'row', justifyContent:'flex-end'}}>
+										<TouchableOpacity onPress={() => deleteTag(data.item.key, data.item.text)} >
+											<Ionicons name='trash-outline' size={30}/>
+										</TouchableOpacity>
+									</View>
+								</ListItem>
 							</TouchableOpacity>
 						)}
 						disableRightSwipe
@@ -153,9 +154,8 @@ const styles = StyleSheet.create({
 		color: '#303960',
 	},
 	modal4: {
-		height: 600,
+		height: '100%',
 		backgroundColor: 'transparent'
-
 	},
 	modal: {
 		flex: 1,
@@ -171,14 +171,10 @@ const styles = StyleSheet.create({
 		paddingLeft: 15,
 		paddingBottom: 0,
 		margin: 0,
-		// borderColor: 'red',
-		// borderWidth: 1
 	},
 	AlbumText: {
 		justifyContent: 'flex-start',
 		alignItems: 'center',
 		padding: 10,
-		// borderColor: 'black',
-		// borderWidth: 1
 	}
 })
