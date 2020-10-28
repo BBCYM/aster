@@ -1,6 +1,6 @@
 from owlready2 import *
 
-file_path = "file: // ./ontology/owl/"
+file_path = "file://./ontology/owl/"
 
 
 def get_location(location_tag):
