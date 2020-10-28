@@ -10,29 +10,35 @@ from .utils import getEmotionString, EmotionStringtoI
 from utils.utils import is_valid_objectId
 
 get_fields = ('photoId', 'location', 'isDeleted', 'createTime')
+
+
 class PhotoListView(APIView):
-    def get(self, request:WSGIRequest, userId:str=None):
+    def get(self, request: WSGIRequest, userId: str = None):
         if userId:
-            want_deleted = json.loads(request.query_params.get('isDeleted', 'false'))
-            photo = Photo.objects(Q(userId=userId) & Q(isDeleted=want_deleted)).scalar(*get_fields)
+            want_deleted = json.loads(
+                request.query_params.get('isDeleted', 'false'))
+            photo = Photo.objects(Q(userId=userId) & Q(
+                isDeleted=want_deleted)).scalar(*get_fields)
             photo = list(photo)
-            return Response({'photos':photo}, status=status.HTTP_200_OK)
+            return Response({'photos': photo}, status=status.HTTP_200_OK)
         else:
-            return Response({'message': 'No such user'},status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'No such user'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class PhotoView(APIView):
     def get(self, request, photoId=None):
         if photoId:
             try:
-                photo = Photo.objects(photoId=photoId).scalar(*get_fields).get()
+                photo = Photo.objects(
+                    photoId=photoId).scalar(*get_fields).get()
                 photo = dict(zip(get_fields, photo))
                 return Response(photo, status=status.HTTP_200_OK)
             except Exception as e:
                 print(e)
                 return Response('error', status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        else: 
-            return Response({'message': 'No such photo'},status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'message': 'No such photo'}, status=status.HTTP_400_BAD_REQUEST)
+
     def post(self, request):
         """
         (測試用)
@@ -100,13 +106,15 @@ class PhotoView(APIView):
         """
         if photoId:
             try:
-                update_rows = Photo.objects(photoId=photoId).update(isDeleted=True)
-                return Response({},status=status.HTTP_200_OK)
+                update_rows = Photo.objects(
+                    photoId=photoId).update(isDeleted=True)
+                return Response({}, status=status.HTTP_200_OK)
             except Exception as e:
                 print(e)
-                return Response({'message':"PhotoViewError"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response({'message': "PhotoViewError"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
-            return Response({'message': 'No such photo'},status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'No such photo'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class EmotionView(APIView):
     def get(self, request, photoId=None):
@@ -115,17 +123,16 @@ class EmotionView(APIView):
         """
         if photoId:
             try:
-                temp = Photo.objects(photoId=photoId,isDeleted=False).scalar('tag').get()
+                temp = Photo.objects(
+                    photoId=photoId, isDeleted=False).scalar('tag').get()
                 k = EmotionStringtoI(temp.emotion_tag)
-                res = {'emotion':k}
+                res = {'emotion': k}
                 return Response(res, status=status.HTTP_200_OK)
             except Exception as e:
                 print(e)
-                return Response({'message':"EmotionViewError"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response({'message': "EmotionViewError"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
-            return Response({'message': 'No such photo'},status=status.HTTP_400_BAD_REQUEST)
-
-        
+            return Response({'message': 'No such photo'}, status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, photoId=None):
         """
@@ -143,15 +150,14 @@ class EmotionView(APIView):
         eTag = getEmotionString(int(emotion_tag))
         if photoId:
             try:
-                update_rows = Photo.objects(photoId=photoId).update(tag__emotion_tag=eTag)
+                update_rows = Photo.objects(
+                    photoId=photoId).update(tag__emotion_tag=eTag)
                 return Response({}, status=status.HTTP_200_OK)
             except Exception as e:
                 print(e)
-                return Response({'message':"EmotionViewError"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response({'message': "EmotionViewError"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
-            return Response({'message': 'No such photo'},status=status.HTTP_400_BAD_REQUEST)
-
-
+            return Response({'message': 'No such photo'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class TagView(APIView):
@@ -180,7 +186,7 @@ class TagView(APIView):
                 print(e)
                 return Response(simpleMessage("GetTagViewError"), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
-            return Response({'message': 'No such photo'},status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'No such photo'}, status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, photoId=None):
         """
@@ -198,13 +204,14 @@ class TagView(APIView):
             custom_tag = request.data["customTag"]
             tag = Custom_tag(tag=custom_tag)
             try:
-                update_rows = Photo.objects(photoId__exact=photoId).update(add_to_set__tag__custom_tag=tag)
+                update_rows = Photo.objects(photoId__exact=photoId).update(
+                    add_to_set__tag__custom_tag=tag)
                 return Response({}, status=status.HTTP_200_OK)
             except Exception as e:
                 print('error: ', e)
                 return Response(simpleMessage("Put/TagViewError"), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
-            return Response({'message': 'No such photo'},status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'No such photo'}, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, photoId=None):
         """
@@ -219,10 +226,12 @@ class TagView(APIView):
             剩下的tag 
 
         """
+
         if photoId:
             try:
-                custom_tag = request.query_params.get("custom_tag",None)
-                photo = Photo.objects(photoId=photoId, tag__custom_tag__match={'tag': custom_tag, 'is_deleted': False}).first()
+                custom_tag = request.query_params.get("custom_tag", None)
+                photo = Photo.objects(photoId=photoId, tag__custom_tag__match={
+                                      'tag': custom_tag, 'is_deleted': False}).first()
                 for single_tag in photo.tag.custom_tag:
                     if single_tag.tag == custom_tag:
                         single_tag.is_deleted = True
@@ -232,5 +241,4 @@ class TagView(APIView):
                 print(e)
                 return Response(simpleMessage("DELETE/TagView: error"), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
-            return Response({'message': 'No such photo'},status=status.HTTP_400_BAD_REQUEST)
-
+            return Response({'message': 'No such photo'}, status=status.HTTP_400_BAD_REQUEST)

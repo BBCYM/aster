@@ -61,4 +61,4 @@ buck-out/
 
 dev.js
 google-services.json
-*.json
+env.json

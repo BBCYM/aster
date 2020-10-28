@@ -1,0 +1,676 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+         xmlns:owl="http://www.w3.org/2002/07/owl#"
+         xml:base="http://test.org/onto.owl"
+         xmlns="http://test.org/onto.owl#">
+
+<owl:Ontology rdf:about="http://test.org/onto.owl"/>
+
+<owl:ObjectProperty rdf:about="#com_has_spec">
+  <rdfs:domain rdf:resource="#CommonColor"/>
+  <rdfs:range rdf:resource="#SpecificColor"/>
+  <owl:inverseOf rdf:resource="#specific_in_common"/>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="#specific_in_common">
+  <rdfs:domain rdf:resource="#SpecificColor"/>
+  <rdfs:range rdf:resource="#CommonColor"/>
+  <owl:inverseOf rdf:resource="#com_has_spec"/>
+</owl:ObjectProperty>
+
+<owl:Class rdf:about="#CommonColor">
+  <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+</owl:Class>
+
+<owl:Class rdf:about="#SpecificColor">
+  <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+</owl:Class>
+
+<CommonColor rdf:about="#紅色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+  <com_has_spec rdf:resource="#赤紅色"/>
+  <com_has_spec rdf:resource="#深洋紅色"/>
+  <com_has_spec rdf:resource="#深紅色"/>
+  <com_has_spec rdf:resource="#品紅色"/>
+  <com_has_spec rdf:resource="#迷霧玫瑰色"/>
+  <com_has_spec rdf:resource="#橙紅色"/>
+  <com_has_spec rdf:resource="#赭色"/>
+  <com_has_spec rdf:resource="#番茄色"/>
+  <com_has_spec rdf:resource="#黑鮭色"/>
+  <com_has_spec rdf:resource="#耐火磚色"/>
+  <com_has_spec rdf:resource="#印第安人色"/>
+  <com_has_spec rdf:resource="#輕珊瑚色"/>
+  <com_has_spec rdf:resource="#Lightsalmon色"/>
+  <com_has_spec rdf:resource="#栗色"/>
+  <com_has_spec rdf:resource="#紅褐色"/>
+  <com_has_spec rdf:resource="#三文魚色"/>
+</CommonColor>
+
+<CommonColor rdf:about="#橘色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+  <com_has_spec rdf:resource="#橙子色"/>
+  <com_has_spec rdf:resource="#深橙色"/>
+  <com_has_spec rdf:resource="#珊瑚色"/>
+  <com_has_spec rdf:resource="#burlywood色"/>
+  <com_has_spec rdf:resource="#莫卡辛色"/>
+  <com_has_spec rdf:resource="#納瓦霍懷特色"/>
+  <com_has_spec rdf:resource="#小麥色"/>
+</CommonColor>
+
+<CommonColor rdf:about="#黃色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+  <com_has_spec rdf:resource="#淺黃色"/>
+  <com_has_spec rdf:resource="#淺金黃色"/>
+  <com_has_spec rdf:resource="#黃褐色"/>
+  <com_has_spec rdf:resource="#金色"/>
+  <com_has_spec rdf:resource="#金毛色"/>
+  <com_has_spec rdf:resource="#淡金黃色的色"/>
+  <com_has_spec rdf:resource="#檸檬雪紡色"/>
+  <com_has_spec rdf:resource="#暗金桿色"/>
+  <com_has_spec rdf:resource="#米色"/>
+  <com_has_spec rdf:resource="#玉米絲色"/>
+  <com_has_spec rdf:resource="#達基色"/>
+  <com_has_spec rdf:resource="#象牙色"/>
+  <com_has_spec rdf:resource="#橄欖色"/>
+</CommonColor>
+
+<CommonColor rdf:about="#綠色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+  <com_has_spec rdf:resource="#淡綠色"/>
+  <com_has_spec rdf:resource="#淺綠色"/>
+  <com_has_spec rdf:resource="#海綠色"/>
+  <com_has_spec rdf:resource="#春綠色"/>
+  <com_has_spec rdf:resource="#綠松石色"/>
+  <com_has_spec rdf:resource="#黃綠色"/>
+  <com_has_spec rdf:resource="#薄荷色"/>
+  <com_has_spec rdf:resource="#中春綠色"/>
+  <com_has_spec rdf:resource="#中海綠色"/>
+  <com_has_spec rdf:resource="#檸檬綠色"/>
+  <com_has_spec rdf:resource="#淺海綠色"/>
+  <com_has_spec rdf:resource="#草坪綠色"/>
+  <com_has_spec rdf:resource="#森林綠色"/>
+  <com_has_spec rdf:resource="#深海綠色"/>
+  <com_has_spec rdf:resource="#深橄欖綠色"/>
+  <com_has_spec rdf:resource="#深綠色"/>
+  <com_has_spec rdf:resource="#甘露色"/>
+  <com_has_spec rdf:resource="#海藍寶石色"/>
+  <com_has_spec rdf:resource="#Olivedrab色"/>
+</CommonColor>
+
+<CommonColor rdf:about="#藍色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+  <com_has_spec rdf:resource="#愛麗絲藍色"/>
+  <com_has_spec rdf:resource="#藍晶色"/>
+  <com_has_spec rdf:resource="#水色"/>
+  <com_has_spec rdf:resource="#天藍色"/>
+  <com_has_spec rdf:resource="#cadetblue色"/>
+  <com_has_spec rdf:resource="#矢車菊藍色"/>
+  <com_has_spec rdf:resource="#青色"/>
+  <com_has_spec rdf:resource="#深藍色"/>
+  <com_has_spec rdf:resource="#塔卡卡揚色"/>
+  <com_has_spec rdf:resource="#道奇藍色"/>
+  <com_has_spec rdf:resource="#薰衣草色"/>
+  <com_has_spec rdf:resource="#淺藍色"/>
+  <com_has_spec rdf:resource="#光一體化色"/>
+  <com_has_spec rdf:resource="#中藍色"/>
+  <com_has_spec rdf:resource="#午夜藍色"/>
+  <com_has_spec rdf:resource="#海軍色"/>
+  <com_has_spec rdf:resource="#粉藍色"/>
+  <com_has_spec rdf:resource="#寶藍色"/>
+  <com_has_spec rdf:resource="#slateblue色"/>
+  <com_has_spec rdf:resource="#滑脫色"/>
+  <com_has_spec rdf:resource="#板岩灰色"/>
+  <com_has_spec rdf:resource="#鋼藍色"/>
+</CommonColor>
+
+<CommonColor rdf:about="#紫色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+  <com_has_spec rdf:resource="#紫羅蘭色"/>
+  <com_has_spec rdf:resource="#蘭花色"/>
+  <com_has_spec rdf:resource="#暗紫色"/>
+  <com_has_spec rdf:resource="#紫紅色"/>
+  <com_has_spec rdf:resource="#靛青色"/>
+  <com_has_spec rdf:resource="#中紫色"/>
+  <com_has_spec rdf:resource="#泛紫色"/>
+  <com_has_spec rdf:resource="#李子色"/>
+  <com_has_spec rdf:resource="#薊色"/>
+</CommonColor>
+
+<CommonColor rdf:about="#咖啡色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+  <com_has_spec rdf:resource="#棕色"/>
+  <com_has_spec rdf:resource="#巧克力色"/>
+  <com_has_spec rdf:resource="#秘魯色"/>
+  <com_has_spec rdf:resource="#馬鞍棕色"/>
+  <com_has_spec rdf:resource="#沙棕色"/>
+  <com_has_spec rdf:resource="#談色"/>
+  <com_has_spec rdf:resource="#深棕色"/>
+  <com_has_spec rdf:resource="#焦糖色"/>
+  <com_has_spec rdf:resource="#黑咖啡色"/>
+</CommonColor>
+
+<CommonColor rdf:about="#灰色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+  <com_has_spec rdf:resource="#深灰色"/>
+  <com_has_spec rdf:resource="#黑暗崩解色"/>
+  <com_has_spec rdf:resource="#暗灰色"/>
+  <com_has_spec rdf:resource="#定萊色"/>
+  <com_has_spec rdf:resource="#丁格里色"/>
+  <com_has_spec rdf:resource="#恩斯伯勒色"/>
+  <com_has_spec rdf:resource="#幽靈般的白色"/>
+  <com_has_spec rdf:resource="#淺灰色"/>
+  <com_has_spec rdf:resource="#銀色"/>
+  <com_has_spec rdf:resource="#白色的煙色"/>
+</CommonColor>
+
+<CommonColor rdf:about="#黑色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+  <com_has_spec rdf:resource="#黑"/>
+</CommonColor>
+
+<CommonColor rdf:about="#粉紅色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+  <com_has_spec rdf:resource="#古董白色"/>
+  <com_has_spec rdf:resource="#濃湯色"/>
+  <com_has_spec rdf:resource="#布蘭查德蒙德色"/>
+  <com_has_spec rdf:resource="#花白色"/>
+  <com_has_spec rdf:resource="#亮粉色"/>
+  <com_has_spec rdf:resource="#薰衣草腮紅色"/>
+  <com_has_spec rdf:resource="#淺粉紅色"/>
+  <com_has_spec rdf:resource="#麻布色"/>
+  <com_has_spec rdf:resource="#老花邊色"/>
+  <com_has_spec rdf:resource="#木瓜鞭色"/>
+  <com_has_spec rdf:resource="#桃撲色"/>
+  <com_has_spec rdf:resource="#貝殼色"/>
+  <com_has_spec rdf:resource="#雪色"/>
+</CommonColor>
+
+<CommonColor rdf:about="#白色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+  <com_has_spec rdf:resource="#白"/>
+</CommonColor>
+
+<SpecificColor rdf:about="#赤紅色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#深洋紅色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#深紅色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#品紅色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#迷霧玫瑰色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#橙紅色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#赭色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#番茄色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#黑鮭色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#耐火磚色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#印第安人色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#輕珊瑚色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#Lightsalmon色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#栗色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#紅褐色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#三文魚色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#橙子色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#深橙色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#珊瑚色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#burlywood色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#莫卡辛色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#納瓦霍懷特色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#小麥色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#淺黃色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#淺金黃色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#黃褐色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#金色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#金毛色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#淡金黃色的色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#檸檬雪紡色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#暗金桿色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#米色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#玉米絲色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#達基色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#象牙色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#橄欖色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#淡綠色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#淺綠色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#海綠色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#春綠色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#綠松石色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#黃綠色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#薄荷色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#中春綠色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#中海綠色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#檸檬綠色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#淺海綠色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#草坪綠色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#森林綠色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#深海綠色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#深橄欖綠色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#深綠色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#甘露色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#海藍寶石色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#Olivedrab色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#愛麗絲藍色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#藍晶色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#水色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#天藍色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#cadetblue色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#矢車菊藍色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#青色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#深藍色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#塔卡卡揚色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#道奇藍色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#薰衣草色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#淺藍色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#光一體化色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#中藍色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#午夜藍色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#海軍色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#粉藍色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#寶藍色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#slateblue色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#滑脫色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#板岩灰色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#鋼藍色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#紫羅蘭色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#蘭花色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#暗紫色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#紫紅色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#靛青色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#中紫色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#泛紫色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#李子色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#薊色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#棕色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#巧克力色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#秘魯色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#馬鞍棕色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#沙棕色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#談色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#深棕色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#焦糖色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#黑咖啡色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#深灰色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#黑暗崩解色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#暗灰色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#定萊色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#丁格里色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#恩斯伯勒色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#幽靈般的白色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#淺灰色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#銀色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#白色的煙色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#黑">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#古董白色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#濃湯色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#布蘭查德蒙德色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#花白色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#亮粉色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#薰衣草腮紅色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#淺粉紅色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#麻布色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#老花邊色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#木瓜鞭色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#桃撲色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#貝殼色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#雪色">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+<SpecificColor rdf:about="#白">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+</SpecificColor>
+
+
+</rdf:RDF>

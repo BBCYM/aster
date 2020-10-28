@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'photo',
     'album',
     'ontology',
+    'color_detection',
     'line',
     "django.contrib.staticfiles"
 ]
