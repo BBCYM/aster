@@ -4,24 +4,26 @@ from rest_framework import status
 from .utils import get_class_that_defined_method
 from django.http import HttpResponseForbidden
 import os
+
+
 class AsterMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
         self.app = os.getenv('APP')
         self.access_code = os.getenv('ACCESS_CODE')
         self.channel_secret = os.getenv('LINE_CHANNEL_SECRET')
-    
-    def __call__(self, request:WSGIRequest):
+
+    def __call__(self, request: WSGIRequest):
         # Code to be executed for each request before
         # the view (and later middleware) are called.
         response = self.get_response(request)
         # Code to be executed for each request/response after
         # the view is called.
         return response
-    
-    def process_view(self, request:WSGIRequest, view_func, view_args, view_kwargs):
-        XRequestedWith = request.headers.get('X-Requested-With',None)
-        Authorization = request.headers.get('Authorization',None)
+
+    def process_view(self, request: WSGIRequest, view_func, view_args, view_kwargs):
+        XRequestedWith = request.headers.get('X-Requested-With', None)
+        Authorization = request.headers.get('Authorization', None)
         LineSignature = request.headers.get('X-Line-Signature', None)
         if LineSignature and view_func.__name__ == "callback":
             return None
@@ -30,11 +32,12 @@ class AsterMiddleware:
         else:
             return None
 
+
 def ResWith401(request, view_func=None):
     res = HttpResponseForbidden('Reuqest not authorized.')
     # res = Response('Reuqest not authorized.', status=status.HTTP_401_UNAUTHORIZED)
     # if view_func.__name__ == 'callback':
-    #     return res    
+    #     return res
     # if not getattr(request, 'accepted_renderer', None):
     #     viewclass = get_class_that_defined_method(view_func)
     #     neg = viewclass().perform_content_negotiation(request, force=True)
