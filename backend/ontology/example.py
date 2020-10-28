@@ -1,5 +1,6 @@
 from onto import get_location
-get_location('中壢區')
+
+get_location('北海道')
 
 """
 得到:

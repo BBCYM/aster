@@ -219,6 +219,7 @@ class TagView(APIView):
             剩下的tag 
 
         """
+
         if photoId:
             try:
                 custom_tag = request.query_params.get("custom_tag",None)
@@ -233,4 +234,5 @@ class TagView(APIView):
                 return Response(simpleMessage("DELETE/TagView: error"), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             return Response({'message': 'No such photo'},status=status.HTTP_400_BAD_REQUEST)
+
 

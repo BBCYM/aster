@@ -1,12 +1,14 @@
 from owlready2 import *
 
+file_path = "file://./ontology/owl/"
+
 
 def get_location(location_tag):
     rtr = []
     province_list = ['市', '縣', '區']
     try:
         onto_location = get_ontology(
-            "file://./ontology/location_onto.owl").load()
+            file_path + "location.owl").load()  # 還沒處理file path variable
 
         """如果有市、縣、區等等，則去掉後再加入陣列"""
         def check_province(location_tag):
@@ -41,8 +43,5 @@ def get_location(location_tag):
     except Exception as e:
         print(e)
         return []
-    print('ontology location:', rtr)
+    
     return rtr
-
-
-# print('ontology location:', get_location('中壢'))
