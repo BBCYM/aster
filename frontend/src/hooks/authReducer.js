@@ -33,6 +33,11 @@ function execSwitch(state, action) {
 			...state,
 			useWifi:action.payload
 		}
+	case actionType.SET.lancode:
+		return {
+			...state,
+			lancode:action.payload
+		}
 	default:
 		return state
 	}

@@ -15,6 +15,7 @@ import NetInfo from '@react-native-community/netinfo'
 const initialState = {
 	user: null,
 	splash: true,
+	language: 'zh-tw'
 }
 
 export function useAuth() {
@@ -151,8 +152,6 @@ export function useAuth() {
 		checkNetwork:(status, callback)=>{
 			const disallowtype = ['none', 'unknown']
 			NetInfo.fetch().then((netinfostate)=>{
-				// console.log(netinfostate.type)
-				// console.log(status.useWifi)
 				if((status.useWifi&&netinfostate.type==='wifi')||(!status.useWifi&&!disallowtype.includes(netinfostate))) {
 					callback(true)
 				} else {
@@ -161,9 +160,12 @@ export function useAuth() {
 			})
 		},
 		changeWifi:(setUse)=>{
-			console.log(setUse)
 			AsyncStorage.setItem('useWifi', setUse.toString())
 			dispatch(action(actionType.SET.useWifi,setUse))
+		},
+		changeLanguage: async(lancode)=>{
+			await AsyncStorage.setItem('lancode', lancode)
+			dispatch(action(actionType.SET.lancode, lancode))
 		}
 	}), [])
 	return { auth, state }
