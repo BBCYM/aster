@@ -21,12 +21,11 @@ class Tag(EmbeddedDocument):
 
 
 class Photo(Document):
-    photoId = fields.StringField()
+    photoId = fields.StringField(unique=True)
     userId = fields.StringField()
     tag = fields.EmbeddedDocumentField(Tag)
-    location = fields.StringField()
+    location = fields.ListField()
     createTime = fields.DateTimeField()  # 拍照的時間
-
     updateTime = fields.DateTimeField(default=datetime.utcnow())
     isDeleted = fields.BooleanField(default=False)
     # meta = {'allow_inheritance': True}

@@ -6,15 +6,14 @@ from datetime import datetime
 import json
 from django.forms.models import model_to_dict
 from bson import ObjectId
+from django.core.handlers.wsgi import WSGIRequest
 
 
 class AlbumView(APIView):
 
-    # 抓使用者的所有相簿
-    def get(self, request):
-
-        # userId = request.data["userId"]
-        userId = request.query_params["userId"]
+    # 抓使用者的所有相簿 OK
+    def get(self, request: WSGIRequest, userId: str = None):
+        # userId = request.query_params["userId"]
 
         albumNameArray = []
         _idArray = []
@@ -32,15 +31,12 @@ class AlbumView(APIView):
             if a.isDeleted == False:
                 data = JSONEncoder().encode(a._id)
                 data2 = eval(data)
-                print('test:', data2)
+
                 _idArray.append(data2)
-        # print(_idArray)
 
         # get coverPhotoId
         for a in album:
             if a.isDeleted == False:
-                print('test2:', a.coverPhotoId)
-
                 coverPhotoIdArray.append(a.coverPhotoId)
 
         res = {"albumNameArray": albumNameArray, "_idArray": _idArray,
@@ -48,14 +44,14 @@ class AlbumView(APIView):
         # res = json.dumps(res)
         return Response(res, status=status.HTTP_201_CREATED)
 
-    # CREATE  一鍵建相簿
+    # CREATE  一鍵建相簿 OK
 
-    def post(self, request):
+    def post(self, request: WSGIRequest, userId: str = None):
 
         album = Album(
             coverPhotoId=request.data['coverPhotoId'],
             albumName=request.data['albumName'],
-            userId=request.data['userId'],
+            userId=userId
 
         )
         for p in request.data['albumPhoto']:
@@ -65,41 +61,16 @@ class AlbumView(APIView):
         album.save()
         return Response(simpleMessage('POST/AlbumView'), status=status.HTTP_201_CREATED)
 
-    # # CREATE 測試建立資料
+class AlbumPDView(APIView):
 
-    # def post(self, request):
-    #     """
-    #     (測試用)
-    #     產生一筆假資料
-    #     Args:
-    #         None
-    #     Returns:
-    #         None
-    #     """
-    #     album = Album(
-    #         coverPhotoId='1234579',
-    #         albumName='12345',
-    #         userId='daioaufio',
-    #         albumPhoto=[{'photoId': 'asdfklkajhsl',
-    #                      'isDeleted': False},
-    #                     {'photoId': 'aagdzzkajhsl',
-    #                      'isDeleted': False}],
-    #         albumTag=[{'tag': 'album5', 'isDeleted': False}, {
-    #             'tag': 'michelle2345', 'isDeleted': False}],
-    #         createTime=datetime.utcnow())
-    #     album.save()
+    # 更改相簿名稱 OK
+    def put(self, request: WSGIRequest, albumId: str = None):
 
-    #     return Response(simpleMessage('POST/AlbumView'), status=status.HTTP_201_CREATED)
-
-    # 更改相簿名稱
-
-    def put(self, request):
-
-        _id = request.data["_id"]
+        # _id = request.data["_id"]
         albumName = request.data["albumName"]
 
         try:
-            update_rows = Album.objects(_id=_id).update(
+            update_rows = Album.objects(_id=albumId).update(
                 albumName=albumName)
             print(f'Album/View: AlbumView.put, db:{update_rows} rows')
         except Exception as e:
@@ -108,8 +79,8 @@ class AlbumView(APIView):
 
         return Response(simpleMessage('PUT/AlbumView'), status=status.HTTP_200_OK)
 
-    # 刪除相簿
-    def delete(self, request):
+    # 刪除相簿 OK
+    def delete(self, request: WSGIRequest, albumId: str = None):
         """
         刪除相簿
         把_id的is_delete欄位改成true
@@ -118,24 +89,25 @@ class AlbumView(APIView):
         Returns:
             None
         """
-        _id = request.data["_id"]
+        # _id = request.data["_id"]
 
         try:
-
-            update_rows = Album.objects(_id__exact=_id).update(
-                isDeleted=True)
-            print(f'Album/View: AlbumView.delete, db:{update_rows} rows')
-
+            album= Album.objects(_id=albumId).get()
+            album.isDeleted=True
+            for tag in album.albumTag:
+                tag.isDeleted = True
+            album.save()
+            print("Album Deleted")
         except Exception as e:
             print(e)
             return Response("AlbumViewError", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        return Response(simpleMessage('DELETE/AlbumView'), status=status.HTTP_201_CREATED)
+        return Response(simpleMessage('DELETE/AlbumView'), status=status.HTTP_200_OK)
 
 
 class AlbumTagView(APIView):
 
-    # 取得相簿TAG
-    def get(self, request):
+    # 取得相簿TAG OK
+    def get(self, request: WSGIRequest, albumId: str = None):
         """
         取得相簿的albumTag
         根據_id去更改資料庫的albumTag欄位
@@ -146,39 +118,35 @@ class AlbumTagView(APIView):
             該album全部的albumTag
         """
         # album_id = request.data["_id"]
-        album_id = request.query_params["_id"]
+        # album_id = request.query_params["_id"]
 
         album_tag_array = []
 
         try:
-            album = Album.objects(_id=album_id).get()
+            album = Album.objects(_id=albumId).get()
 
             array_field = album.albumTag
 
             if len(array_field) == 0:
-                print(len(array_field))
                 return Response(simpleMessage("zero"), status=status.HTTP_200_OK)
 
             for single_tag in array_field:
                 if single_tag.isDeleted == False:
                     album_tag_array.append(single_tag.tag)
-                    print(single_tag.tag)
 
         except Exception as e:
             print(e)
             return Response(simpleMessage("Get/AlbumTagView: error"), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        print(album_tag_array)
-        res = {"result": "Get/AlbumTagView",
-                                   "album_tag": album_tag_array}
+        res = {"album_tag": album_tag_array}
 
         # response_str = json.dumps({"result": "Get/AlbumTagView",
         #                            "album_tag": album_tag_array})
 
         return Response(res, status=status.HTTP_201_CREATED)
 
-    # 新增相簿TAG
-    def post(self, request):
+    # 新增相簿TAG OK
+    def post(self, request: WSGIRequest, albumId: str = None):
         """
         新增tag時
         根據_id去新增相簿的tag
@@ -188,16 +156,15 @@ class AlbumTagView(APIView):
         Returns:
             更改過後的tag
         """
-        album_id = request.data["_id"]
+        # album_id = request.data["_id"]
         album_tag = request.data["albumTag"]
-        print(album_tag)
         tag = {
             'tag': album_tag,
             'isDeleted': False
         }
 
         try:
-            update_rows = Album.objects(_id=album_id).update(
+            update_rows = Album.objects(_id=albumId).update(
                 add_to_set__albumTag=tag)
 
             print(f'Album/View: TagView.post, db:{update_rows} rows')
@@ -208,8 +175,8 @@ class AlbumTagView(APIView):
 
         return Response(simpleMessage('Post/AlbumTagView'), status=status.HTTP_201_CREATED)
 
-    # 刪除相簿TAG
-    def delete(self, request):
+    # 刪除相簿TAG OK
+    def delete(self, request: WSGIRequest, albumId: str = None):
         """
         刪除tag
         根據_id和albumTag刪掉指定的albumTag
@@ -219,22 +186,11 @@ class AlbumTagView(APIView):
         Returns:
             剩下的tag
         """
-        album_id = request.data["_id"]
-        album_tag = request.data["albumTag"]
+        album_tag = request.query_params["albumTag"]
 
         try:
-
-            album = Album.objects(
-                _id=album_id, albumTag__match={'tag': album_tag, 'isDeleted': False}).first()
-            print(album.to_json())
-
-            for single_tag in album.albumTag:
-
-                if single_tag.tag == album_tag:
-                    print('same')
-                    single_tag.isDeleted = True
-            print(album.to_json())
-            album.save()
+            result = Album.objects(_id=albumId, albumTag__match={'tag': album_tag, 'isDeleted': False}).update_one(set__albumTag__S__isDeleted=True)
+            print(result)
 
         except Exception as e:
             print(e)
@@ -245,25 +201,37 @@ class AlbumTagView(APIView):
 
 class AlbumPhotoView(APIView):
 
-    # 抓相簿中的所有照片
-    def get(self, request):
+    # 抓相簿中的所有照片、tag OK
+    def get(self, request: WSGIRequest, albumId: str = None):
+        # _id = request.query_params["_id"]
 
-        # _id = request.data["_id"]
-        _id = request.query_params["_id"]
+        album = Album.objects(_id=albumId).filter()
 
-        try:
-            album = Album.objects(_id=_id).get()
-            print(album)
+        albumPhotoIdArray = []
+        albumTagArray = []
 
-            return_txt = {"result": 'GET/AlbumPhotoView',
-                          'album_object': album}
-        except Exception as e:
-            print('AlbumPhotoViewError:', e)
-        return Response(return_txt, status=status.HTTP_200_OK)
+        # get albumPhotoId
+        for a in album:
+            if a.isDeleted == False:
+                for z in a.albumPhoto:
+                    if z.isDeleted == False:
+                        albumPhotoIdArray.append(z.photoId)
 
-    # 刪除相簿中的相片
+        # get albumTag
+        for w in album:
+            if w.isDeleted == False:
+                for q in a.albumTag:
+                    if q.isDeleted == False:
 
-    def delete(self, request):
+                        albumTagArray.append(q.tag)
+
+        res = {"albumPhotoIdArray": albumPhotoIdArray,
+               "albumTagArray": albumTagArray}
+
+        return Response(res, status=status.HTTP_200_OK)
+
+    # 刪除相簿中的相片 OK
+    def delete(self, request: WSGIRequest, albumId: str = None):
         """
         刪除相簿中的相片
         根據_id和photoId刪掉指定的相片
@@ -273,31 +241,31 @@ class AlbumPhotoView(APIView):
         Returns:
             相簿剩下的photo
         """
-        album_id = request.data["_id"]
+
+        # album_id = request.query_params["_id"]
         album_photo = request.data["albumPhoto"]
 
         try:
 
             album = Album.objects(
-                _id=album_id, albumPhoto__match={'photoId': album_photo, 'isDeleted': False}).first()
-            print(album.to_json())
+                _id=albumId, albumPhoto__match={'photoId': album_photo, 'isDeleted': False}).first()
 
             for single_photo in album.albumPhoto:
 
                 if single_photo.photoId == album_photo:
-                    print('same')
+
                     single_photo.isDeleted = True
-            print(album.to_json())
+
             album.save()
 
         except Exception as e:
             print(e)
             return Response(simpleMessage("DELETE/AlbumPhotoView: error"), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        return Response(simpleMessage('DELETE/AlbumPhotoView'), status=status.HTTP_201_CREATED)
+        return Response(simpleMessage('DELETE/AlbumPhotoView'), status=status.HTTP_200_OK)
 
-    # 新增相片到相簿中(現在先不用這個，只有一鍵建相簿)
-    def post(self, request):
+    # 新增相片到相簿中(現在先不用這個，只有一鍵建相簿) OK
+    def post(self, request: WSGIRequest, albumId: str = None):
         """
         新增photo時
         根據_id去新增相簿的photo
@@ -307,7 +275,7 @@ class AlbumPhotoView(APIView):
         Returns:
             更改過後的photo
         """
-        album_id = request.data["_id"]
+        # album_id = request.data["_id"]
         album_photo = request.data["albumPhoto"]
         photoId = {
             'photoId': album_photo,
@@ -315,7 +283,7 @@ class AlbumPhotoView(APIView):
         }
 
         try:
-            update_rows = Album.objects(_id=album_id).update(
+            update_rows = Album.objects(_id=albumId).update(
                 add_to_set__albumPhoto=photoId)
 
             print(f'Album/View: AlbumPhotoView.post, db:{update_rows} rows')

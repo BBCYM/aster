@@ -1,25 +1,21 @@
-// for cai
 import * as React from 'react'
 import {
 	StyleSheet,
 	View,
 	FlatList,
-	Modal,
 	TouchableOpacity,
-	Dimensions,
-	Text
+	Text,
+	ActivityIndicator,
+	Dimensions
 } from 'react-native'
-import { Overlay, SearchBar } from 'react-native-elements'
+import Modal from 'react-native-modalbox'
+import { Button } from 'react-native-elements'
 import FastImage from 'react-native-fast-image'
-import ImageViewer from 'react-native-image-zoom-viewer'
-//import { photoFooter, TagList } from '../../components/photoComponent copy'
-import Ionicons from 'react-native-vector-icons/Ionicons'
 import Axios from 'axios'
 import { AuthContext } from '../../contexts/AuthContext'
-import { ipv4 } from '../../utils/dev';
 import _ from 'lodash'
-import { TextInput } from 'react-native-gesture-handler'
-import { createIconSetFromFontello } from 'react-native-vector-icons'
+import Snackbar from 'react-native-snackbar'
+
 
 export default function HomeScreen(props) {
 	function useMergeState(initialState) {
@@ -30,32 +26,26 @@ export default function HomeScreen(props) {
 	}
 	const [status, setStatus] = useMergeState({
 		fastSource: [],
-		//tag: [],
 		albumName: '',
-		//image:'',
-		albumId: 0
+		albumId: 0,
+		aModal: false,
+		isLoading: true
 	})
-	const { auth } = React.useContext(AuthContext)
+	const { auth, state } = React.useContext(AuthContext)
 	async function fetchAlbumSource(callback) {
 		const accessToken = await auth.getAccessToken()
-		//get albumid Name coverPhotoId
+		const userId = await state.user.id
 		try {
-			const response = await fetch(`http://${ipv4}:3000/album?userId=113073984862808105932`, {
+			const response = await fetch(`${auth.url}/album/${userId}`, {
 				method: 'GET',
-				headers: {
-					'Accept': 'application/json',
-					'Content-Type': 'application/json',
-					'X-Requested-With': "com.rnexparea",
-					//'Authorization': 'Bearer 5f380ee0789056bccfab23ed'	
-				},
+				headers: auth.headers
 			})
 			var data = await response.json()
 			let fSource = []
 			let i = 0
-			for (const [_id, _title, _coverId] of _.zip(data._idArray, data.albumNameArray,data.coverPhotoIdArray)) {
-				console.log(_id, _title, _coverId)
+			for (const [_id, _title, _coverId] of _.zip(data._idArray, data.albumNameArray, data.coverPhotoIdArray)) {
 				let res = await Axios.get(`https://photoslibrary.googleapis.com/v1/mediaItems/${_coverId}`, {
-					headers: {
+					headers:  {
 						'Authorization': `Bearer ${accessToken}`,
 						'Content-type': 'application/json'
 					}
@@ -65,142 +55,168 @@ export default function HomeScreen(props) {
 				var album = {
 					id: i++,
 					albumId: _id,
-					title:_title,
+					title: _title,
 					coverUrl: `${res.data['baseUrl']}=w${width}-h${height}`,
 					headers: { Authorization: `Bearer ${accessToken}` },
 				}
 				fSource.push(album)
 				await setStatus({ fastSource: fSource })
-				// fastSource=[{id:, albumId:, title:,coverUrl:,headers:}*n]
 			}
 		} catch (err) {
-			console.log('error')
 			console.log(err)
 		}
+		callback()
 	}
-
-	//get Tag
-	// async function fetchAlbumsTag() {
-	// 	const response = await fetch(`http://${ipv4}:3000/album/tag?_id=5f380ee0789056bccfab23ed`, {
-	// 		method: 'GET',
-	// 		headers: {
-	// 			'Accept': 'application/json',
-	// 			'Content-Type': 'application/json',
-	// 			'X-Requested-With': "com.rnexparea",
-	// 		},
-	// 	})
-	// 	var data = await response.json()
-	// 	var tag = data.result
-	// 	console.log(data)
-
-	// 	console.log(tag)
-
-	// 	//albumPhot albumTag albumName 
-	// 	//var data = JSON.parse(data)
-	// 	//console.log(data)
-	// 	// album_tag_array = []
-	// 	//this.setState({})
-	// 	//this.setState({image: photoId   })
-
-	// }
-
 	React.useEffect(() => {
-		fetchAlbumSource()
-		//fetchAlbumsTag()
-		console.log('hi album')
-	}, [])
+		fetchAlbumSource(() => {
+			console.log('hi album')
+			auth.checkNetwork(state,(verified)=>{
+				if (verified){
+					setStatus({isLoading:false})
+				} else {
+					Snackbar.show({
+						text: 'Wifi only!!',
+						textColor:'#F6C570',
+						backgroundColor:'#303960',
+						duration:Snackbar.LENGTH_LONG,
+						action:{
+							text:'Go Fix',
+							textColor:'#F6C570'
+						}
+					})
+				}
+			})
+		})
 
+	}, [])
 	//go to albumphoto
 	function showAlbum(item) {
-		props.navigation.navigate('SomeGallery', {
-			// albumId:string, photoIds:[], albumtitle:string, 
+		props.navigation.navigate('AlbumDetails', {
 			albumId: item.albumId,
 			albumTitle: item.title
 		})
 	}
-
 	//delete album
-	// async function deleteAlbum() {
-	// 	var r = alert('Delete?')
-	// 	if (r = true) {
-	// 		const response = await fetch(`http://${ipv4}:3000/album`, {
-	// 			method: 'Delete',
-	// 			hesders: {
-	// 				'Content-Type': 'application/json',
-	// 				'X-Requested-With': "com.rnexparea"
-	// 			},
-	// 			body: {
-	// 				albumId: this.state.albumId,
-	// 			}
-	// 		})
-	// 	}
-	// }
+	async function deleteAlbum() {
+		const response = await fetch(`${auth.url}/album/PD/${status.toDel}`, {
+			method: 'delete',
+			headers: auth.headers 
+		})
+		let slicedAlbum = [...status.fastSource]
+		var result = slicedAlbum.findIndex((v, i) => {
+			return v.albumId === status.toDel
+		})
+		slicedAlbum.splice(result, 1)
+		setStatus({ fastSource: slicedAlbum, toDel: null, aModal: false })
+	}
 	return (
-		<View style={styles.container}>
-			<Text style={styles.title}
-				style={{
-					fontSize: 20,
-					color: 'black',
-					//backgroundColor: 'white',
-				}}>
-
-			</Text>
-			<FlatList
-				data={status.fastSource}
-				renderItem={({ item }) => (
-					<View style={{ flex: 1, flexDirection: 'column', margin: 1 }}>
-						<TouchableOpacity
-							key={item.id}
-							style={{ flex: 1 }}
-							onPress={() => showAlbum(item)}
-							onLongPress={() => deleteAlbum(albumId)}
-						>
-							<FastImage
-								style={styles.image}
-								source={{
-									uri: item.coverUrl,
-									headers: item.headers,
-									priority: FastImage.priority.high,
-								}}
-							/>
-							<Text style={{ marginLeft: 30, fontSize: 18 }}>{item.title}</Text>
-						</TouchableOpacity>
+		<View style={{ flex: 1 }}>
+			{
+				status.isLoading ? (
+					<View style={{ flex: 1, justifyContent: 'center' }}>
+						<ActivityIndicator size='large' color="#FF6130" />
 					</View>
-				)}
-				//Setting the number of column
-				numColumns={2}
-				keyExtractor={(item, index) => index}
-			/>
+				) : (
+					<View style={{ flex: 1 }}>
+						<Modal useNativeDriver={true} animationDuration={300} backButtonClose={true} isOpen={status.aModal} onClosed={() => setStatus({ aModal: false })} style={styles.modal4} position={'center'}>
+							<View style={styles.modal}>
+								<View style={styles.AlbumText}>
+									<Text h1 style={{ fontSize: 22, color: '#303960' }}>Delete Album</Text>
+								</View>
+								<View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'flex-end' }}>
+									<View>
+										<Button
+											title="Dismiss"
+											type="outline"
+											titleStyle={styles.modalBtnTitle}
+											onPress={() => setStatus({ aModal: false })}
+											buttonStyle={styles.modalBtnStyle}
+										/>
+									</View>
+									<View>
+										<Button
+											title="Delete"
+											type="outline"
+											titleStyle={styles.modalBtnTitle}
+											onPress={() => deleteAlbum()}
+											buttonStyle={styles.modalBtnStyle}
+										/>
+									</View>
+								</View>
+							</View>
+						</Modal>
+						<View style={styles.container}>
+							<View style={styles.titlebackground} >
+								<Text style={{fontSize: 40,color: '#303960', letterSpacing:5}}>ALBUM</Text>
+							</View>
+							
+							<FlatList
+								data={status.fastSource}
+								renderItem={({ item }) => (
+									<View style={{flex:1}}>
+										<TouchableOpacity
+											key={item.id}
+											style={{ flex: 1 }}
+											onPress={() => showAlbum(item)}
+											onLongPress={() => setStatus({ aModal: true, toDel: item.albumId })}
+										>
+											<FastImage
+												style={styles.image}
+												source={{
+													uri: item.coverUrl,
+													headers: item.headers,
+													priority: FastImage.priority.high,
+												}}
+											/>
+											<Text style={{ marginLeft: 20, marginTop: 3, fontSize: 15 }}>{item.title}</Text>
+										</TouchableOpacity>
+									</View>
+								)}
+								numColumns={2}
+								keyExtractor={(item, index) => index}
+							/>
+						</View>
+					</View>
+				)
+			}
 		</View>
 	)
-
 }
 const screenWidth = Math.round(Dimensions.get('window').width)
-const screenHeight = Math.round(Dimensions.get('window').height)
 const styles = StyleSheet.create({
-	imageThumbnail: {
-		justifyContent: 'center',
-		alignItems: 'center',
-		height: 100,
-	},
-	overlayStyle: {
-		height: screenHeight * 0.5,
-		width: screenWidth * 0.8,
-		margin: 0,
-		padding: 0,
-	},
-	Save: {
-		paddingRight: 5,
-		fontSize: 17,
-		color: '#63CCC8',
-	},
 	image: {
 		height: 125,
-		width: 150,
-		borderRadius: 20,
-		overflow: "hidden",
-		marginLeft: 23,
-		marginTop: 30
+		borderRadius: 15,
+		overflow: 'hidden',
+		width:(screenWidth-20)/2,
+		margin:5
+	},
+	container: {
+		height: '100%',
+		width: '100%',
+	},
+	titlebackground: {
+		width: '100%',
+		alignItems: 'center',
+	},
+	modalBtnTitle: { color: '#303960', fontWeight: 'bold' },
+	modalBtnStyle: { borderColor: '#303960', width: 90, borderWidth: 2 },
+	modal4: {
+		backgroundColor: '#63CCC8',
+		height: 115,
+		width: '90%',
+		borderRadius: 15,
+		borderColor: '#F5B19C',
+		borderWidth: 2
 
 	},
+	modal: {
+		flex: 1,
+		alignItems: 'stretch',
+	},
+	AlbumText: {
+		justifyContent: 'flex-start',
+		alignItems: 'center',
+		padding: 10,
+	}
 })

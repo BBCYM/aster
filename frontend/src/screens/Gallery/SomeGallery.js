@@ -6,7 +6,8 @@ import {
 	Modal,
 	TouchableOpacity,
 	Dimensions,
-	Image
+	Image,
+	ActivityIndicator
 } from 'react-native'
 import { Overlay, SearchBar, Badge } from 'react-native-elements'
 import FastImage from 'react-native-fast-image'
@@ -17,7 +18,6 @@ import Ionicons from 'react-native-vector-icons/Ionicons'
 import Axios from 'axios'
 import { AuthContext } from '../../contexts/AuthContext'
 import { checkEmotion, preCleanPid, concatLocalTag } from '../../utils/utils'
-import { ipv4 } from '../../utils/dev'
 import Dash from 'react-native-dash'
 import _ from 'lodash'
 
@@ -42,31 +42,32 @@ export default function SomeGalleryScreen(props) {
 		aModal: false,
 		emotionStatus: Array(6).fill(false),
 		actionBtnVisi: false,
-		isMoving: false
+		isMoving: false,
+		isLoading: true
 	})
 	const { auth, state } = React.useContext(AuthContext)
 	function setEmotion(n) {
 		let newEmotion = checkEmotion(status.emotionStatus, n).indexOf(true)
-		Axios.put(`http://${ipv4}:3000/photo/emotion`, JSON.stringify({
-			userId: state.user.id,
-			photoId: status.currentPhotoId,
+		Axios.put(`${auth.url}/photo/emotion/${status.currentPhotoId}`, JSON.stringify({
 			emotion_tag: newEmotion
 		}), {
-			headers: {
-				'Content-Type': 'application/json'
-			}
+			headers: auth.headers
 		}).then((res) => {
 			setStatus({ emotionStatus: newEmotion, isEmotionModalVisi: false })
 		})
 	}
 	React.useEffect(() => {
-		fetchImageSource()
-		console.log('hello from some screen')
+		fetchImageSource(() => {
+			console.log('hello from some screen')
+			setTimeout(()=>{
+				setStatus({ isLoading: false })
+			},2000)
+		})
 	}, [])
 	async function fetchImageSource(callback) {
 		console.log('Loading photo')
 		let hashTag = preCleanPid(props.route.params.pid_tag)
-		let { pids, temp } = concatLocalTag(hashTag)
+		let { temp } = concatLocalTag(hashTag)
 		setStatus({ preBuildTag: temp })
 		const accessToken = await auth.getAccessToken()
 		let fSource = []
@@ -75,35 +76,46 @@ export default function SomeGalleryScreen(props) {
 		hashTag.forEach(async (v, k) => {
 			fSource.push({ key: k, tags: v.tag, pics: [] })
 			let m = _.findIndex(fSource, function (o) { return o.key === k })
-			for (const onePid of v.pid) {
-				try{
-					let res = await Axios.get(`https://photoslibrary.googleapis.com/v1/mediaItems/${onePid}`, {
-						headers: {
+			var chunked = _.chunk(v.pid,50)
+			for (const chunkpids of chunked) {
+				let parial = new URLSearchParams()
+				chunkpids.forEach((v=>{
+					parial.append('mediaItemIds', v)
+				}))
+				try {
+					let res = await Axios.get('https://photoslibrary.googleapis.com/v1/mediaItems:batchGet',{
+						headers:{
 							'Authorization': `Bearer ${accessToken}`,
 							'Content-type': 'application/json'
-						}
+						},
+						params:parial
 					})
-					var item = res.data
-					var width = 400
-					var height = 400
-					var img = {
-						id: i++,
-						imgId: item['id'],
-						src: `${item['baseUrl']}=w${width}-h${height}`,
-						headers: { Authorization: `Bearer ${accessToken}` }
-					}
-					fSource[m].pics.push(img)
-					mSource.push({ url: item['baseUrl'] })
-				} catch(err){
+					// eslint-disable-next-line no-loop-func
+					res.data.mediaItemResults.forEach((v=>{
+						if(v.mediaItem){
+							const item = v.mediaItem
+							const width = 400
+							const height = 400
+							var img = {
+								id: i++,
+								imgId: item['id'],
+								src: `${item['baseUrl']}=w${width}-h${height}`,
+								headers: { Authorization: `Bearer ${accessToken}` }
+							}
+							fSource[m].pics.push(img)
+							mSource.push({ url: item['baseUrl'] })
+							setStatus({ fastSource: fSource, modalSource: mSource })
+						}
+					}))
+				} catch (err) {
 					console.log(err)
 				}
-				setStatus({ fastSource: fSource, modalSource: mSource})
 			}
 		})
+		callback()
 	}
 
 	async function showImage(item) {
-		console.log(item.id)
 		await setStatus({
 			currentId: item.id,
 			isVisible: true,
@@ -124,14 +136,10 @@ export default function SomeGalleryScreen(props) {
 			}
 			tags.unshift({ key: String(t), text: status.inputTag })
 			setStatus({ tag: tags, inputTag: '' })
-			Axios.put(`http://${ipv4}:3000/photo/tag`, JSON.stringify({
-				userId: state.user.id,
-				photoId: status.currentPhotoId,
+			Axios.put(`${auth.url}/photo/tag/${status.currentPhotoId}`, JSON.stringify({
 				customTag: status.inputTag
 			}), {
-				headers: {
-					'Content-Type': 'application/json'
-				}
+				headers: auth.headers
 			})
 		} else {
 			setStatus({ inputTag: '' })
@@ -151,146 +159,159 @@ export default function SomeGalleryScreen(props) {
 
 	return (
 		<View style={{ flex: 1 }}>
-			<FlatList
-				data={status.fastSource}
-				extraData={status}
-				renderItem={({ item }) => (
-					<View style={{ flex: 1, flexDirection: 'row' }}>
-						<View style={styles.dashContainer}>
-							<View>
-								<View style={styles._innerContainer}>
-									<View
-										style={styles.outerContainer}
+			{
+
+				status.isLoading ? (
+					<View style={{ flex: 1, justifyContent: 'center' }}>
+						<ActivityIndicator size='large' color="#FF6130" />
+					</View>
+				) : (
+					<View style={{ flex: 1 }}>
+						<FlatList
+							data={status.fastSource}
+							extraData={status}
+							renderItem={({ item }) => (
+								<View style={{ flex: 1, flexDirection: 'row' }}>
+									<View style={styles.dashContainer}>
+										<View>
+											<View style={styles._innerContainer}>
+												<View
+													style={styles.outerContainer}
+												/>
+											</View>
+										</View>
+										<View>
+											<Dash dashGap={7} dashLength={5} dashColor="#63CCC8" style={{ width: 1, height: '100%', flexDirection: 'column' }} />
+										</View>
+									</View>
+									<View style={{ flex: 1, paddingTop: 5, paddingBottom: 5 }}>
+										<View style={{ flex: 1, flexDirection: 'row-reverse', padding: 3 }}>
+											{
+												item.tags.map((v, i) => (
+													<View key={i} style={{ paddingRight: 2, paddingLeft: 2 }}>
+														<Badge status='error' value={v} />
+													</View>
+												))
+											}
+
+										</View>
+										<FlatList
+											data={item.pics}
+											extraData={status}
+											renderItem={(block) => (
+												<View style={styles.photoSize}>
+													<TouchableOpacity onPress={() => showImage(block.item)}>
+														<FastImage
+															style={styles.imageThumbnail}
+															source={{
+																uri: block.item.src,
+																headers: block.item.headers,
+																priority: FastImage.priority.high,
+															}}
+														/>
+													</TouchableOpacity>
+												</View>
+											)}
+											//Setting the number of column
+											numColumns={3}
+											listKey={(item, index) => item.imgId.toString()}
+										/>
+									</View>
+								</View>
+							)}
+							keyExtractor={(item, index) => {
+								return item.key.toString()
+							}}
+						/>
+
+						{AlbumModal([status, setStatus], state, props, auth)}
+						{OneClickAction([status, setStatus])}
+						<Overlay
+							isVisible={status.isTagModalVisi}
+							onBackdropPress={() => { setStatus({ isTagModalVisi: false }) }}
+							overlayStyle={styles.overlayStyle}
+						>
+							<View style={{ flex: 1 }} >
+								<View>
+									<SearchBar
+										placeholder="Add Tag"
+										onChangeText={(inputTag) => { setStatus({ inputTag: inputTag }) }}
+										onSubmitEditing={() => addTag()}
+										value={status.inputTag}
+										inputStyle={{ color: '#303960' }}
+										lightTheme={true}
+										searchIcon={() => <Ionicons name='pricetag-outline' size={20} color='#75828e' />}
+										round={true}
+										containerStyle={{ padding: 5 }}
 									/>
 								</View>
+								{TagList([status, setStatus], auth)}
 							</View>
-							<View>
-								<Dash dashGap={7} dashLength={5} dashColor="#63CCC8" style={{ width: 1, height: '100%', flexDirection: 'column' }} />
-							</View>
-						</View>
-						<View style={{ flex: 1, paddingTop: 5, paddingBottom: 5 }}>
-							<View style={{ flex: 1, flexDirection: 'row-reverse', padding: 3 }}>
+						</Overlay>
+						<Overlay isVisible={status.isEmotionModalVisi}
+							onBackdropPress={() => { setStatus({ isEmotionModalVisi: false }) }}
+							overlayStyle={styles.overlayStyle2}>
+							<View style={{ flexDirection: 'row' }}>
 								{
-									item.tags.map((v, i) => (
-										<View key={i} style={{ paddingRight: 2, paddingLeft: 2 }}>
-											<Badge status='error' value={v} />
-										</View>
-									))
+									EmotionGroup().map((item, i) => {
+										return status.emotionStatus[i] === true ? (
+											<TouchableOpacity key={i} activeOpacity={0.4} focusedOpacity={0.5} onPress={() => setEmotion(item.index)} style={{
+												borderColor: 'black',
+												borderWidth: 1
+											}}>
+												<Image
+													style={styles.emotion}
+													source={item.source}
+												/>
+											</TouchableOpacity>
+										) : (
+											<TouchableOpacity key={i} activeOpacity={0.4} focusedOpacity={0.5} onPress={() => setEmotion(item.index)}>
+												<Image
+													style={styles.emotion}
+													source={item.source}
+												/>
+											</TouchableOpacity>
+										)
+									})
 								}
-
 							</View>
-							<FlatList
-								data={item.pics}
-								extraData={status}
-								renderItem={(block) => (
-									<View style={{ flex: 1, flexDirection: 'column', margin: 1 }}>
-										<TouchableOpacity onPress={() => showImage(block.item)}>
-											<FastImage
-												style={styles.imageThumbnail}
-												source={{
-													uri: block.item.src,
-													headers: block.item.headers,
-												}}
-											/>
-										</TouchableOpacity>
-									</View>
-								)}
-								//Setting the number of column
-								numColumns={3}
-								listKey={(item, index) => item.imgId.toString()}
+						</Overlay>
+						<Modal visible={status.isVisible} transparent={false} onRequestClose={() => { setStatus({ isVisible: false, isTagModalVisi: false }) }}>
+							<ImageViewer
+								backgroundColor='#d7d7cb'
+								imageUrls={status.modalSource}
+								index={status.currentId}
+								enableImageZoom={true}
+								enablePreload={true}
+								useNativeDriver={true}
+								onCancel={() => setStatus({ reset: true, isVisible: false })}
+								onMove={(m) => {
+									if (m.type === 'onPanResponderRelease') {
+										setStatus({ isMoving: false, })
+									} else {
+										if (status.isMoving === false) {
+											setStatus({ isMoving: true, actionBtnVisi: false })
+										}
+									}
+								}}
+								renderIndicator={() => null}
+								renderFooter={(currentIndex) => photoFooter(props, [status, setStatus], currentIndex, state, auth)}
+								footerContainerStyle={{
+									flex: 1,
+									alignSelf: 'flex-end',
+									flexDirection: 'row',
+									width: 140,
+									height: 200,
+									// borderColor: 'black',
+									// borderWidth: 1,
+									zIndex: 1
+								}}
 							/>
-						</View>
+						</Modal>
 					</View>
-				)}
-				keyExtractor={(item, index) => {
-					return item.key.toString()
-				}}
-			/>
+				)
+			}
 
-			{AlbumModal([status, setStatus], state, props)}
-			{OneClickAction([status, setStatus])}
-			<Overlay
-				isVisible={status.isTagModalVisi}
-				onBackdropPress={() => { setStatus({ isTagModalVisi: false }) }}
-				overlayStyle={styles.overlayStyle}
-			>
-				<View style={{ flex: 1 }} >
-					<View>
-						<SearchBar
-							placeholder="Add Tag"
-							onChangeText={(inputTag) => { setStatus({ inputTag: inputTag }) }}
-							onSubmitEditing={() => addTag()}
-							value={status.inputTag}
-							inputStyle={{ color: '#303960' }}
-							lightTheme={true}
-							searchIcon={() => <Ionicons name='pricetag-outline' size={20} color='#75828e' />}
-							round={true}
-							containerStyle={{ padding: 5 }}
-						/>
-					</View>
-					{TagList([status, setStatus])}
-				</View>
-			</Overlay>
-			<Overlay isVisible={status.isEmotionModalVisi}
-				onBackdropPress={() => { setStatus({ isEmotionModalVisi: false }) }}
-				overlayStyle={styles.overlayStyle2}>
-				<View style={{ flexDirection: 'row' }}>
-					{
-						EmotionGroup().map((item, i) => {
-							return status.emotionStatus[i] === true ? (
-								<TouchableOpacity key={i} activeOpacity={0.4} focusedOpacity={0.5} onPress={() => setEmotion(item.index)} style={{
-									borderColor: 'black',
-									borderWidth: 1
-								}}>
-									<Image
-										style={styles.emotion}
-										source={item.source}
-									/>
-								</TouchableOpacity>
-							) : (
-									<TouchableOpacity key={i} activeOpacity={0.4} focusedOpacity={0.5} onPress={() => setEmotion(item.index)}>
-										<Image
-											style={styles.emotion}
-											source={item.source}
-										/>
-									</TouchableOpacity>
-								)
-						})
-					}
-				</View>
-			</Overlay>
-			<Modal visible={status.isVisible} transparent={false} onRequestClose={() => { setStatus({ isVisible: false, isTagModalVisi: false }) }}>
-				<ImageViewer
-					backgroundColor='#d7d7cb'
-					imageUrls={status.modalSource}
-					index={status.currentId}
-					enableImageZoom={true}
-					enablePreload={true}
-					useNativeDriver={true}
-					onCancel={() => setStatus({ reset: true, isVisible: false })}
-					onMove={(m) => {
-						if (m.type === 'onPanResponderRelease') {
-							setStatus({ isMoving: false, })
-						} else {
-							if (status.isMoving === false) {
-								setStatus({ isMoving: true, actionBtnVisi: false })
-							}
-						}
-					}}
-					renderIndicator={() => null}
-					renderFooter={(currentIndex) => photoFooter(props, [status, setStatus], currentIndex, state)}
-					footerContainerStyle={{
-						flex: 1,
-						alignSelf: 'flex-end',
-						flexDirection: 'row',
-						width: 140,
-						height: 200,
-						// borderColor: 'black',
-						// borderWidth: 1,
-						zIndex: 1
-					}}
-				/>
-			</Modal>
 		</View>
 	)
 
@@ -361,5 +382,11 @@ const styles = StyleSheet.create({
 	emotion: {
 		width: 50,
 		height: 50,
+	},
+	photoSize: {
+		resizeMode: 'contain',
+		width:(screenWidth-35)/3,
+		margin:2
 	}
+
 })

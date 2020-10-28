@@ -78,7 +78,7 @@ export function resToEmotionStatus(eState, want){
 	return eCopy
 }
 
-export function concatLocalTag(hashTag:Map){
+export function concatLocalTag(hashTag){
 	// console.log(hashTag)
 	let temp = []
 	let pids = []

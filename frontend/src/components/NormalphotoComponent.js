@@ -9,19 +9,17 @@ import ActionButton from 'react-native-action-button'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import { SwipeListView } from 'react-native-swipe-list-view'
 import Axios from 'axios'
-import { ipv4 } from '../utils/dev'
 import _ from 'lodash'
 import { resToEmotionStatus, asyncErrorHandling } from '../utils/utils'
+// import { FloatingAction } from 'react-native-floating-action'
 
-
-export function TagList([status, setStatus], state) {
+export function TagList([status, setStatus], auth) {
 	function deleteTag(id, text) {
-		Axios.delete(`http://${ipv4}:3000/photo/tag`, {
+		Axios.delete(`${auth.url}/photo/tag/${status.currentPhotoId}`, {
 			params: {
-				userId: state.user.id,
-				photoId: status.currentPhotoId,
 				custom_tag: text
-			}
+			},
+			headers:auth.headers
 		}).then(() => {
 			console.log(`deleting tag id:${id}`)
 			let slicedTag = [...status.tag]
@@ -65,18 +63,15 @@ export function TagList([status, setStatus], state) {
 }
 
 
-export function photoFooter(that, [status, setStatus], currentIndex, state) {
+export function photoFooter(that, [status, setStatus], currentIndex, state, auth) {
 
 	function fetchTags(currentIndex) {
 		const now = status.fastSource[currentIndex]
 		setStatus({ currentPhotoId: now.imgId, currentId: now.id })
-		Axios.get(`http://${ipv4}:3000/photo/tag`, {
-			params: {
-				userId: state.user.id,
-				photoId: now.imgId
-			}
+		Axios.get(`${auth.url}/photo/tag/${now.imgId}`, {
+			headers:auth.headers
 		}).then((res) => {
-			let data = JSON.parse(res.data)
+			let data = res.data
 			if (data.custom_tag) {
 				let len = data.custom_tag.length
 				setStatus({ tag: data.custom_tag.map((v, i) => ({ key: len - i - 1, text: v })) })
@@ -93,14 +88,11 @@ export function photoFooter(that, [status, setStatus], currentIndex, state) {
 	function fetchEmotion(currentIndex) {
 		const now = status.fastSource[currentIndex]
 		setStatus({ currentPhotoId: now.imgId, currentId: now.id })
-		Axios.get(`http://${ipv4}:3000/photo/emotion`, {
-			params: {
-				userId: state.user.id,
-				photoId: now.imgId
-			}
+		Axios.get(`${auth.url}/photo/emotion/${now.imgId}`, {
+			headers:auth.headers
 		}).then((res) => {
-			let data = JSON.parse(res.data)
-			let emotionState = resToEmotionStatus(status.emotionStatus, data.message)
+			let data = res.data
+			let emotionState = resToEmotionStatus(status.emotionStatus, data.emotion)
 			setStatus({ emotionStatus: emotionState })
 		}).then(() => {
 			setStatus({ isEmotionModalVisi: true, actionBtnVisi: false })
@@ -112,14 +104,10 @@ export function photoFooter(that, [status, setStatus], currentIndex, state) {
 		asyncErrorHandling(async () => {
 			setStatus({ actionBtnVisi: true })
 			const now = status.fastSource[currentIndex]
-			console.log(now.imgId)
-			let res = await Axios.get(`http://${ipv4}:3000/photo`, {
-				params: {
-					userId: state.user.id,
-					photoId: now.imgId
-				}
+			let res = await Axios.get(`${auth.url}/photo/${now.imgId}`, {
+				headers:auth.headers
 			})
-			let pObject = JSON.parse(res.data.photo_object)
+			let pObject = res.data
 			if (_.isEmpty(pObject)) {
 				setStatus({ isBug: true })
 				throw Error('Not in server, need Refresh')
@@ -128,10 +116,50 @@ export function photoFooter(that, [status, setStatus], currentIndex, state) {
 			setStatus({ actionBtnVisi: true })
 		})
 	}
+	// function actions() {
+	// 	var [
+	// 		color,
+	// 		buttonSize,
+	// 		margin,
+	// 	] = [
+	// 		'#63CCC8',
+	// 		55,
+	// 		0
+	// 	]
+		
+	// 	return [
+	// 		{
+	// 			text: 'Emotion',
+	// 			icon: <Ionicons name="happy-outline" style={styles.actionButtonIcon} />,
+	// 			name: 'Emotion',
+	// 			position: 2,
+	// 			margin,
+	// 			color,
+	// 			buttonSize,
+	// 		},
+	// 		{
+	// 			text: 'Tags',
+	// 			icon: <Ionicons name="pricetags-outline" style={styles.actionButtonIcon} />,
+	// 			name: 'Tags',
+	// 			position: 1,
+	// 			color,
+	// 			buttonSize,
+	// 			margin,
+	// 		}
+	// 	]
+	// }
 	return (
 		<View style={styles.root}>
 			{
 				!status.isMoving ? (
+					// <FloatingAction
+					// 	actions={actions()}
+					// 	color='#63CCC8'
+					// 	distanceToEdge={20}
+					// 	overlayColor='transparent'
+					// 	actionsPaddingTopBottom={2}
+					// 	shadow={{ shadowOpacity: 0.9, shadowOffset: { width: 100, height: 100 }, shadowColor: '#F5B19C', shadowRadius: 10 }}
+					// />
 					<ActionButton
 						buttonColor="rgba(231,76,60,1)"
 						position='right'

@@ -7,7 +7,7 @@ import ProfileScreen from '../screens/Profile/Profile'
 import GalleryHome from '../screens/Gallery/PhotoGallery'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import SomeGallery from '../screens/Gallery/SomeGallery'
-import SomeAlbumGallery from '../screens/Gallery/SomeAlbumGallery'
+import AlbumDetails from '../screens/Home/AlbumDetails'
 const PagesTab = createBottomTabNavigator()
 const PagesStack = createStackNavigator()
 
@@ -16,20 +16,19 @@ export function PagesTabNavigator(props) {
 	function index() {
 		return (
 			<PagesTab.Navigator
-				initialRouteName='Home'
+				initialRouteName='Gallery'
 				tabBarOptions={{
 					activeTintColor: '#F27B50',
 					inactiveTintColor: '#F2BD1D',
 				}}
 			>
 				<PagesTab.Screen
-					name='Home'
-					component={HomeScreen}
+					name='Gallery'
+					component={GalleryHome}
 					options={{
-						tabBarLabel: 'Albums',
-						// focused: boolean; color: string; size: number;
+						tabBarLabel: 'Gallary',
 						tabBarIcon: (props) => {
-							return <Ionicons name='images-outline' color={props.color} size={props.size} />
+							return <Ionicons name='ios-image-outline' color={props.color} size={props.size} />
 						}
 					}}
 				/>
@@ -50,23 +49,23 @@ export function PagesTabNavigator(props) {
 					}}
 				/>
 				<PagesTab.Screen
+					name='Home'
+					component={HomeScreen}
+					options={{
+						tabBarLabel: 'Albums',
+						// focused: boolean; color: string; size: number;
+						tabBarIcon: (props) => {
+							return <Ionicons name='images-outline' color={props.color} size={props.size} />
+						}
+					}}
+				/>
+				<PagesTab.Screen
 					name='Profile'
 					component={ProfileScreen}
 					options={{
 						tabBarLabel: 'Profile',
 						tabBarIcon: (props) => {
 							return <Ionicons name='person-outline' color={props.color} size={props.size} />
-						}
-					}}
-				/>
-
-				<PagesTab.Screen
-					name='Gallery'
-					component={GalleryHome}
-					options={{
-						tabBarLabel: 'Gallary',
-						tabBarIcon: (props) => {
-							return <Ionicons name='ios-image-outline' color={props.color} size={props.size} />
 						}
 					}}
 				/>
@@ -98,10 +97,10 @@ export function PagesTabNavigator(props) {
 				headerShown: true,
 				headerTitle: null,
 			}} />
-			<PagesStack.Screen name='SomeAlbumGallery' component={SomeAlbumGallery} options={{
+			<PagesStack.Screen name='AlbumDetails' component={AlbumDetails} options={({route})=>({
 				headerShown: true,
-				headerTitle: null,
-			}}/>
+				title:route.params.albumTitle
+			})}/>
 
 		</PagesStack.Navigator>
 	)

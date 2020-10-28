@@ -22,6 +22,10 @@ mongoengine = "*"
 blinker = "*"
 pandas = "*"
 owlready2 = "*"
+line-bot-sdk = "*"
+django-requestlogs = "*"
+django-ipware = "*"
+django-redis = "*"
 
 [requires]
 python_version = "3.7"

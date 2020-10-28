@@ -6,18 +6,22 @@ import {
 	Modal,
 	TouchableOpacity,
 	Dimensions,
-	Image
+	Image,
+	Text,
+	ActivityIndicator
 } from 'react-native'
-import { Overlay, SearchBar } from 'react-native-elements'
+import Snackbar from 'react-native-snackbar'
+import { Overlay, SearchBar, Button } from 'react-native-elements'
 import FastImage from 'react-native-fast-image'
 import ImageViewer from 'react-native-image-zoom-viewer'
 import { photoFooter, TagList } from '../../components/NormalphotoComponent'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import Axios from 'axios'
+import ModalBox from 'react-native-modalbox'
 import { AuthContext } from '../../contexts/AuthContext'
 import AsyncStorage from '@react-native-community/async-storage'
-import { checkEmotion } from '../../utils/utils'
-import { ipv4 } from '../../utils/dev'
+import { checkEmotion, asyncErrorHandling} from '../../utils/utils'
+import _ from 'lodash'
 export default function GalleryScreen(that) {
 	function useMergeState(initialState) {
 		const [state, setState] = React.useState(initialState)
@@ -26,6 +30,7 @@ export default function GalleryScreen(that) {
 		return [state, setStatus]
 	}
 	const [status, setStatus] = useMergeState({
+		aModal: false,
 		isVisible: false,
 		currentId: 0,
 		currentPhotoId: '',
@@ -36,26 +41,30 @@ export default function GalleryScreen(that) {
 		modalSource: [],
 		tag: [],
 		emotionStatus: Array(6).fill(false),
-		actionBtnVisi:false,
-		isMoving:false
+		actionBtnVisi: false,
+		isMoving: false,
+		isLoading: true
 	})
 	const { auth, state } = React.useContext(AuthContext)
 	function setEmotion(n) {
 		let newEmotion = checkEmotion(status.emotionStatus, n).indexOf(true)
-		Axios.put(`http://${ipv4}:3000/photo/emotion`, JSON.stringify({
-			userId: state.user.id,
-			photoId: status.currentPhotoId,
+		Axios.put(`${auth.url}/photo/emotion/${status.currentPhotoId}`, JSON.stringify({
 			emotion_tag: newEmotion
 		}), {
-			headers: {
-				'Content-Type': 'application/json'
-			}
+			headers: auth.headers
 		}).then((res) => {
 			setStatus({ emotionStatus: newEmotion, isEmotionModalVisi: false })
 		})
 	}
 
 	async function fetchImageSource(callback) {
+		let temp = await Axios.get(`${auth.url}/photos/${state.user.id}`, {
+			params: {
+				isDeleted:true
+			},
+			headers:auth.headers
+		})
+		let deletedPid = temp.data['photos'].map((v)=>{return v[0]})
 		const isLoaded = await AsyncStorage.getItem('GalleryLoaded')
 		if (isLoaded === 'false') {
 			console.log('Loading photo')
@@ -83,6 +92,9 @@ export default function GalleryScreen(that) {
 					let fSource = status.fastSource
 					let mSource = status.modalSource
 					for (const item of mediaItems) {
+						if (deletedPid.includes(item['id'])){
+							continue
+						}
 						var width = 400
 						var height = 400
 						var img = {
@@ -107,28 +119,44 @@ export default function GalleryScreen(that) {
 	}
 	React.useEffect(() => {
 		fetchImageSource(async (isLoaded) => {
-			console.log(isLoaded)
+			console.log('isLoaded',isLoaded)
 			if (isLoaded === 'false') {
 				// first time
 				let fSource = ['fSource', JSON.stringify(status.fastSource)]
 				let mSource = ['mSource', JSON.stringify(status.modalSource)]
 				let GalleryLoaded = ['GalleryLoaded', 'true']
-				await AsyncStorage.multiSet([fSource, mSource, GalleryLoaded])
+				AsyncStorage.multiSet([fSource, mSource, GalleryLoaded])
 			} else {
 				let temp = await AsyncStorage.multiGet(['fSource', 'mSource'])
 				setStatus({ fastSource: JSON.parse(temp[0][1]), modalSource: JSON.parse(temp[1][1]) })
 			}
+			auth.checkNetwork(state,(verified)=>{
+				if (verified){
+					setStatus({isLoading:false})
+				} else {
+					Snackbar.show({
+						text: 'Wifi only!!',
+						textColor:'#F6C570',
+						backgroundColor:'#303960',
+						duration:Snackbar.LENGTH_LONG,
+						action:{
+							text:'Go Fix',
+							textColor:'#F6C570'
+						}
+					})
+				}
+			})
 		})
 	}, [])
 
 	function showImage(item) {
 		// load tag of the item
 		setStatus({
-			currentId: item.id,
+			currentId: _.indexOf(status.fastSource, item),
 			isVisible: true,
 			currentPhotoId: item.imgId,
-			reset:undefined,
-			actionBtnVisi:false
+			reset: undefined,
+			actionBtnVisi: false
 		})
 	}
 
@@ -145,14 +173,10 @@ export default function GalleryScreen(that) {
 			}
 			tags.unshift({ key: String(t), text: status.inputTag })
 			setStatus({ tag: tags, inputTag: '' })
-			Axios.put(`http://${ipv4}:3000/photo/tag`, JSON.stringify({
-				userId: state.user.id,
-				photoId: status.currentPhotoId,
+			Axios.put(`${auth.url}/photo/tag/${status.currentPhotoId}`, JSON.stringify({
 				customTag: status.inputTag
 			}), {
-				headers: {
-					'Content-Type': 'application/json'
-				}
+				headers: auth.headers
 			})
 		} else {
 			setStatus({ inputTag: '' })
@@ -169,111 +193,166 @@ export default function GalleryScreen(that) {
 		]
 		return temp
 	}
+	function deletePhoto() {
+		asyncErrorHandling(async () => {
+			let res = await Axios.delete(`${auth.url}/photo/${status.currentPhotoId}`, {
+				headers:auth.headers
+			})
+			if (res.status !== 200) {
+				throw Error('Delete not success')
+			}
+		},async()=>{
+			var index = _.findIndex(status.fastSource,function(o){return o.imgId===status.currentPhotoId})
+			var fSource = [...status.fastSource]
+			var mSource = [...status.modalSource]
+			_.pullAt(fSource, index)
+			_.pullAt(mSource,index)
+			await AsyncStorage.multiSet([['fSource', JSON.stringify(fSource)], ['mSource', JSON.stringify(mSource)]])
+			setStatus({fastSource:fSource, modalSource:mSource, aModal:false})
+		})
+	}
 	return (
-		<View style={{ flex: 1 }}>
-			<Overlay
-				isVisible={status.isTagModalVisi}
-				onBackdropPress={() => { setStatus({ isTagModalVisi: false }) }}
-				overlayStyle={styles.overlayStyle}
-			>
-				<View style={{ flex: 1 }} >
-					<View>
-						<SearchBar
-							placeholder="Add Tag"
-							onChangeText={(inputTag) => { setStatus({ inputTag: inputTag }) }}
-							onSubmitEditing={() => addTag()}
-							value={status.inputTag}
-							inputStyle={{ color: '#303960' }}
-							lightTheme={true}
-							searchIcon={() => <Ionicons name='pricetag-outline' size={20} color='#75828e' />}
-							round={true}
-							containerStyle={{ padding: 5 }}
-						/>
+		<View style={{flex: 1}}>
+			{
+				status.isLoading ? (
+					<View style={{flex: 1, justifyContent: 'center'}}>
+						<ActivityIndicator size='large' color="#FF6130" />
 					</View>
-					{TagList([status, setStatus],state)}
-				</View>
-			</Overlay>
-			<Overlay isVisible={status.isEmotionModalVisi}
-				onBackdropPress={() => { setStatus({ isEmotionModalVisi: false }) }}
-				overlayStyle={styles.overlayStyle2}>
+				) : (
+					<View style={{ flex: 1 }}>
+						<Overlay
+							isVisible={status.isTagModalVisi}
+							onBackdropPress={() => { setStatus({ isTagModalVisi: false }) }}
+							overlayStyle={styles.overlayStyle}
+						>
+							<View style={{ flex: 1 }} >
+								<View>
+									<SearchBar
+										placeholder="Add Tag"
+										onChangeText={(inputTag) => { setStatus({ inputTag: inputTag }) }}
+										onSubmitEditing={() => addTag()}
+										value={status.inputTag}
+										inputStyle={{ color: '#303960' }}
+										lightTheme={true}
+										searchIcon={() => <Ionicons name='pricetag-outline' size={20} color='#75828e' />}
+										round={true}
+										containerStyle={{ padding: 5 }}
+									/>
+								</View>
+								{TagList([status, setStatus], auth)}
+							</View>
+						</Overlay>
+						<Overlay isVisible={status.isEmotionModalVisi}
+							onBackdropPress={() => { setStatus({ isEmotionModalVisi: false }) }}
+							overlayStyle={styles.overlayStyle2}>
 
-				<View style={{ flexDirection: 'row' }}>
-					{
-						EmotionGroup().map((item, i) => {
-							return status.emotionStatus[i] === true ? (
-								<TouchableOpacity key={i} activeOpacity={0.4} focusedOpacity={0.5} onPress={() => setEmotion(item.index)} style={{
-									borderColor:'black',
-									borderWidth:1
-								}}>
-									<Image
-										style={styles.emotion}
-										source={item.source}
-									/>
-								</TouchableOpacity>
-							) : (
-								<TouchableOpacity key={i} activeOpacity={0.4} focusedOpacity={0.5} onPress={() => setEmotion(item.index)}>
-									<Image
-										style={styles.emotion}
-										source={item.source}
-									/>
-								</TouchableOpacity>
-							)
-						})
-					}
-				</View>
-			</Overlay>
-			<Modal visible={status.isVisible} transparent={false} onRequestClose={() => { setStatus({ isVisible: false, isTagModalVisi: false }) }}>
-				<ImageViewer
-					backgroundColor='#d7d7cb'
-					imageUrls={status.modalSource}
-					index={status.currentId}
-					enableImageZoom={true}
-					enablePreload={true}
-					useNativeDriver={true}
-					renderIndicator={() => null}
-					onCancel={()=>setStatus({reset:true, isVisible:false})}
-					onMove={(m)=>{
-						if(m.type==='onPanResponderRelease'){
-							setStatus({isMoving:false, })
-						} else {
-							if(status.isMoving===false){
-								setStatus({isMoving:true,actionBtnVisi:false})
-							}
-						}
-					}}
-					renderFooter={(currentIndex) => photoFooter(that, [status, setStatus], currentIndex, state)}
-					footerContainerStyle={{
-						flex: 1,
-						alignSelf: 'flex-end',
-						flexDirection: 'row',
-						width: 140,
-						height: 200,
-						// borderColor: 'black',
-						// borderWidth: 1,
-						zIndex: 1
-					}}
-				/>
-			</Modal>
-			<FlatList
-				data={status.fastSource}
-				renderItem={({ item }) => (
-					<View style={{ flex: 1, flexDirection: 'column', margin: 1 }}>
-						<TouchableOpacity onPress={() => showImage(item)}>
-							<FastImage
-								style={styles.imageThumbnail}
-								source={{
-									uri: item.src,
-									headers: item.headers,
+							<View style={{ flexDirection: 'row' }}>
+								{
+									EmotionGroup().map((item, i) => {
+										return status.emotionStatus[i] === true ? (
+											<TouchableOpacity key={i} activeOpacity={0.4} focusedOpacity={0.5} onPress={() => setEmotion(item.index)} style={{
+												borderColor: 'black',
+												borderWidth: 1
+											}}>
+												<Image
+													style={styles.emotion}
+													source={item.source}
+												/>
+											</TouchableOpacity>
+										) : (
+											<TouchableOpacity key={i} activeOpacity={0.4} focusedOpacity={0.5} onPress={() => setEmotion(item.index)}>
+												<Image
+													style={styles.emotion}
+													source={item.source}
+												/>
+											</TouchableOpacity>
+										)
+									})
+								}
+							</View>
+						</Overlay>
+						<Modal visible={status.isVisible} transparent={false} onRequestClose={() => { setStatus({ isVisible: false, isTagModalVisi: false }) }}>
+							<ImageViewer
+								backgroundColor='#d7d7cb'
+								imageUrls={status.modalSource}
+								index={status.currentId}
+								enableImageZoom={true}
+								enablePreload={true}
+								renderIndicator={() => null}
+								onCancel={() => setStatus({ reset: true, isVisible: false })}
+								onMove={(m) => {
+									if (m.type === 'onPanResponderRelease') {
+										setStatus({ isMoving: false, })
+									} else {
+										if (status.isMoving === false) {
+											setStatus({ isMoving: true, actionBtnVisi: false })
+										}
+									}
+								}}
+								renderFooter={(currentIndex) => photoFooter(that, [status, setStatus], currentIndex, state, auth)}
+								footerContainerStyle={{
+									flex: 1,
+									alignSelf: 'flex-end',
+									flexDirection: 'row',
+									width: 140,
+									height: 200,
+									zIndex: 1
 								}}
 							/>
-						</TouchableOpacity>
+						</Modal>
+						<View style={styles.titlebackground} >
+							<Text style={{fontSize: 40,color: '#303960', letterSpacing:5}}>ALBUM</Text>
+						</View>
+						<FlatList
+							data={status.fastSource}
+							renderItem={({ item }) => (
+								<View style={{ flex: 1, flexDirection: 'column', margin: 1 }}>
+									<TouchableOpacity onPress={() => showImage(item)} onLongPress={() => setStatus({ currentPhotoId: item.imgId, aModal: true })}>
+										<FastImage
+											style={styles.imageThumbnail}
+											source={{
+												uri: item.src,
+												headers: item.headers,
+											}}
+										/>
+									</TouchableOpacity>
+								</View>
+							)}
+							//Setting the number of column
+							numColumns={3}
+							keyExtractor={(item, index) => index}
+						/>
+						<ModalBox useNativeDriver={true} animationDuration={300} backButtonClose={true} isOpen={status.aModal} onClosed={() => setStatus({ aModal: false, currentPhotoId: null })} style={styles.modal4} position={'center'}>
+							<View style={styles.modal}>
+								<View style={styles.AlbumText}>
+									<Text h1 style={{ fontSize: 22, color: '#303960' }}>Delete Photo</Text>
+								</View>
+								<View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'flex-end' }}>
+									<View>
+										<Button
+											title="Dismiss"
+											type="outline"
+											titleStyle={styles.modalBtnTitle}
+											onPress={() => setStatus({ aModal: false, currentPhotoId: null })}
+											buttonStyle={styles.modalBtnStyle}
+										/>
+									</View>
+									<View>
+										<Button
+											title="Delete"
+											type="outline"
+											titleStyle={styles.modalBtnTitle}
+											onPress={() => deletePhoto()}
+											buttonStyle={styles.modalBtnStyle}
+										/>
+									</View>
+								</View>
+							</View>
+						</ModalBox>
 					</View>
-				)}
-				//Setting the number of column
-				numColumns={3}
-				keyExtractor={(item, index) => index}
-			/>
-		</View>
+				)
+			}
+		</View >
 	)
 
 }
@@ -306,8 +385,31 @@ const styles = StyleSheet.create({
 		borderRadius: 15,
 		backgroundColor: '#63CCC8'
 	},
-	emotion:{
+	emotion: {
 		width: 50,
 		height: 50,
-	}
+	},
+	modalBtnTitle: { color: '#303960', fontWeight: 'bold' },
+	modalBtnStyle: { borderColor: '#303960', width: 90, borderWidth: 2 },
+	modal4: {
+		backgroundColor: '#63CCC8',
+		height: 115,
+		width: '90%',
+		borderRadius: 15,
+		borderColor: '#F5B19C',
+		borderWidth: 2
+	},
+	modal: {
+		flex: 1,
+		alignItems: 'stretch',
+	},
+	AlbumText: {
+		justifyContent: 'flex-start',
+		alignItems: 'center',
+		padding: 10,
+	},
+	titlebackground: {
+		width: '100%',
+		alignItems: 'center',
+	},
 })

@@ -1,6 +1,6 @@
 from owlready2 import *
 
-file_path = "file: // ./ontology/owl/"
+file_path = "file://./ontology/owl/"
 
 
 def get_location(location_tag):
@@ -43,10 +43,5 @@ def get_location(location_tag):
     except Exception as e:
         print(e)
         return []
-
-    print('ontology location:', rtr)
-
+    
     return rtr
-
-
-# print('ontology location:', get_location('中壢'))
