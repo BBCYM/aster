@@ -1,6 +1,6 @@
 from owlready2 import *
 
-onto_color = get_ontology("file://C:/Users/v-wenklu/OneDrive - Microsoft/Desktop/bobo/Project/aster/preprocessing/ObjectDetection/color_onto.owl").load()
+onto_color = get_ontology("file://./ontology/owl/").load()
 
 def get_common_color_name(color_name):
     try:
