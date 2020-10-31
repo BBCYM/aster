@@ -11,11 +11,19 @@ export default function RoomScreen({navigation}) {
 	// 	await AsyncStorage.removeItem('pid');
 	// },[])
 	const { auth, state } = React.useContext(AuthContext)
+	if (state.lancode == 'zh_tw') {
+		strtxt1 = '請問你想甚麼樣的照片?'
+		strtxt2 = '你好😊 我是Aster'
+	}
+	else{
+		strtxt1 = 'What kind of photos do you want?'
+		strtxt2 = 'Hello😊 I\'m Aster'
+	}
 	const [messages, setMessages] = useState([
 		// example of chat message
 		{
 			_id: 1,
-			text: '請問你想甚麼樣的照片?',
+			text: strtxt1,
 			createdAt: new Date().getTime(),
 			user: {
 				_id: 0,
@@ -25,7 +33,7 @@ export default function RoomScreen({navigation}) {
 		},
 		{
 			_id: 2,
-			text: '你好~ 我是Aster',
+			text: strtxt2,
 			createdAt: new Date().getTime(),
 			user: {
 				_id: 0,
@@ -135,10 +143,16 @@ export default function RoomScreen({navigation}) {
 				});
 			} catch (e) {
 				var temp = uuid.v1();
+				if (state.lancode == 'zh_tw') {
+					retext = '沒有結果，請搜尋其他照片或重新開始搜尋'
+				}
+				else{
+					retext = 'No result. Please enter other conditions or reset.'
+				}
 				// var temp1 = uuid.v1();
 					let msg = {
 						_id: temp,
-						text: '沒有結果，請搜尋其他照片或重新開始搜尋？',
+						text: retext,
 						createdAt: new Date(),
 						user: {
 							_id: 0,
@@ -287,7 +301,24 @@ export default function RoomScreen({navigation}) {
 					},
 				},
 				{
-					pattern: /重新開始搜尋？/,
+					pattern: /重新開始搜尋/,
+					style: { color: "white", textDecorationLine: "underline" },
+					onPress: (tag) => {
+						reset()
+					},
+				},
+				{
+					pattern: /display the results/,
+					style: { color: "white", textDecorationLine: "underline" },
+					onPress: (tag) => {
+						navigation.navigate('SomeGallery',{
+							pid:imgIDs,
+							pid_tag: imgIDtags
+						})
+					},
+				},
+				{
+					pattern: /reset/,
 					style: { color: "white", textDecorationLine: "underline" },
 					onPress: (tag) => {
 						reset()

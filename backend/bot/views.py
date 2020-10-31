@@ -20,12 +20,21 @@ class BotView(views.APIView):
     def post(self, request, userId:str=None):
         data = request.data['usermsg']
         userid = userId
-
+        # en or zh-tw
+        lancode = request.data['lancode']
+        print('lancode: ',type(lancode))
+        if lancode == 'zh-tw':
+            crefilename_cus = 'anster-1593361678608.json'
+            crefilename = 'dfcredentials.json'
+        elif lancode == 'en':
+            crefilename_cus = 'eng-general-folh-e6f47c291234.json'
+            crefilename = 'eng-pvbi-05019ab875a9.json'
+        
         # for custom tag search with general agent
         def get_res_cus(data):
-            credentials = service_account.Credentials.from_service_account_file('anster-1593361678608.json').with_scopes(['https://www.googleapis.com/auth/dialogflow'])
+            credentials = service_account.Credentials.from_service_account_file(crefilename_cus).with_scopes(['https://www.googleapis.com/auth/dialogflow'])
 
-            with open('anster-1593361678608.json', encoding='utf-8') as f:
+            with open(crefilename_cus, encoding='utf-8') as f:
                 appSecret = json.load(f)
                 # print(appSecret)
                 PROJECT_ID = itemgetter("project_id")(appSecret)
@@ -36,7 +45,7 @@ class BotView(views.APIView):
             session_client = dialogflow.SessionsClient(credentials=credentials)
             session = session_client.session_path(PROJECT_ID,session_id)
 
-            text_input = dialogflow.types.TextInput(text=text, language_code='zh-TW')
+            text_input = dialogflow.types.TextInput(text=text, language_code=lancode)
             query_input = dialogflow.types.QueryInput(text=text_input)
             try:
                 res = session_client.detect_intent(session=session, query_input=query_input)
@@ -56,8 +65,12 @@ class BotView(views.APIView):
                 gkeyArray = list(gkeyArray)
                 for i in gkeyArray:
                     try:
-                        custom = Photo.objects(Q(userId=userid) & Q(tag__custom_tag__is_deleted=False) & Q(tag__custom_tag__tag=i))
-                        print('custom:',custom)
+                        if lancode == 'zh_tw':
+                            custom = Photo.objects(Q(userId=userid) & Q(tag__zh_tw__custom_tag__is_deleted=False) & Q(tag__zh_tw__custom_tag__tag=i))
+                            print('custom:',custom)
+                        else:
+                            custom = Photo.objects(Q(userId=userid) & Q(tag__en__custom_tag__is_deleted=False) & Q(tag__en__custom_tag__tag=i))
+                            print('custom:',custom)
                         for j in custom:
                             tag = []
                             photoid = j.photoId
@@ -74,9 +87,9 @@ class BotView(views.APIView):
             return pid_tag
         # for all tags search with testing agent
         def get_res(data):
-            credentials = service_account.Credentials.from_service_account_file('dfcredentials.json').with_scopes(['https://www.googleapis.com/auth/dialogflow'])
-
-            with open('dfcredentials.json', encoding='utf-8') as f:
+            credentials = service_account.Credentials.from_service_account_file(crefilename).with_scopes(['https://www.googleapis.com/auth/dialogflow'])
+            
+            with open(crefilename, encoding='utf-8') as f:
                 appSecret = json.load(f)
                 # print(appSecret)
                 PROJECT_ID = itemgetter("project_id")(appSecret)
@@ -87,7 +100,7 @@ class BotView(views.APIView):
             session_client = dialogflow.SessionsClient(credentials=credentials)
             session = session_client.session_path(PROJECT_ID,session_id)
 
-            text_input = dialogflow.types.TextInput(text=text, language_code='zh-TW')
+            text_input = dialogflow.types.TextInput(text=text, language_code=lancode)
             query_input = dialogflow.types.QueryInput(text=text_input)
             try:
                 res = session_client.detect_intent(session=session, query_input=query_input)
@@ -113,47 +126,52 @@ class BotView(views.APIView):
                 for i in pidarr:
                     tag = []
                     photoid = i.photoId
-                    # print('photoid:',photoid)
                     pid.append(photoid)
                     # print('key in add:',key)
                     if orkey == "null":
-                        # print("null")
                         tag.append(key)
                     else:
-                        # print("ok")
                         tag.append(orkey)
                     temptag = tag
-                    # print('tag:',tag)
                     pid_tag.append({"pid":photoid, "tag":temptag})
                     # print('pid_tag',pid_tag)
 
             def getpid(key,orkey):
                 try:
                     # print('key',key)
+                    if lancode == 'zh_tw':
+                        # emo = Photo.objects(Q(userId=userid) & Q(tag__zh_tw__emotion_tag=key))
+                        # # print('emotion:',emo)
+                        # addpid(emo, key, orkey)
 
-                    emo = Photo.objects(Q(userId=userid) & Q(tag__emotion_tag=key))
-                    # print('emotion:',emo)
-                    addpid(emo, key, orkey)
+                        main = Photo.objects(Q(userId=userid) & Q(tag__zh_tw__main_tag__tag=key))
+                        # print('main:',main)
+                        addpid(main, key, orkey)
 
-                    main = Photo.objects(Q(userId=userid) & Q(tag__main_tag=key))
-                    # print('main:',main)
-                    addpid(main, key, orkey)
+                        custom = Photo.objects(Q(userId=userid) & Q(tag__zh_tw__custom_tag__is_deleted=False) & Q(tag__zh_tw__custom_tag__tag=key))
+                        # print('custom:',custom)
+                        addpid(custom, key, orkey)
 
-                    top3 = Photo.objects(Q(userId=userid) & Q(tag__top3_tag__tag=key))
-                    # print('top3:',top3)
-                    addpid(top3, key, orkey)
+                        location = Photo.objects(Q(userId=userid) & Q(tag__zh_tw__location=key))
+                        # print('location:',location)
+                        addpid(location, key, orkey)
+                    else:
+                        # emo = Photo.objects(Q(userId=userid) & Q(tag__en__emotion_tag=key))
+                        # # print('emotion:',emo)
+                        # addpid(emo, key, orkey)
 
-                    alltag = Photo.objects(Q(userId=userid) & Q(tag__all_tag__tag=key))
-                    # print('alltag:',alltag)
-                    addpid(alltag, key, orkey)
+                        main = Photo.objects(Q(userId=userid) & Q(tag__en__main_tag__tag=key))
+                        # print('main:',main)
+                        addpid(main, key, orkey)
 
-                    custom = Photo.objects(Q(userId=userid) & Q(tag__custom_tag__is_deleted=False) & Q(tag__custom_tag__tag=key))
-                    # print('custom:',custom)
-                    addpid(custom, key, orkey)
+                        custom = Photo.objects(Q(userId=userid) & Q(tag__en__custom_tag__is_deleted=False) & Q(tag__en__custom_tag__tag=key))
+                        # print('custom:',custom)
+                        addpid(custom, key, orkey)
 
-                    location = Photo.objects(Q(userId=userid) & Q(location__contains=key))
-                    # print('location:',location)
-                    addpid(location, key, orkey)
+                        location = Photo.objects(Q(userId=userid) & Q(tag__en__location=key))
+                        # print('location:',location)
+                        addpid(location, key, orkey)
+
 
                     album = Album.objects(Q(userId=userid) & Q(albumTag__isDeleted=False) & Q(albumTag__tag=key))
                     # print('album:',album)
@@ -196,19 +214,15 @@ class BotView(views.APIView):
             if len(dateperiod) is not 0:
                 dpstart = dateperiod.values[0].struct_value.fields['startDate'].string_value
                 dpend = dateperiod.values[0].struct_value.fields['endDate'].string_value
-                # print('dpstart',dpstart)
-                # print('dpend',dpend)
+
                 start = datetime.strptime(dpstart, "%Y-%m-%dT%H:%M:%S+08:00")
                 start= datetime.strftime(start,"%Y-%m-%d")
-                # print('start',start)
+
                 end = datetime.strptime(dpend, "%Y-%m-%dT%H:%M:%S+08:00")
                 end= datetime.strftime(end,"%Y-%m-%d")
-                # print('end',end)
 
                 dateperiod = Photo.objects(Q(userId=userid) & Q(createTime__lt=end) & Q(createTime__gt=start))
-                # print('dateperiod:',dateperiod)
                 periodkey = start + '-' + end
-                # print('periodkey:',periodkey)
                 addpid(dateperiod, periodkey, "null")
 
             if len(vision) is not 0:
@@ -227,39 +241,30 @@ class BotView(views.APIView):
             if len(location) is not 0:
                 admin_areakey = location.values[0].struct_value.fields['admin-area'].string_value
                 if(admin_areakey != ''):
-                    # print(admin_areakey)
                     getpid(admin_areakey,"null")
                 bus_namekey = location.values[0].struct_value.fields['business-name'].string_value
                 if(bus_namekey != ''):
-                    # print(bus_namekey)
                     getpid(bus_namekey,"null")
                 citykey = location.values[0].struct_value.fields['city'].string_value
                 if(citykey != ''):
-                    # print(citykey)
                     getpid(citykey,"null")
                 countrykey = location.values[0].struct_value.fields['country'].string_value
                 if(countrykey != ''):
-                    # print(countrykey)
                     getpid(countrykey,"null")
                 islandkey = location.values[0].struct_value.fields['island'].string_value
                 if(islandkey != ''):
-                    # print(islandkey)
                     getpid(islandkey,"null")
                 shortcutkey = location.values[0].struct_value.fields['shortcut'].string_value
                 if(shortcutkey != ''):
-                    # print(shortcutkey)
                     getpid(shortcutkey,"null")
                 street_addresskey = location.values[0].struct_value.fields['street-address'].string_value
                 if(street_addresskey != ''):
-                    # print(street_addresskey)
                     getpid(street_addresskey,"null")
                 subadmin_areakey = location.values[0].struct_value.fields['subadmin-area'].string_value
                 if(subadmin_areakey != ''):
-                    # print(subadmin_areakey)
                     getpid(subadmin_areakey,"null")
                 zip_codekey = location.values[0].struct_value.fields['zip-code'].string_value
                 if(zip_codekey != ''):
-                    # print(zip_codekey)
                     getpid(zip_codekey,"null")
             return pid_tag
 
