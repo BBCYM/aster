@@ -9,7 +9,7 @@ from django.core.handlers.wsgi import WSGIRequest
 from .utils import getEmotionString, EmotionStringtoI
 from utils.utils import is_valid_objectId
 
-get_fields = ('photoId', 'location', 'isDeleted', 'createTime')
+get_fields = ('photoId', 'isDeleted', 'createTime')
 
 
 class PhotoListView(APIView):

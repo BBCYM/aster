@@ -76,7 +76,6 @@ export default function GalleryScreen(that) {
 					pageSize: 100
 				}
 				if (pageToken) {
-					console.log('has pageToken')
 					params.pageToken = pageToken
 				}
 				try {
@@ -301,7 +300,7 @@ export default function GalleryScreen(that) {
 							/>
 						</Modal>
 						<View style={styles.titlebackground} >
-							<Text style={{fontSize: 40,color: '#303960', letterSpacing:5}}>ALBUM</Text>
+							<Text style={{fontSize: 40,color: '#303960', letterSpacing:5}}>Gallery</Text>
 						</View>
 						<FlatList
 							data={status.fastSource}

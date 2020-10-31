@@ -8,6 +8,8 @@ import GalleryHome from '../screens/Gallery/PhotoGallery'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import SomeGallery from '../screens/Gallery/SomeGallery'
 import AlbumDetails from '../screens/Home/AlbumDetails'
+import { SettingsSreeen } from '../screens/Profile/Settings'
+import { TPModuleSreeen } from '../screens/Profile/TPModules'
 const PagesTab = createBottomTabNavigator()
 const PagesStack = createStackNavigator()
 
@@ -53,7 +55,6 @@ export function PagesTabNavigator(props) {
 					component={HomeScreen}
 					options={{
 						tabBarLabel: 'Albums',
-						// focused: boolean; color: string; size: number;
 						tabBarIcon: (props) => {
 							return <Ionicons name='images-outline' color={props.color} size={props.size} />
 						}
@@ -101,6 +102,8 @@ export function PagesTabNavigator(props) {
 				headerShown: true,
 				title:route.params.albumTitle
 			})}/>
+			<PagesStack.Screen name='TPModules' component={TPModuleSreeen}/>
+			<PagesStack.Screen name='Settings' component={SettingsSreeen}/>
 
 		</PagesStack.Navigator>
 	)

@@ -21,12 +21,16 @@ from line.views import callback
 from photo.views import PhotoView, EmotionView, TagView, PhotoListView
 from album.views import AlbumView, AlbumPDView, AlbumTagView, AlbumPhotoView
 from liff.views import LiffView , TempLineView
-
+from ontology.view import LocationOntoView
 
 photo_patterns = [
     path('<str:photoId>', PhotoView.as_view()),
     path('emotion/<str:photoId>', EmotionView.as_view()),
     path('tag/<str:photoId>', TagView.as_view()),
+]
+
+ontology_patterns = [
+    path('<str:userId>/location', LocationOntoView.as_view())
 ]
 
 urlpatterns = [
@@ -37,10 +41,11 @@ urlpatterns = [
     path('bot/<str:userId>', BotView.as_view()),
     path('photos/<str:userId>', PhotoListView.as_view()),
     path('photo/', include(photo_patterns)),
-    path('line/', callback),
-    path('liff', LiffView.as_view()),
+    # path('line/', callback),
+    # path('liff', LiffView.as_view()),
     path('album/<str:userId>', AlbumView.as_view()),
     path('album/PD/<str:albumId>', AlbumPDView.as_view()),
     path('album/tag/<str:albumId>', AlbumTagView.as_view()),
     path('album/photo/<str:albumId>', AlbumPhotoView.as_view()),
+    path('ontology/',include(ontology_patterns)),
 ]

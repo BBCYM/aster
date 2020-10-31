@@ -1,8 +1,7 @@
 import * as React from 'react'
 import { AuthContext } from '../../contexts/AuthContext'
 import { StyleSheet, Text, View, Image, TouchableOpacity, ActivityIndicator } from 'react-native'
-import ToggleSwitch from 'toggle-switch-react-native'
-// import Ionicons from 'react-native-vector-icons/Ionicons'
+import { Picker } from '@react-native-picker/picker'
 
 
 
@@ -11,27 +10,15 @@ import ToggleSwitch from 'toggle-switch-react-native'
 export default function personalScreen(props) {
 	const { auth, state } = React.useContext(AuthContext)
 
-
 	React.useEffect(() => {
-		// auth.checkNetwork(state, function(canload){
-		// 	console.log(canload)
-		// })
 		console.log('init_isSync:', state.isSync)
 		console.log('init_isFreshing:', state.isFreshing)
-		// console.log('userId:', state.user.id)
-
 		if (state.isFreshing) {
 			auth.checkisFreshing((isFreshing, isSync) => {
 				console.log('check_isSync:', isSync)
 				console.log('check_isFreshing:', isFreshing)
 			})
 		}
-
-
-		// GET isSync isFreshing status first
-		// var status = auth.checkisFreshing()
-		// console.log(status)
-
 	}, [state.isFreshing])
 
 
@@ -44,28 +31,28 @@ export default function personalScreen(props) {
 				<Text style={styles.name}>{state.user.name}</Text>
 
 				<View style={styles.Btncontainer}>
-					<TouchableOpacity style={styles.Btn} disabled={state.isFreshing} onPress={() => { auth.refresh() }}>
+					<Picker
+						selectedValue={state.dateRange}
+						style={{height: 50, width: 180}}
+						onValueChange={(itemValue, itemIndex) =>{
+							auth.changeRange(itemValue)
+						}}
+						prompt='Please Select Refresh Range'
+					>
+						<Picker.Item label="3 days" value="3" />
+						<Picker.Item label="30 days" value="30" />
+						<Picker.Item label="1 year" value="365" />
+						<Picker.Item label="All" value="all" />
+					</Picker>
+					<TouchableOpacity style={styles.Btn} disabled={state.isFreshing} onPress={() => { auth.refresh(state.dateRange) }}>
 						<Text>Refresh</Text>
 					</TouchableOpacity>
-					
-					<TouchableOpacity style={styles.Btn} onPress={() => { console.log('Third party') }}>
+					<TouchableOpacity style={styles.Btn} onPress={() => { props.navigation.navigate('TPModules') }}>
 						<Text>Third Party Module</Text>
 					</TouchableOpacity>
-					<TouchableOpacity style={styles.Btn} onPress={() => { auth.signOut() }}>
-						<Text>Logout</Text>
+					<TouchableOpacity style={styles.Btn} onPress={() => { props.navigation.navigate('Settings') }}>
+						<Text>Settings</Text>
 					</TouchableOpacity>
-					
-				</View>
-				<View>
-					<ToggleSwitch
-						isOn={state.useWifi}
-						onColor="green"
-						offColor="grey"
-						label="Wifi only"
-						labelStyle={{ color: 'black', fontWeight: '900' }}
-						size="large"
-						onToggle={isOn => auth.changeWifi(isOn)}
-					/>
 				</View>
 				{/* refresh loading animation */}
 				<View style={[styles.container, { opacity: state.isFreshing ? 100 : 0 }]}>
@@ -90,7 +77,7 @@ const styles = StyleSheet.create({
 		borderRadius: 63,
 		borderWidth: 4,
 		alignSelf: 'center',
-		marginTop: 20,
+		marginTop: 60,
 		borderColor:'#303960'
 	},
 	body:{

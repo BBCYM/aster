@@ -33,6 +33,16 @@ function execSwitch(state, action) {
 			...state,
 			useWifi:action.payload
 		}
+	case actionType.SET.lancode:
+		return {
+			...state,
+			language:action.payload
+		}
+	case actionType.SET.dateRange:
+		return {
+			...state,
+			dateRange:action.payload
+		}
 	default:
 		return state
 	}

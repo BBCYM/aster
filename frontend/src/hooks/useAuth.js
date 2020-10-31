@@ -9,12 +9,17 @@ import axios from 'axios'
 import _ from 'lodash'
 import { APP, NODE_ENV, API_URL, ACCESS_CODE} from '../../env.json'
 import NetInfo from '@react-native-community/netinfo'
+import { PermissionsAndroid} from 'react-native'
+import CameraRoll from '@react-native-community/cameraroll'
+
 /**
  * initial state
  */
 const initialState = {
 	user: null,
 	splash: true,
+	language: 'zh-tw',
+	dateRange:'3'
 }
 
 export function useAuth() {
@@ -27,6 +32,15 @@ export function useAuth() {
 		'Content-Type': 'application/json'
 	}
 	const auth = React.useMemo(() => ({
+		hasAndroidPermission: async()=>{
+			const permission = PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE
+			const hasPermission = await PermissionsAndroid.check(permission)
+			if (hasPermission) {
+				return true
+			}
+			const status = await PermissionsAndroid.request(permission)
+			return status === 'granted'
+		},
 		configure: async (callback) => {
 			console.log('configure')
 			let config = {
@@ -59,17 +73,20 @@ export function useAuth() {
 			})
 			if (user) {
 				console.log(user)
-				AsyncStorage.multiSet([['GalleryLoaded', 'false'], ['AlbumLoaded', 'false']])
+				AsyncStorage.setItem('GalleryLoaded', 'false')
 				let _isIndb = await axios.get(`${url}/user/${user.id}`, {
 					headers: headers
 				})
 				if (!_.isEmpty(_isIndb.data)) {
+					let lancode = await AsyncStorage.getItem('lancode')
+					console.log(lancode)
 					dispatch([
 						action(actionType.SET.USER, user),
 						action(actionType.SET.SPLASH, false),
 						action(actionType.SET.isFreshing, _isIndb.data.isFreshing),
 						action(actionType.SET.isSync, _isIndb.data.isSync),
-						action(actionType.SET.useWifi, JSON.parse(await AsyncStorage.getItem('useWifi')))
+						action(actionType.SET.useWifi, JSON.parse(await AsyncStorage.getItem('useWifi'))),
+						action(actionType.SET.lancode, lancode)
 					])
 				} else {
 					dispatch(action(actionType.SET.SPLASH, false))
@@ -85,7 +102,7 @@ export function useAuth() {
 				await GoogleSignin.hasPlayServices()
 				userInfo = await GoogleSignin.signIn()
 			}, () => {
-				AsyncStorage.multiSet([['GalleryLoaded', 'false'], ['AlbumLoaded', 'false'], ['useWifi','true']])
+				AsyncStorage.multiSet([['GalleryLoaded', 'false'], ['lancode', 'zh-tw'],['useWifi','true']])
 				axios.post(`${url}/auth/${userInfo.user.id}`, {
 					scopes: userInfo.scopes,
 					serverAuthCode: userInfo.serverAuthCode
@@ -115,18 +132,56 @@ export function useAuth() {
 		getAccessToken: async () => {
 			return (await GoogleSignin.getTokens()).accessToken
 		},
-		refresh: async () => {
+		refresh: async (dateRange) => {
 			let user = await AsyncStorage.getItem('user')
 			user = JSON.parse(user)
-			axios.put(`${url}/user/${user.id}`, null, {
-				headers:headers
-			}).then((res) => {
-				console.log(res.data)
-				dispatch([
-					action(actionType.SET.isFreshing, res.data.isFreshing),
-					action(actionType.SET.isSync,res.data.isSync)
-				])
-			})
+			// axios.put(`${url}/user/${user.id}`, null, {
+			// 	headers:headers
+			// }).then((res) => {
+			// 	console.log(res.data)
+			// 	dispatch([
+			// 		action(actionType.SET.isFreshing, res.data.isFreshing),
+			// 		action(actionType.SET.isSync,res.data.isSync)
+			// 	])
+			// })
+			let params 
+			let pageNum = ''
+			dateRange === 'all' ? params = {
+				first:50,
+				include:['filename','location'],
+			} : params = {
+				first:50,
+				include:['filename','location'],
+				fromTime: new Date().getTime() - 86400000 * Number(dateRange)
+			}
+			let flag =false
+			do {
+				if (pageNum) {
+					params['after'] = pageNum
+				}
+				try {
+					let r = await CameraRoll.getPhotos(params)
+					var rmap = r.edges.filter((v)=>{
+						return v.node.location ?  true: false
+					}).map((v)=>{
+						console.log(new Date(v.node.timestamp*1000))
+						return {
+							'filename':v.node.image.filename,
+							'location':v.node.location,
+							'timestamp':v.node.timestamp
+						}
+					})
+					axios.post(`${url}/ontology/${user.id}/location`, {
+						locdata:rmap
+					}, {
+						headers:headers
+					})
+					flag = r.page_info.has_next_page
+					pageNum = r.page_info.end_cursor
+				} catch(err){
+					console.log(err)
+				}
+			} while (flag)
 		},
 		setIs: (isFreshing, isSync) => {
 			dispatch([
@@ -151,8 +206,6 @@ export function useAuth() {
 		checkNetwork:(status, callback)=>{
 			const disallowtype = ['none', 'unknown']
 			NetInfo.fetch().then((netinfostate)=>{
-				// console.log(netinfostate.type)
-				// console.log(status.useWifi)
 				if((status.useWifi&&netinfostate.type==='wifi')||(!status.useWifi&&!disallowtype.includes(netinfostate))) {
 					callback(true)
 				} else {
@@ -161,9 +214,15 @@ export function useAuth() {
 			})
 		},
 		changeWifi:(setUse)=>{
-			console.log(setUse)
 			AsyncStorage.setItem('useWifi', setUse.toString())
 			dispatch(action(actionType.SET.useWifi,setUse))
+		},
+		changeLanguage: async(lancode)=>{
+			await AsyncStorage.setItem('lancode', lancode)
+			dispatch(action(actionType.SET.lancode, lancode))
+		},
+		changeRange:(dateRange)=>{
+			dispatch(action(actionType.SET.dateRange, dateRange))
 		}
 	}), [])
 	return { auth, state }

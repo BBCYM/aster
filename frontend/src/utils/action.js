@@ -11,6 +11,8 @@ export const actionType = {
 		USER:'set_user',
 		isFreshing: 'set_isFreshing',
 		isSync: 'set_isSync',
-		useWifi:'set_useWifi'
+		useWifi:'set_useWifi',
+		lancode:'set_lancode',
+		dateRange:'set_dateRange'
 	}
 }

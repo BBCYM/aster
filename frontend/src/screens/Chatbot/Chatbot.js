@@ -10,7 +10,7 @@ export default function RoomScreen({navigation}) {
 	// useEffect(async()=>{
 	// 	await AsyncStorage.removeItem('pid');
 	// },[])
-	const { auth } = React.useContext(AuthContext)
+	const { auth, state } = React.useContext(AuthContext)
 	const [messages, setMessages] = useState([
 		// example of chat message
 		{
@@ -79,8 +79,9 @@ export default function RoomScreen({navigation}) {
 			headers: auth.headers,
 			body: JSON.stringify({
 				usermsg: newMessage[0].text,
+				lancode: state.language
 			}),
-		});
+		})
 		console.log(response)
 		var data = await response.json();
 		var message = JSON.parse(data);
