@@ -130,6 +130,8 @@ client_secret.json
 [1-9]*
 Anster-4bf921cd3b7b.json
 anster-1593361678608.json
+eng-pvbi-05019ab875a9.json
+eng-general-folh-e6f47c291234.json
 
 *.env
 *.log
