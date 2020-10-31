@@ -1,6 +1,6 @@
 from rest_framework import status
 from rest_framework.response import Response
-from .utils import simpleMessage, toMandarin, getLabelDescription, randLocation
+from .utils import simpleMessage, toMandarin, getLabelDescription
 from .models import User
 import json
 from operator import itemgetter
@@ -13,7 +13,7 @@ from django.utils.timezone import make_aware
 import os
 from google.cloud.vision import ImageAnnotatorClient, types
 import time
-from photo.models import Photo, Tag, ATag
+from photo.models import Photo, Tag, ATag, BasicStructure
 from aster import settings
 import pytz
 from mongoengine.queryset.visitor import Q
@@ -67,7 +67,7 @@ class MainProcess:
         self.IFR = './static'
         self.session = session
         self.queue = queue.Queue()
-        self.session.mount('https://', HTTPAdapter(pool_connections=15, pool_maxsize=15, max_retries=5,pool_block=True))
+        self.session.mount('https://', HTTPAdapter(pool_connections=100, pool_maxsize=100, max_retries=10, pool_block=True))
         self.userId = userId
         self.client = ImageAnnotatorClient(credentials=service_account.Credentials.from_service_account_file('anster-1593361678608.json'))
 
@@ -84,23 +84,24 @@ class MainProcess:
             labels = response.label_annotations
             ltemp = list(map(getLabelDescription, labels))
             mLabels = toMandarin(ltemp)
-            logging.info(mLabels)
-            t = Tag(
-                main_tag=mLabels[0] if len(mLabels) > 0 else "None"
-            )
-            for ml, l in zip(mLabels[:3], labels[:3]):
-                t.top3_tag.append(ATag(tag=ml, precision=str(l.score)))
-            for ml, l in zip(mLabels[3:], labels[3:]):
-                t.all_tag.append(ATag(tag=ml, precision=str(l.score)))
+            logging.info(ltemp)
+            t = Tag()
+            bs = BasicStructure()
+            for el, l in zip(ltemp, labels):
+                bs.main_tag.append(ATag(tag=el, precision=str(l.score)))
+            t.en = bs
+            bs = BasicStructure()
+            for ml, l in zip(mLabels, labels):
+                bs.main_tag.append(ATag(tag=ml, precision=str(l.score)))
+            t.zh_tw = bs
             tempcreationTime = mediaItem['mediaMetadata']['creationTime']
             sliceTime = tempcreationTime.split('Z')[0].split('.')[0] if '.' in tempcreationTime else tempcreationTime.split('Z')[0]
             realTime = datetime.datetime.strptime(sliceTime, "%Y-%m-%dT%H:%M:%S")    
-            ranloca = randLocation()
             pho = Photo(
                 photoId=mediaItem['id'],
+                filename=filename,
                 userId=self.userId,
                 tag=t,
-                location=get_location(ranloca),
                 createTime=make_aware(
                     realTime, timezone=pytz.timezone(settings.TIME_ZONE)),
             )
@@ -108,6 +109,8 @@ class MainProcess:
             with open(f'{self.IFR}/{self.userId}/{filename}', mode='wb') as handler:
                 handler.write(imagebinary)
         except Exception as e:
+            if type(e)==AttributeError:
+                self.pipeline(mediaItem)
             logging.error(e)
             print(e)
             

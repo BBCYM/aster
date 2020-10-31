@@ -13,5 +13,6 @@ export const actionType = {
 		isSync: 'set_isSync',
 		useWifi:'set_useWifi',
 		lancode:'set_lancode',
+		dateRange:'set_dateRange'
 	}
 }

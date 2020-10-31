@@ -16,19 +16,6 @@ from datetime import timedelta
 from ordered_set import OrderedSet
 
 class BotView(views.APIView):
-    # global uri
-    # http get method
-    # def get(self,request):
-        
-    #     if response.error.message:
-    #         raise Exception(
-    #             '{}\nFor more info on error messages, check: '
-    #                 'https://cloud.google.com/apis/design/errors'.format(
-    #                  response.error.message))
-    #         return response
-
-    #     return response
-
     # http post method
     def post(self, request, userId:str=None):
         data = request.data['usermsg']

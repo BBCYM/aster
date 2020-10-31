@@ -9,7 +9,7 @@ import { useAuth } from './hooks/useAuth'
 import { ThemeProvider } from 'react-native-elements'
 import {setCustomText} from 'react-native-global-props'
 
-console.disableYellowBox = true
+// console.disableYellowBox = true
 
 const MainStack = createStackNavigator()
 

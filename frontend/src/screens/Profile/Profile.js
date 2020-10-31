@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { AuthContext } from '../../contexts/AuthContext'
 import { StyleSheet, Text, View, Image, TouchableOpacity, ActivityIndicator } from 'react-native'
+import { Picker } from '@react-native-picker/picker'
 
 
 
@@ -30,7 +31,20 @@ export default function personalScreen(props) {
 				<Text style={styles.name}>{state.user.name}</Text>
 
 				<View style={styles.Btncontainer}>
-					<TouchableOpacity style={styles.Btn} disabled={state.isFreshing} onPress={() => { auth.refresh() }}>
+					<Picker
+						selectedValue={state.dateRange}
+						style={{height: 50, width: 180}}
+						onValueChange={(itemValue, itemIndex) =>{
+							auth.changeRange(itemValue)
+						}}
+						prompt='Please Select Refresh Range'
+					>
+						<Picker.Item label="3 days" value="3" />
+						<Picker.Item label="30 days" value="30" />
+						<Picker.Item label="1 year" value="365" />
+						<Picker.Item label="All" value="all" />
+					</Picker>
+					<TouchableOpacity style={styles.Btn} disabled={state.isFreshing} onPress={() => { auth.refresh(state.dateRange) }}>
 						<Text>Refresh</Text>
 					</TouchableOpacity>
 					<TouchableOpacity style={styles.Btn} onPress={() => { props.navigation.navigate('TPModules') }}>

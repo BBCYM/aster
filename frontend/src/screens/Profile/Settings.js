@@ -32,9 +32,9 @@ export function SettingsSreeen() {
 				<Picker
 					selectedValue={state.language}
 					style={{height: 50, width: 180}}
-					onValueChange={(itemValue, itemIndex) =>
-						console.log(itemValue, itemIndex)
-					}
+					onValueChange={(itemValue, itemIndex) =>{
+						auth.changeLanguage(itemValue)
+					}}
 					prompt='Please Select Language'
 				>
 					<Picker.Item label="Traditional Chinese" value="zh-tw" />

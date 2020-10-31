@@ -11,24 +11,37 @@ class ATag(EmbeddedDocument):
     tag = fields.StringField()
     precision = fields.StringField()
 
+class PeopleTag(EmbeddedDocument):
+    count = fields.IntField()
+    ontology = fields.ListField()
 
-class Tag(EmbeddedDocument):
-    main_tag = fields.StringField()
+class BasicStructure(EmbeddedDocument) :
+    main_tag = fields.EmbeddedDocumentListField(ATag)
+    color = fields.ListField()
+    people = fields.EmbeddedDocumentField(PeopleTag)
     emotion_tag = fields.StringField()
     custom_tag = fields.EmbeddedDocumentListField(Custom_tag)
-    top3_tag = fields.EmbeddedDocumentListField(ATag)
-    all_tag = fields.EmbeddedDocumentListField(ATag)
+    location = fields.ListField()
+
+class Tag(EmbeddedDocument):
+    zh_tw = fields.EmbeddedDocumentField(BasicStructure)
+    en = fields.EmbeddedDocumentField(BasicStructure)
+    
+
+class GeoData(EmbeddedDocument):
+    latitude=fields.FloatField()
+    longitude=fields.FloatField()
 
 
 class Photo(Document):
     photoId = fields.StringField(unique=True)
+    filename = fields.StringField()
     userId = fields.StringField()
     tag = fields.EmbeddedDocumentField(Tag)
-    location = fields.ListField()
+    gps = fields.EmbeddedDocumentField(GeoData)
     createTime = fields.DateTimeField()  # 拍照的時間
     updateTime = fields.DateTimeField(default=datetime.utcnow())
     isDeleted = fields.BooleanField(default=False)
-    # meta = {'allow_inheritance': True}
 
     @classmethod
     def pre_save(cls, sender, document):

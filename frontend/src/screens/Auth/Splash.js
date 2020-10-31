@@ -1,11 +1,17 @@
 import * as React from 'react'
 import { View, StyleSheet, Image } from 'react-native'
 import { AuthContext } from '../../contexts/AuthContext'
+import RNRestart from 'react-native-restart'
+
 export function SplashScreen(props) {
 	const { auth } = React.useContext(AuthContext)
 	React.useEffect(() => {
-		auth.configure(() => {
-			auth.checkUser()
+		auth.configure(async () => {
+			if (await auth.hasAndroidPermission()) {
+				auth.checkUser()
+			} else {
+				RNRestart.Restart()
+			}
 		})
 	})
 	return (

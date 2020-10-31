@@ -36,7 +36,12 @@ function execSwitch(state, action) {
 	case actionType.SET.lancode:
 		return {
 			...state,
-			lancode:action.payload
+			language:action.payload
+		}
+	case actionType.SET.dateRange:
+		return {
+			...state,
+			dateRange:action.payload
 		}
 	default:
 		return state
