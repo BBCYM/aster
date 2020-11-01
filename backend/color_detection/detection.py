@@ -8,8 +8,8 @@ import scipy.misc
 import scipy.cluster 
 import matplotlib.pyplot as plt
 from googletrans import Translator
-from preprocess import crop_image, get_color_name, translate_color
-from color_onto import get_common_color_name
+from .preprocess import crop_image, get_color_name, translate_color
+from .color_onto import get_common_color_name
 
 def find_dominate_color(file_name, location, resize, resize_ratio, resize_threshold, color_nums, show_img, show_size):
     NUM_CLUSTERS = color_nums

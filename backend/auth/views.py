@@ -30,7 +30,10 @@ class UserView(APIView):
         if not u.isSync:
             userSession, user = checkUserToSession(userId, request)
             process = MainProcess(session=userSession, userId=userId)
-            process.refresh()
+            morepipline = []
+            if u.color_onto.subscribed:
+                morepipline.append(process.color_pipline)
+            threading.Thread(target=process.refresh,args=(morepipline,),daemon=True).start()
             return Response({'isFreshing': True,'isSync': False}, status=status.HTTP_200_OK)
         else:
             return Response({'isSync': True,'isFreshing': False}, status=status.HTTP_200_OK)
@@ -43,7 +46,8 @@ class AuthView(APIView):
         if not u:
             userSession, user = checkUserToSession(userId, request)
             process = MainProcess(session=userSession, userId=userId)
-            threading.Thread(target=process.initial,daemon=True).start()
+            morepipline = [process.color_pipline]
+            threading.Thread(target=process.initial,args=(morepipline,),daemon=True).start()
             return Response({'isSync': user.isSync, 'isFreshing': user.isFreshing}, status=status.HTTP_200_OK)
         else :
             u=u.get()

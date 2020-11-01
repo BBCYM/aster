@@ -5,29 +5,39 @@ from photo.models import Photo, GeoData
 from django.core.handlers.wsgi import WSGIRequest
 from mongoengine.queryset.visitor import Q
 import datetime
-from .utils import reverse_geocoding
+from .utils import GeoCoding
 import os
-
+from threading import Thread
+from auth.models import User
+import json
 class LocationOntoView(APIView):
-    def get(self, request:WSGIRequest):
-        pass
-    
     def post(self, request:WSGIRequest, userId=None):
         locdata = request.data['locdata']
-        api_key = os.getenv('GEOCODING_KEY')
-        for l in locdata:
-            lat, lng = l['location']['latitude'], l['location']['longitude']
-            tempgeo = GeoData(latitude=lat,longitude=lng)
-            temptime = datetime.datetime.fromtimestamp(l['timestamp'],tz=datetime.timezone.utc).replace(microsecond=0)
-            reports = Photo.objects(Q(userId=userId) & Q(filename=l['filename']) & Q(createTime = temptime))
-            if reports:
-                try:
-                    toSave = reverse_geocoding(lat, lng, 'zh_TW', api_key)
-                    results = reports.update(set__gps=tempgeo,push_all__tag__zh_tw__location=toSave)
-                    toSave = reverse_geocoding(lat, lng, 'en', api_key)
-                    results = reports.update(set__gps=tempgeo,push_all__tag__en__location=toSave)
-                except Exception as e:
-                    print(e)
+        geo = GeoCoding()
+        Thread(target=geo.update_location,args=(locdata, userId),daemon=True).start()
+        stamp = datetime.datetime.now()
+        return Response(True, status=status.HTTP_200_OK)
 
-        return Response('Hello')
+class ColorOntoView(APIView):
+    def get(self, request:WSGIRequest, userId=None):
+        user = User.objects(userId=userId).get()
+        print(user.color_onto.subscribed)
+        return Response('Hello',status=status.HTTP_200_OK)
+    # subscribed
+    def post(self, request:WSGIRequest, userId=None):
+        subscribe = json.loads(request.data['subscribe'].lower())
+        User.objects(userId=userId).update(set__color_onto__subscribed=subscribe)
+        print(subscribe)
+        return Response(subscribe, status=status.HTTP_200_OK)
 
+class PeopleOntoView(APIView):
+    def get(self, request:WSGIRequest, userId=None):
+        user = User.objects(userId=userId).get()
+        print(user.people_onto.subscribed)
+        return Response('Hello',status=status.HTTP_200_OK)
+    # subscribed
+    def post(self, request:WSGIRequest, userId=None):
+        subscribe = json.loads(request.data['subscribe'].lower())
+        User.objects(userId=userId).update(set__people_onto__subscribed=subscribe)
+        print(subscribe)
+        return Response(subscribe, status=status.HTTP_200_OK)

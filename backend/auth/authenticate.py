@@ -22,6 +22,9 @@ from threading import Thread
 import logging
 from requests.adapters import HTTPAdapter
 from ontology.onto import get_location
+from ontology.utils import color_pipeline
+from color_detection.color_detect import color_detection
+
 logging.basicConfig(filename=f'./log/{__name__}.log',level=logging.INFO, filemode='w+', format='%(name)s %(levelname)s %(asctime)s -> %(message)s')
 
 def checkisSync(session,userId):
@@ -70,7 +73,17 @@ class MainProcess:
         self.session.mount('https://', HTTPAdapter(pool_connections=100, pool_maxsize=100, max_retries=10, pool_block=True))
         self.userId = userId
         self.client = ImageAnnotatorClient(credentials=service_account.Credentials.from_service_account_file('anster-1593361678608.json'))
-
+    def color_pipline(self, mediaItem):
+        try:
+        # get the image data
+            filename = mediaItem['filename']
+            imagebinary = self.session.get(mediaItem['baseUrl']+'=d').content
+            image = types.Image(content = imagebinary)
+            objects = self.client.object_localization(image=image).localized_object_annotations
+            result_array = color_detection(objects, f'{self.IFR}/{self.userId}/{filename}')
+            print(result_array)
+        except Exception as e:
+            print(e)
     def pipeline(self, mediaItem):
         # only download images
         try:
@@ -88,15 +101,15 @@ class MainProcess:
             t = Tag()
             bs = BasicStructure()
             for el, l in zip(ltemp, labels):
-                bs.main_tag.append(ATag(tag=el, precision=str(l.score)))
+                bs.main_tag.append(ATag(tag=el, precision=l.score))
             t.en = bs
             bs = BasicStructure()
             for ml, l in zip(mLabels, labels):
-                bs.main_tag.append(ATag(tag=ml, precision=str(l.score)))
+                bs.main_tag.append(ATag(tag=ml, precision=l.score))
             t.zh_tw = bs
             tempcreationTime = mediaItem['mediaMetadata']['creationTime']
             sliceTime = tempcreationTime.split('Z')[0].split('.')[0] if '.' in tempcreationTime else tempcreationTime.split('Z')[0]
-            realTime = datetime.datetime.strptime(sliceTime, "%Y-%m-%dT%H:%M:%S")    
+            realTime = datetime.datetime.strptime(sliceTime, "%Y-%m-%dT%H:%M:%S")   
             pho = Photo(
                 photoId=mediaItem['id'],
                 filename=filename,
@@ -108,6 +121,8 @@ class MainProcess:
             pho.save()
             with open(f'{self.IFR}/{self.userId}/{filename}', mode='wb') as handler:
                 handler.write(imagebinary)
+            # if subscribed['color']:
+            #     Thread(target=color_pipeline, args=(image, self.IFR, userId, filename, self.client), daemon=True)
         except Exception as e:
             if type(e)==AttributeError:
                 self.pipeline(mediaItem)
@@ -125,11 +140,16 @@ class MainProcess:
             set__lastSync=make_aware(datetime.datetime.utcnow(),
                                     timezone=pytz.timezone(settings.TIME_ZONE))
         )
-    def initial(self):
+    def initial(self,morepipline=None):
         tic = time.perf_counter()
         User.objects(userId=self.userId).update(set__isFreshing=True, set__isSync=False)
         nPT = ''
         pool=ThreadPool(self.queue)
+        if morepipline:
+            pipList = []
+            for i in morepipline:
+                pipList.append(ThreadPool(self.queue))
+        # subscribed = {'color':True}
         params = {'pageSize': 40}
         i = 0
         try:
@@ -148,6 +168,9 @@ class MainProcess:
                     mimeType, _ = mediaItem['mimeType'].split('/')
                     if mimeType == 'image':
                         pool.add_task(self.pipeline, mediaItem=mediaItem)
+                        if morepipline:
+                            for pl,mp in zip(pipList, morepipline):
+                                pl.add_task(mp, mediaItem=mediaItem)
                         i=i+1
                 if not os.getenv('CV_RELEASE', None) == "True" or not photoRes.get('nextPageToken', None):
                     break
@@ -158,11 +181,15 @@ class MainProcess:
             print(e)
         Thread(target=self.afterall, args=(tic,i), daemon=True).start()
 
-    def refresh(self):
+    def refresh(self,morepipline=None):
         tic = time.perf_counter()
         User.objects(userId=self.userId).update(set__isFreshing=True, set__isSync=False)
         nPT = ''
         pool=ThreadPool(self.queue)
+        if morepipline:
+            pipList = []
+            for i in morepipline:
+                pipList.append(ThreadPool(self.queue))
         params = {'pageSize': 40}
         i = 0
         try:
@@ -182,6 +209,9 @@ class MainProcess:
                     mimeType, _ = mediaItem['mimeType'].split('/')
                     if not dbres and mimeType == 'image':
                         pool.add_task(self.pipeline, mediaItem=mediaItem)
+                        if morepipline:
+                            for pl,mp in zip(pipList, morepipline):
+                                pl.add_task(mp, mediaItem=mediaItem)
                         i=i+1
                 if not os.getenv('CV_RELEASE', None) == "True" or not photoRes.get('nextPageToken', None):
                     break
