@@ -22,7 +22,7 @@ class BotView(views.APIView):
         userid = userId
         # en or zh-tw
         lancode = request.data['lancode']
-        print('lancode: ',type(lancode))
+        print('lancode: ',lancode)
         if lancode == 'zh-tw':
             crefilename_cus = 'anster-1593361678608.json'
             crefilename = 'dfcredentials.json'
@@ -139,7 +139,7 @@ class BotView(views.APIView):
             def getpid(key,orkey):
                 try:
                     # print('key',key)
-                    if lancode == 'zh_tw':
+                    if lancode == 'zh-tw':
                         # emo = Photo.objects(Q(userId=userid) & Q(tag__zh_tw__emotion_tag=key))
                         # # print('emotion:',emo)
                         # addpid(emo, key, orkey)
