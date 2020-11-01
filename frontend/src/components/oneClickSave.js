@@ -33,7 +33,7 @@ export function AlbumModal([status, setStatus], state, props, auth) {
 				albumPhoto: albumPhoto,
 				albumTag: albumTag
 			}), {
-				headers: auth.headers
+				headers: auth.headers(state.language)
 			}).then((res) => {
 				props.navigation.navigate('Home')
 			}).catch((err) => {

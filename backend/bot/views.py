@@ -22,7 +22,6 @@ class BotView(views.APIView):
         userid = userId
         # en or zh-tw
         lancode = request.data['lancode']
-        print('lancode: ',type(lancode))
         if lancode == 'zh-tw':
             crefilename_cus = 'anster-1593361678608.json'
             crefilename = 'dfcredentials.json'
@@ -40,7 +39,7 @@ class BotView(views.APIView):
                 PROJECT_ID = itemgetter("project_id")(appSecret)
             session_id = 'userforDemo12345'
             text = data   #這裡改成在RN輸入的字串
-            print('測試抓不抓得到=',data)
+            # print('測試抓不抓得到=',data)
             
             session_client = dialogflow.SessionsClient(credentials=credentials)
             session = session_client.session_path(PROJECT_ID,session_id)
@@ -56,25 +55,24 @@ class BotView(views.APIView):
         
         def get_url_cus(res_cus):
             parameters = res_cus.query_result.parameters
-            general_object = parameters.fields['general_object'].list_value
-
+            general_object_any = parameters.fields['general_object_any'].list_value
             pid_tag = []
-            if len(general_object) is not 0:
-                gkeyArray = map(lambda k: k.string_value,general_object.values)
+            if len(general_object_any) is not 0:
+                gkeyArray = map(lambda k: k.string_value,general_object_any.values)
                 gkeyArray = set(gkeyArray)
                 gkeyArray = list(gkeyArray)
                 for i in gkeyArray:
                     try:
-                        if lancode == 'zh_tw':
+                        if lancode == 'zh-tw':
                             custom = Photo.objects(Q(userId=userid) & Q(tag__zh_tw__custom_tag__is_deleted=False) & Q(tag__zh_tw__custom_tag__tag=i))
-                            print('custom:',custom)
+                            # print('custom:',custom)
                         else:
                             custom = Photo.objects(Q(userId=userid) & Q(tag__en__custom_tag__is_deleted=False) & Q(tag__en__custom_tag__tag=i))
-                            print('custom:',custom)
+                            # print('custom:',custom)
                         for j in custom:
                             tag = []
                             photoid = j.photoId
-                            print('photoid:',photoid)
+                            # print('photoid:',photoid)
                             pid.append(photoid)
                             print('key in add:',i)
                             tag.append(i)
@@ -139,7 +137,7 @@ class BotView(views.APIView):
             def getpid(key,orkey):
                 try:
                     # print('key',key)
-                    if lancode == 'zh_tw':
+                    if lancode == 'zh-tw':
                         # emo = Photo.objects(Q(userId=userid) & Q(tag__zh_tw__emotion_tag=key))
                         # # print('emotion:',emo)
                         # addpid(emo, key, orkey)

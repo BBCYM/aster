@@ -11,11 +11,13 @@ export default function RoomScreen({navigation}) {
 	// 	await AsyncStorage.removeItem('pid');
 	// },[])
 	const { auth, state } = React.useContext(AuthContext)
-	if (state.lancode == 'zh_tw') {
+	if (state.language == 'zh-tw') {
+		console.log("state.language",state.language);
 		strtxt1 = '請問你想甚麼樣的照片?'
 		strtxt2 = '你好😊 我是Aster'
 	}
 	else{
+		console.log("state.language",state.language);
 		strtxt1 = 'What kind of photos do you want?'
 		strtxt2 = 'Hello😊 I\'m Aster'
 	}
@@ -84,7 +86,7 @@ export default function RoomScreen({navigation}) {
 		//從後端拿到response
 		const response = await fetch(`${auth.url}/bot/${user.id}`, {
 			method: 'POST',
-			headers: auth.headers,
+			headers: auth.headers(state.language),
 			body: JSON.stringify({
 				usermsg: newMessage[0].text,
 				lancode: state.language
@@ -143,7 +145,7 @@ export default function RoomScreen({navigation}) {
 				});
 			} catch (e) {
 				var temp = uuid.v1();
-				if (state.lancode == 'zh_tw') {
+				if (state.language == 'zh-tw') {
 					retext = '沒有結果，請搜尋其他照片或重新開始搜尋'
 				}
 				else{

@@ -28,12 +28,12 @@ export function AlbumModal([status, setStatus], state, props, auth) {
 				Axios.post(`${auth.url}/album/tag/${albumId}`, JSON.stringify({
 					albumTag: nt,
 				}), {
-					headers: auth.headers
+					headers: auth.headers(state.language)
 				})
 			}
 			for (const dt of deleteTags) {
 				Axios.delete(`${auth.url}/album/tag/${albumId}`, {
-					headers: auth.headers,
+					headers: auth.headers(state.language),
 					params:{
 						albumTag: dt,
 					}
@@ -42,7 +42,7 @@ export function AlbumModal([status, setStatus], state, props, auth) {
 			Axios.put(`${auth.url}/album/PD/${status.currentAlbumId}`, JSON.stringify({
 				albumName: albumName,
 			}), {
-				headers: auth.headers
+				headers: auth.headers(state.language)
 			}).then((res) => {
 				props.navigation.navigate('Home')
 			}).catch((err) => {

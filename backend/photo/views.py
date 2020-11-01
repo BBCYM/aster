@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from auth.utils import simpleMessage
 from datetime import datetime
 import json
+import math
 from mongoengine.queryset.visitor import Q
 from .models import Photo, Tag, Custom_tag
 from django.core.handlers.wsgi import WSGIRequest
@@ -117,10 +118,12 @@ class PhotoView(APIView):
 
 
 class EmotionView(APIView):
-    def get(self, request, photoId=None):
+    def get(self, request:WSGIRequest, photoId=None):
         """
         get emotion
         """
+        # lancode = request.headers.get('Language-Code',None)
+        # print("lancode",lancode)
         if photoId:
             try:
                 temp = Photo.objects(
@@ -173,10 +176,14 @@ class TagView(APIView):
         Returns:
             該photo全部的custom_tag
         """
+        lancode = request.headers.get('Language-Code',None)
         if photoId:
             try:
                 photo = Photo.objects(photoId=photoId).get()
-                array_field = photo.tag.custom_tag
+                if lancode == 'zh-tw':
+                    array_field = photo.tag.zh_tw.custom_tag
+                else:
+                    array_field = photo.tag.en.custom_tag
                 custom_tag_array = []
                 for single_tag in array_field:
                     if single_tag.is_deleted == False:
@@ -200,12 +207,20 @@ class TagView(APIView):
         Returns:
             更改過後的tag
         """
+        lancode = request.headers.get('Language-Code',None)
         if photoId:
             custom_tag = request.data["customTag"]
+            custom_tag = custom_tag.strip()
             tag = Custom_tag(tag=custom_tag)
+            
             try:
-                update_rows = Photo.objects(photoId__exact=photoId).update(
-                    add_to_set__tag__custom_tag=tag)
+                if lancode == 'zh-tw':
+                    update_rows = Photo.objects(photoId__exact=photoId).update(
+                    add_to_set__tag__zh_tw__custom_tag=tag)
+                else:
+                    update_rows = Photo.objects(photoId__exact=photoId).update(
+                    add_to_set__tag__en__custom_tag=tag)
+                
                 return Response({}, status=status.HTTP_200_OK)
             except Exception as e:
                 print('error: ', e)
@@ -226,13 +241,19 @@ class TagView(APIView):
             剩下的tag 
 
         """
-
+        lancode = request.headers.get('Language-Code',None)
         if photoId:
             try:
                 custom_tag = request.query_params.get("custom_tag", None)
-                photo = Photo.objects(photoId=photoId, tag__custom_tag__match={
-                                      'tag': custom_tag, 'is_deleted': False}).first()
-                for single_tag in photo.tag.custom_tag:
+                if lancode == 'zh-tw':
+                    photo = Photo.objects(photoId=photoId, tag__zh_tw__custom_tag__match={
+                            'tag': custom_tag, 'is_deleted': False}).first()
+                    photos = photo.tag.zh_tw.custom_tag
+                else:
+                    photo = Photo.objects(photoId=photoId, tag__en__custom_tag__match={
+                            'tag': custom_tag, 'is_deleted': False}).first()
+                    photos = photo.tag.en.custom_tag
+                for single_tag in photos:
                     if single_tag.tag == custom_tag:
                         single_tag.is_deleted = True
                 photo.save()

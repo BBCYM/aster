@@ -13,13 +13,13 @@ import _ from 'lodash'
 import { resToEmotionStatus, asyncErrorHandling } from '../utils/utils'
 
 
-export function TagList([status, setStatus], auth) {
+export function TagList([status, setStatus], auth, state) {
 	function deleteTag(id, text) {
 		Axios.delete(`${auth.url}/photo/tag/${status.currentPhotoId}`, {
 			params: {
 				custom_tag: text
 			},
-			headers:auth.headers
+			headers:auth.headers(state.language)
 		}).then(() => {
 			console.log(`deleting tag id:${id}`)
 			let slicedTag = [...status.tag]
@@ -72,7 +72,7 @@ export function photoFooter(that, [status, setStatus], currentIndex, state, auth
 		const now = _.find(temp, (o) => { return o.id === currentIndex })
 		setStatus({ currentPhotoId: now.imgId, currentId: now.id })
 		Axios.get(`${auth.url}/photo/tag/${now.imgId}`, {
-			headers:auth.headers
+			headers:auth.headers(state.language)
 		}).then((res) => {
 			let data = res.data
 			if (data.custom_tag) {
@@ -95,7 +95,7 @@ export function photoFooter(that, [status, setStatus], currentIndex, state, auth
 		const now = _.find(temp, (o) => { return o.id === currentIndex })
 		setStatus({ currentPhotoId: now.imgId, currentId: now.id })
 		Axios.get(`${auth.url}/photo/emotion/${now.imgId}`, {
-			headers:auth.headers
+			headers:auth.headers(state.language)
 		}).then((res) => {
 			let data = res.data
 			let emotionState = resToEmotionStatus(status.emotionStatus, data.emotion)
@@ -114,7 +114,7 @@ export function photoFooter(that, [status, setStatus], currentIndex, state, auth
 			})
 			const now = _.find(temp, (o) => { return o.id === currentIndex })
 			let res = await Axios.get(`${auth.url}/photo/${now.imgId}`, {
-				headers:auth.headers
+				headers:auth.headers(state.language)
 			})
 			let pObject = res.data
 			if (_.isEmpty(pObject)) {

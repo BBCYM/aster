@@ -51,7 +51,7 @@ export default function SomeGalleryScreen(props) {
 		Axios.put(`${auth.url}/photo/emotion/${status.currentPhotoId}`, JSON.stringify({
 			emotion_tag: newEmotion
 		}), {
-			headers: auth.headers
+			headers: auth.headers(state.language)
 		}).then((res) => {
 			setStatus({ emotionStatus: newEmotion, isEmotionModalVisi: false })
 		})
@@ -139,7 +139,7 @@ export default function SomeGalleryScreen(props) {
 			Axios.put(`${auth.url}/photo/tag/${status.currentPhotoId}`, JSON.stringify({
 				customTag: status.inputTag
 			}), {
-				headers: auth.headers
+				headers: auth.headers(state.language)
 			})
 		} else {
 			setStatus({ inputTag: '' })
@@ -245,7 +245,7 @@ export default function SomeGalleryScreen(props) {
 										containerStyle={{ padding: 5 }}
 									/>
 								</View>
-								{TagList([status, setStatus], auth)}
+								{TagList([status, setStatus], auth, state)}
 							</View>
 						</Overlay>
 						<Overlay isVisible={status.isEmotionModalVisi}

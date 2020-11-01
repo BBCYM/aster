@@ -51,7 +51,7 @@ export default function GalleryScreen(that) {
 		Axios.put(`${auth.url}/photo/emotion/${status.currentPhotoId}`, JSON.stringify({
 			emotion_tag: newEmotion
 		}), {
-			headers: auth.headers
+			headers: auth.headers(state.language)
 		}).then((res) => {
 			setStatus({ emotionStatus: newEmotion, isEmotionModalVisi: false })
 		})
@@ -62,7 +62,7 @@ export default function GalleryScreen(that) {
 			params: {
 				isDeleted:true
 			},
-			headers:auth.headers
+			headers:auth.headers(state.language)
 		})
 		let deletedPid = temp.data['photos'].map((v)=>{return v[0]})
 		const isLoaded = await AsyncStorage.getItem('GalleryLoaded')
@@ -175,7 +175,7 @@ export default function GalleryScreen(that) {
 			Axios.put(`${auth.url}/photo/tag/${status.currentPhotoId}`, JSON.stringify({
 				customTag: status.inputTag
 			}), {
-				headers: auth.headers
+				headers: auth.headers(state.language)
 			})
 		} else {
 			setStatus({ inputTag: '' })
@@ -195,7 +195,7 @@ export default function GalleryScreen(that) {
 	function deletePhoto() {
 		asyncErrorHandling(async () => {
 			let res = await Axios.delete(`${auth.url}/photo/${status.currentPhotoId}`, {
-				headers:auth.headers
+				headers:auth.headers(state.language)
 			})
 			if (res.status !== 200) {
 				throw Error('Delete not success')
@@ -238,7 +238,7 @@ export default function GalleryScreen(that) {
 										containerStyle={{ padding: 5 }}
 									/>
 								</View>
-								{TagList([status, setStatus], auth)}
+								{TagList([status, setStatus], auth, state)}
 							</View>
 						</Overlay>
 						<Overlay isVisible={status.isEmotionModalVisi}
