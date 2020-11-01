@@ -56,20 +56,21 @@ class BotView(views.APIView):
         
         def get_url_cus(res_cus):
             parameters = res_cus.query_result.parameters
-            general_object = parameters.fields['general_object'].list_value
-
+            general_object_any = parameters.fields['general_object_any'].list_value
+            print("general_object_any",general_object_any)
             pid_tag = []
-            if len(general_object) is not 0:
-                gkeyArray = map(lambda k: k.string_value,general_object.values)
+            if len(general_object_any) is not 0:
+                gkeyArray = map(lambda k: k.string_value,general_object_any.values)
                 gkeyArray = set(gkeyArray)
                 gkeyArray = list(gkeyArray)
                 for i in gkeyArray:
                     try:
-                        if lancode == 'zh_tw':
+                        if lancode == 'zh-tw':
                             custom = Photo.objects(Q(userId=userid) & Q(tag__zh_tw__custom_tag__is_deleted=False) & Q(tag__zh_tw__custom_tag__tag=i))
                             print('custom:',custom)
                         else:
                             custom = Photo.objects(Q(userId=userid) & Q(tag__en__custom_tag__is_deleted=False) & Q(tag__en__custom_tag__tag=i))
+                            print('here!')
                             print('custom:',custom)
                         for j in custom:
                             tag = []

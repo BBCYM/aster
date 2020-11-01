@@ -26,10 +26,10 @@ export function useAuth() {
 
 	const [state, dispatch] = React.useReducer(authReducer, initialState)
 	const url = `${API_URL[NODE_ENV]}`
-	const headers = {
+	let headers = {
 		'X-Requested-With':APP,
 		'Authorization':ACCESS_CODE,
-		'Content-Type': 'application/json'
+		'Content-Type': 'application/json',
 	}
 	const auth = React.useMemo(() => ({
 		hasAndroidPermission: async()=>{
@@ -201,7 +201,10 @@ export function useAuth() {
 			])
 			callback(_isIndb.data.isFreshing, _isIndb.data.isSync)
 		},
-		headers: headers,
+		headers:(language)=>{
+			headers['Language-Code'] = language
+			return headers
+		},
 		url:url,
 		checkNetwork:(status, callback)=>{
 			const disallowtype = ['none', 'unknown']

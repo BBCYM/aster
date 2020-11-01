@@ -38,7 +38,7 @@ export default function HomeScreen(props) {
 		try {
 			const response = await fetch(`${auth.url}/album/${userId}`, {
 				method: 'GET',
-				headers: auth.headers
+				headers: auth.headers(state.language)
 			})
 			var data = await response.json()
 			let fSource = []
@@ -100,7 +100,7 @@ export default function HomeScreen(props) {
 	async function deleteAlbum() {
 		const response = await fetch(`${auth.url}/album/PD/${status.toDel}`, {
 			method: 'delete',
-			headers: auth.headers 
+			headers: auth.headers(state.language) 
 		})
 		let slicedAlbum = [...status.fastSource]
 		var result = slicedAlbum.findIndex((v, i) => {

@@ -86,7 +86,7 @@ export default function RoomScreen({navigation}) {
 		//從後端拿到response
 		const response = await fetch(`${auth.url}/bot/${user.id}`, {
 			method: 'POST',
-			headers: auth.headers,
+			headers: auth.headers(state.language),
 			body: JSON.stringify({
 				usermsg: newMessage[0].text,
 				lancode: state.language

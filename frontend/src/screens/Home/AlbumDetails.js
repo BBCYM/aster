@@ -53,7 +53,7 @@ export default function AlbumDetails(props) {
 		Axios.put(`${auth.url}/photo/emotion/${status.currentPhotoId}`, JSON.stringify({
 			emotion_tag: newEmotion
 		}), {
-			headers: auth.headers
+			headers: auth.headers(state.language)
 		}).then((res) => {
 			setStatus({ emotionStatus: newEmotion, isEmotionModalVisi: false })
 		})
@@ -67,7 +67,7 @@ export default function AlbumDetails(props) {
 	async function fetchImageSource(callback) {
 		console.log('Loading photo')
 		let res = await Axios.get(`${auth.url}/album/photo/${props.route.params.albumId}`, {
-			headers:auth.headers
+			headers:auth.headers(state.language)
 		})
 		setStatus({ currentAlbumId: props.route.params.albumId, aName: props.route.params.albumTitle, preBuildTag: res.data['albumTagArray'].map((v, i) => ({ key: res.data['albumTagArray'].length - i - 1, text: v })) })
 		const accessToken = await auth.getAccessToken()
@@ -125,7 +125,7 @@ export default function AlbumDetails(props) {
 			Axios.put(`${auth.url}/photo/tag/${status.currentPhotoId}`, JSON.stringify({
 				customTag: status.inputTag
 			}), {
-				headers: auth.headers
+				headers: auth.headers(state.language)
 			})
 		} else {
 			setStatus({ inputTag: '' })
@@ -145,7 +145,7 @@ export default function AlbumDetails(props) {
 	function deletePhoto() {
 		asyncErrorHandling(async () => {
 			let res = await Axios.delete(`${auth.url}/album/photo/${status.currentPhotoId}`, {
-				headers:auth.headers
+				headers:auth.headers(state.language)
 			})
 			if (res.status !== 200) {
 				throw Error('Delete not success')
@@ -236,7 +236,7 @@ export default function AlbumDetails(props) {
 										containerStyle={{ padding: 5 }}
 									/>
 								</View>
-								{TagList([status, setStatus], auth)}
+								{TagList([status, setStatus], auth, state)}
 							</View>
 						</Overlay>
 						<Overlay isVisible={status.isEmotionModalVisi}
