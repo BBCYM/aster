@@ -177,7 +177,6 @@ class TagView(APIView):
             該photo全部的custom_tag
         """
         lancode = request.headers.get('Language-Code',None)
-        print("lancode",lancode)
         if photoId:
             try:
                 photo = Photo.objects(photoId=photoId).get()
@@ -209,7 +208,6 @@ class TagView(APIView):
             更改過後的tag
         """
         lancode = request.headers.get('Language-Code',None)
-        print("lancode",lancode)
         if photoId:
             custom_tag = request.data["customTag"]
             custom_tag = custom_tag.strip()
@@ -244,7 +242,6 @@ class TagView(APIView):
 
         """
         lancode = request.headers.get('Language-Code',None)
-        print("lancode",lancode)
         if photoId:
             try:
                 custom_tag = request.query_params.get("custom_tag", None)
@@ -256,7 +253,6 @@ class TagView(APIView):
                     photo = Photo.objects(photoId=photoId, tag__en__custom_tag__match={
                             'tag': custom_tag, 'is_deleted': False}).first()
                     photos = photo.tag.en.custom_tag
-                print("photos:",photos)
                 for single_tag in photos:
                     if single_tag.tag == custom_tag:
                         single_tag.is_deleted = True
