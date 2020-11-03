@@ -21,23 +21,19 @@ class LocationOntoView(APIView):
 class ColorOntoView(APIView):
     def get(self, request:WSGIRequest, userId=None):
         user = User.objects(userId=userId).get()
-        print(user.color_onto.subscribed)
-        return Response('Hello',status=status.HTTP_200_OK)
+        return Response(user.color_onto.subscribed,status=status.HTTP_200_OK)
     # subscribed
     def post(self, request:WSGIRequest, userId=None):
-        subscribe = json.loads(request.data['subscribe'].lower())
+        subscribe = request.data['subscribe']
         User.objects(userId=userId).update(set__color_onto__subscribed=subscribe)
-        print(subscribe)
         return Response(subscribe, status=status.HTTP_200_OK)
 
 class PeopleOntoView(APIView):
     def get(self, request:WSGIRequest, userId=None):
         user = User.objects(userId=userId).get()
-        print(user.people_onto.subscribed)
-        return Response('Hello',status=status.HTTP_200_OK)
+        return Response(user.people_onto.subscribed,status=status.HTTP_200_OK)
     # subscribed
     def post(self, request:WSGIRequest, userId=None):
-        subscribe = json.loads(request.data['subscribe'].lower())
+        subscribe = request.data['subscribe']
         User.objects(userId=userId).update(set__people_onto__subscribed=subscribe)
-        print(subscribe)
         return Response(subscribe, status=status.HTTP_200_OK)

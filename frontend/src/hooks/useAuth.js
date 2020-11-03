@@ -79,7 +79,6 @@ export function useAuth() {
 				})
 				if (!_.isEmpty(_isIndb.data)) {
 					let lancode = await AsyncStorage.getItem('lancode')
-					console.log(lancode)
 					dispatch([
 						action(actionType.SET.USER, user),
 						action(actionType.SET.SPLASH, false),

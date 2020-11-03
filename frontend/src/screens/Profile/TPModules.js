@@ -14,12 +14,44 @@ import axios from 'axios'
 
 export function TPModuleSreeen() {
 	const { auth, state } = React.useContext(AuthContext)
-	async function getColorState(){
+	const [status, setStatus] = useMergeState({
+		colorOnto:false,
+		peopleOnto:false,
+	})
+	function useMergeState(initialState) {
+		const [state, setState] = React.useState(initialState)
+		const setStatus = newState =>
+			setState(prevState => Object.assign({}, prevState, newState))
+		return [state, setStatus]
+	}
+	async function getOntoState(){
 		let res = await axios.get(`${auth.url}/ontology/${state.user.id}/color`, {
 			headers: auth.headers
 		})
-		console.log(res.data)
+		let res2 = await axios.get(`${auth.url}/ontology/${state.user.id}/people`, {
+			headers: auth.headers
+		})
+		setStatus({colorOnto:res.data,peopleOnto:res2.data})
 	}
+	async function setColorState(isOn){
+		let res = await axios.post(`${auth.url}/ontology/${state.user.id}/color`, JSON.stringify({
+			subscribe: isOn,
+		}), {
+			headers: auth.headers
+		})
+		setStatus({colorOnto:res.data})
+	}
+	async function setPeopleState(isOn){
+		let res = await axios.post(`${auth.url}/ontology/${state.user.id}/people`, JSON.stringify({
+			subscribe: isOn,
+		}), {
+			headers: auth.headers
+		})
+		setStatus({peopleOnto:res.data})
+	}
+	React.useEffect(()=>{
+		getOntoState()
+	},[])
 	return (
 		// style={styles.main}
 		<ScrollView>
@@ -71,15 +103,14 @@ export function TPModuleSreeen() {
 				</View>
 				<View style={{alignItems:'center', marginBottom:20, marginTop:20}}>
 					<ToggleSwitch
-						// isOn={}
+						isOn={status.colorOnto}
 						onColor="#40B93F"
 						offColor="grey"
 						label="Subscribe"
 						labelStyle={{ color: 'black', fontWeight: '900' }}
 						size='small'
 						onToggle={(isOn) => {
-							console.log(isOn)
-							getColorState()
+							setColorState(isOn)
 						}}
 					/>
 				</View>
@@ -99,15 +130,14 @@ export function TPModuleSreeen() {
 				</View>
 				<View style={{alignItems:'center', marginBottom:20, marginTop:20}}>
 					<ToggleSwitch
-						isOn={true}
+						isOn={status.peopleOnto}
 						onColor="#40B93F"
 						offColor="grey"
 						label="Subscribe"
 						labelStyle={{ color: 'black', fontWeight: '900' }}
 						size='small'
 						onToggle={(isOn) => {
-							console.log(isOn)
-							// getColorState()
+							setPeopleState(isOn)
 						}}
 					/>
 				</View>
