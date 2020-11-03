@@ -102,21 +102,34 @@ class BotView(views.APIView):
             query_input = dialogflow.types.QueryInput(text=text_input)
             try:
                 res = session_client.detect_intent(session=session, query_input=query_input)
+                # print("res",res)
                 return res
             except InvalidArgument:
                 return response.Response("InvalidArgument",status=status.HTTP_400_BAD_REQUEST)
 
         def get_url(res):
-            # print("測試用:", res.query_result)
+            print("測試用:", res.query_result.intent.display_name)
+            intent = res.query_result.intent.display_name
             parameters = res.query_result.parameters
             # print("parameters:",parameters)
-            
-            emotion = parameters.fields['emotion'].list_value
-            date = parameters.fields['date'].list_value
-            dateperiod = parameters.fields['date-period'].list_value
-            vision = parameters.fields['visionAPI_1000'].list_value
-            location = parameters.fields['location'].list_value
-            vision_origin = parameters.fields['visionAPI_1000_original'].list_value
+            emotion = []
+            date = []
+            dateperiod = []
+            vision = []
+            location = []
+            vision_origin = []
+            color = []
+            if intent == "AskColorEntity":
+                # print("okkkkkkk")
+                vision = parameters.fields['visionAPI_1000'].list_value
+                color = parameters.fields['color'].list_value
+            else:
+                emotion = parameters.fields['emotion'].list_value
+                date = parameters.fields['date'].list_value
+                dateperiod = parameters.fields['date-period'].list_value
+                vision = parameters.fields['visionAPI_1000'].list_value
+                location = parameters.fields['location'].list_value
+                vision_origin = parameters.fields['visionAPI_1000_original'].list_value
 
             pid = []
             pid_tag = []
@@ -138,13 +151,29 @@ class BotView(views.APIView):
                 try:
                     # print('key',key)
                     if lancode == 'zh-tw':
-                        # emo = Photo.objects(Q(userId=userid) & Q(tag__zh_tw__emotion_tag=key))
+                        emo = Photo.objects(Q(userId=userid) & Q(tag__zh_tw__emotion_tag=key))
                         # # print('emotion:',emo)
-                        # addpid(emo, key, orkey)
+                        addpid(emo, key, orkey)
 
                         main = Photo.objects(Q(userId=userid) & Q(tag__zh_tw__main_tag__tag=key))
                         # print('main:',main)
                         addpid(main, key, orkey)
+
+                        color = Photo.objects(Q(userId=userid) & Q(tag__zh_tw__color=key))
+                        # print('color:',color)
+                        addpid(color, key, orkey)
+
+                        # colobj = Photo.objects(Q(userId=userid) & Q(tag__zh_tw__color__obj=key))
+                        # # print('colobj:',colobj)
+                        # addpid(colobj, key, orkey)
+
+                        peopleon = Photo.objects(Q(userId=userid) & Q(tag__zh_tw__people__ontology=key))
+                        # print('peopleon:',peopleon)
+                        addpid(peopleon, key, orkey)
+
+                        # peopleceb = Photo.objects(Q(userId=userid) & Q(tag__zh_tw__people__celebrity=key))
+                        # # print('peopleceb:',peopleceb)
+                        # addpid(peopleceb, key, orkey)
 
                         custom = Photo.objects(Q(userId=userid) & Q(tag__zh_tw__custom_tag__is_deleted=False) & Q(tag__zh_tw__custom_tag__tag=key))
                         # print('custom:',custom)
@@ -154,13 +183,29 @@ class BotView(views.APIView):
                         # print('location:',location)
                         addpid(location, key, orkey)
                     else:
-                        # emo = Photo.objects(Q(userId=userid) & Q(tag__en__emotion_tag=key))
+                        emo = Photo.objects(Q(userId=userid) & Q(tag__en__emotion_tag=key))
                         # # print('emotion:',emo)
-                        # addpid(emo, key, orkey)
+                        addpid(emo, key, orkey)
 
                         main = Photo.objects(Q(userId=userid) & Q(tag__en__main_tag__tag=key))
                         # print('main:',main)
                         addpid(main, key, orkey)
+
+                        color = Photo.objects(Q(userId=userid) & Q(tag__en__color=key))
+                        # print('color:',color)
+                        addpid(color, key, orkey)
+
+                        # colobj = Photo.objects(Q(userId=userid) & Q(tag__en__color__obj=key))
+                        # # print('colobj:',colobj)
+                        # addpid(colobj, key, orkey)
+
+                        peopleon = Photo.objects(Q(userId=userid) & Q(tag__en__people__ontology=key))
+                        # print('peopleon:',peopleon)
+                        addpid(peopleon, key, orkey)
+
+                        # peopleceb = Photo.objects(Q(userId=userid) & Q(tag__en__people__celebrity=key))
+                        # # print('peopleceb:',peopleceb)
+                        # addpid(peopleceb, key, orkey)
 
                         custom = Photo.objects(Q(userId=userid) & Q(tag__en__custom_tag__is_deleted=False) & Q(tag__en__custom_tag__tag=key))
                         # print('custom:',custom)
@@ -224,17 +269,32 @@ class BotView(views.APIView):
                 addpid(dateperiod, periodkey, "null")
 
             if len(vision) is not 0:
-                vikeyArray = map(lambda k: k.string_value,vision.values)
-                # vikeyArray = set(vikeyArray)
-                vikeyArray = OrderedSet(vikeyArray)
-                vikeyArray = list(vikeyArray)
-                originArray = map(lambda k: k.string_value,vision_origin.values)
-                originArray = OrderedSet(originArray)
-                originArray = list(originArray)
-                # print("vikeyArray:",vikeyArray)
-                # print("originArray:",originArray)
-                for i in range(len(vikeyArray)):
-                    getpid(vikeyArray[i],originArray[i])
+                if intent == "AskColorEntity":
+                    # print("okkkkkkk")
+                    vikeyArray = map(lambda k: k.string_value,vision.values)
+                    vikeyArray = OrderedSet(vikeyArray)
+                    vikeyArray = list(vikeyArray)
+                    for i in range(len(vikeyArray)):
+                        getpid(vikeyArray[i],"null")
+                else:
+                    vikeyArray = map(lambda k: k.string_value,vision.values)
+                    # vikeyArray = set(vikeyArray)
+                    vikeyArray = OrderedSet(vikeyArray)
+                    vikeyArray = list(vikeyArray)
+                    originArray = map(lambda k: k.string_value,vision_origin.values)
+                    originArray = OrderedSet(originArray)
+                    originArray = list(originArray)
+                    # print("vikeyArray:",vikeyArray)
+                    # print("originArray:",originArray)
+                    for i in range(len(vikeyArray)):
+                        getpid(vikeyArray[i],originArray[i])
+            
+            if len(color) is not 0:
+                colkeyArray = map(lambda k: k.string_value,color.values)
+                colkeyArray = OrderedSet(colkeyArray)
+                colkeyArray = list(colkeyArray)
+                for i in range(len(colkeyArray)):
+                    getpid(colkeyArray[i],"null")
 
             if len(location) is not 0:
                 admin_areakey = location.values[0].struct_value.fields['admin-area'].string_value
