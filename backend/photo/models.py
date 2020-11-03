@@ -12,14 +12,14 @@ class ATag(EmbeddedDocument):
     precision = fields.FloatField()
 
 class PeopleTag(EmbeddedDocument):
-    count = fields.IntField()
+    count = fields.IntField(default=0)
     ontology = fields.ListField()
 
 class BasicStructure(EmbeddedDocument) :
     main_tag = fields.EmbeddedDocumentListField(ATag)
     color = fields.ListField()
-    people = fields.EmbeddedDocumentField(PeopleTag)
-    emotion_tag = fields.StringField()
+    people = fields.EmbeddedDocumentField(PeopleTag, default=PeopleTag())
+    emotion_tag = fields.StringField(default="")
     custom_tag = fields.EmbeddedDocumentListField(Custom_tag)
     location = fields.ListField()
 
