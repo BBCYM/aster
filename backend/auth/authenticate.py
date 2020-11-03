@@ -11,7 +11,7 @@ import datetime
 from google.auth.exceptions import RefreshError, GoogleAuthError
 from django.utils.timezone import make_aware
 import os
-from google.cloud.vision import ImageAnnotatorClient, types
+from google.cloud.vision import ImageAnnotatorClient, Image
 import time
 from photo.models import Photo, Tag, ATag, BasicStructure
 from aster import settings
@@ -22,6 +22,8 @@ from threading import Thread
 import logging
 from requests.adapters import HTTPAdapter
 from ontology.onto import get_location
+
+
 logging.basicConfig(filename=f'./log/{__name__}.log',level=logging.INFO, filemode='w+', format='%(name)s %(levelname)s %(asctime)s -> %(message)s')
 
 def checkisSync(session,userId):
@@ -35,7 +37,6 @@ def checkisSync(session,userId):
             print('some pic is missing')
             return False
     return True
-
 class Worker():
     def __init__(self, tasks:queue.Queue):
         self.tasks = tasks
@@ -70,14 +71,14 @@ class MainProcess:
         self.session.mount('https://', HTTPAdapter(pool_connections=100, pool_maxsize=100, max_retries=10, pool_block=True))
         self.userId = userId
         self.client = ImageAnnotatorClient(credentials=service_account.Credentials.from_service_account_file('anster-1593361678608.json'))
-
+    
     def pipeline(self, mediaItem):
         # only download images
         try:
             # get the image data
             filename = mediaItem['filename']
             imagebinary = self.session.get(mediaItem['baseUrl']+'=d').content
-            image = types.Image(content = imagebinary)
+            image = Image(content = imagebinary)
             response = self.client.label_detection(image=image)
             if response.error.message:
                 raise Exception(response.error.message)
@@ -88,15 +89,15 @@ class MainProcess:
             t = Tag()
             bs = BasicStructure()
             for el, l in zip(ltemp, labels):
-                bs.main_tag.append(ATag(tag=el, precision=str(l.score)))
+                bs.main_tag.append(ATag(tag=el, precision=l.score))
             t.en = bs
             bs = BasicStructure()
             for ml, l in zip(mLabels, labels):
-                bs.main_tag.append(ATag(tag=ml, precision=str(l.score)))
+                bs.main_tag.append(ATag(tag=ml, precision=l.score))
             t.zh_tw = bs
             tempcreationTime = mediaItem['mediaMetadata']['creationTime']
             sliceTime = tempcreationTime.split('Z')[0].split('.')[0] if '.' in tempcreationTime else tempcreationTime.split('Z')[0]
-            realTime = datetime.datetime.strptime(sliceTime, "%Y-%m-%dT%H:%M:%S")    
+            realTime = datetime.datetime.strptime(sliceTime, "%Y-%m-%dT%H:%M:%S")   
             pho = Photo(
                 photoId=mediaItem['id'],
                 filename=filename,
@@ -106,8 +107,8 @@ class MainProcess:
                     realTime, timezone=pytz.timezone(settings.TIME_ZONE)),
             )
             pho.save()
-            with open(f'{self.IFR}/{self.userId}/{filename}', mode='wb') as handler:
-                handler.write(imagebinary)
+            # if subscribed['color']:
+            #     Thread(target=color_pipeline, args=(image, self.IFR, userId, filename, self.client), daemon=True)
         except Exception as e:
             if type(e)==AttributeError:
                 self.pipeline(mediaItem)
@@ -130,7 +131,8 @@ class MainProcess:
         User.objects(userId=self.userId).update(set__isFreshing=True, set__isSync=False)
         nPT = ''
         pool=ThreadPool(self.queue)
-        params = {'pageSize': 40}
+        # subscribed = {'color':True}
+        params = {'pageSize': 30}
         i = 0
         try:
             if not os.path.isdir(f'{self.IFR}/{self.userId}'):

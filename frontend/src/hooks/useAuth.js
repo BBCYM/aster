@@ -79,7 +79,6 @@ export function useAuth() {
 				})
 				if (!_.isEmpty(_isIndb.data)) {
 					let lancode = await AsyncStorage.getItem('lancode')
-					console.log(lancode)
 					dispatch([
 						action(actionType.SET.USER, user),
 						action(actionType.SET.SPLASH, false),
@@ -135,53 +134,15 @@ export function useAuth() {
 		refresh: async (dateRange) => {
 			let user = await AsyncStorage.getItem('user')
 			user = JSON.parse(user)
-			// axios.put(`${url}/user/${user.id}`, null, {
-			// 	headers:headers
-			// }).then((res) => {
-			// 	console.log(res.data)
-			// 	dispatch([
-			// 		action(actionType.SET.isFreshing, res.data.isFreshing),
-			// 		action(actionType.SET.isSync,res.data.isSync)
-			// 	])
-			// })
-			let params 
-			let pageNum = ''
-			dateRange === 'all' ? params = {
-				first:50,
-				include:['filename','location'],
-			} : params = {
-				first:50,
-				include:['filename','location'],
-				fromTime: new Date().getTime() - 86400000 * Number(dateRange)
-			}
-			let flag =false
-			do {
-				if (pageNum) {
-					params['after'] = pageNum
-				}
-				try {
-					let r = await CameraRoll.getPhotos(params)
-					var rmap = r.edges.filter((v)=>{
-						return v.node.location ?  true: false
-					}).map((v)=>{
-						console.log(new Date(v.node.timestamp*1000))
-						return {
-							'filename':v.node.image.filename,
-							'location':v.node.location,
-							'timestamp':v.node.timestamp
-						}
-					})
-					axios.post(`${url}/ontology/${user.id}/location`, {
-						locdata:rmap
-					}, {
-						headers:headers
-					})
-					flag = r.page_info.has_next_page
-					pageNum = r.page_info.end_cursor
-				} catch(err){
-					console.log(err)
-				}
-			} while (flag)
+			axios.put(`${url}/user/${user.id}`, null, {
+				headers:headers
+			}).then((res) => {
+				console.log(res.data)
+				dispatch([
+					action(actionType.SET.isFreshing, res.data.isFreshing),
+					action(actionType.SET.isSync,res.data.isSync)
+				])
+			})
 		},
 		setIs: (isFreshing, isSync) => {
 			dispatch([
@@ -226,6 +187,48 @@ export function useAuth() {
 		},
 		changeRange:(dateRange)=>{
 			dispatch(action(actionType.SET.dateRange, dateRange))
+		},
+		updatelocation:async (dateRange)=>{
+			let user = await AsyncStorage.getItem('user')
+			user = JSON.parse(user)
+			let params 
+			let pageNum = ''
+			dateRange === 'all' ? params = {
+				first:50,
+				include:['filename','location'],
+			} : params = {
+				first:50,
+				include:['filename','location'],
+				fromTime: new Date().getTime() - 86400000 * Number(dateRange)
+			}
+			let flag =false
+			do {
+				if (pageNum) {
+					params['after'] = pageNum
+				}
+				try {
+					let r = await CameraRoll.getPhotos(params)
+					var rmap = r.edges.filter((v)=>{
+						return v.node.location ?  true: false
+					}).map((v)=>{
+						console.log(new Date(v.node.timestamp*1000))
+						return {
+							'filename':v.node.image.filename,
+							'location':v.node.location,
+							'timestamp':v.node.timestamp
+						}
+					})
+					axios.post(`${url}/ontology/${user.id}/location`, {
+						locdata:rmap
+					}, {
+						headers:headers
+					})
+					flag = r.page_info.has_next_page
+					pageNum = r.page_info.end_cursor
+				} catch(err){
+					console.log(err)
+				}
+			} while (flag)
 		}
 	}), [])
 	return { auth, state }

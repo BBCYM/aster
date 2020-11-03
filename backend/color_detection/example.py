@@ -6,7 +6,7 @@ from google.cloud.vision import ImageAnnotatorClient, types
 from google.oauth2 import id_token, credentials, service_account
 import pandas
 
-from color_detect import color_detection
+from .color_detect import color_detection
 
 credent = service_account.Credentials.from_service_account_file(
     '../anster-1593361678608.json')

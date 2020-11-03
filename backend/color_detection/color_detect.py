@@ -1,4 +1,4 @@
-from detection import find_dominate_color, location_preprocess
+from .detection import find_dominate_color, location_preprocess
 
 
 def color_detection(objects, file_name, resize=False, resize_ratio=0.8, resize_threshold=10000, color_nums=5, show_img=False, show_size=False):

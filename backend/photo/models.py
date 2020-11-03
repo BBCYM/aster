@@ -9,7 +9,7 @@ class Custom_tag(EmbeddedDocument):
 
 class ATag(EmbeddedDocument):
     tag = fields.StringField()
-    precision = fields.StringField()
+    precision = fields.FloatField()
 
 class PeopleTag(EmbeddedDocument):
     count = fields.IntField()

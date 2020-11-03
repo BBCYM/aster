@@ -26,6 +26,12 @@ line-bot-sdk = "*"
 django-requestlogs = "*"
 django-ipware = "*"
 django-redis = "*"
+opencv-python = "*"
+scipy = "*"
+ordered-set = "*"
+matplotlib = "*"
+webcolors = "*"
+pillow = "*"
 
 [requires]
 python_version = "3.7"
