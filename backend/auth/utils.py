@@ -8,8 +8,12 @@ def getLabelDescription(data):
 
 
 def toMandarin(data):
-    translator = Translator()
-    return list(map(lambda l: l.text, translator.translate(data, dest='zh-tW')))
+    try:
+        translator = Translator()
+        return list(map(lambda l: l.text, translator.translate(data, dest='zh-tw')))
+    except Exception as e:
+        if type(e)==AttributeError:
+            return toMandarin(data)
      
 
 def stringify(data: dict):
