@@ -48,9 +48,10 @@ class ColorProcess:
         self.IFR = './static'
         self.session = session
         self.queue = queue.Queue()
-        self.session.mount('https://', HTTPAdapter(pool_connections=100, pool_maxsize=100, max_retries=10, pool_block=True))
+        self.session.mount('https://', HTTPAdapter(pool_maxsize=16, max_retries=10, pool_block=True))
         self.userId = userId
         self.client = ImageAnnotatorClient(credentials=service_account.Credentials.from_service_account_file('anster-1593361678608.json'))
+        self.pageNum = int(os.getenv('PHOTO_THREAD_NUM'))
     def afterall(self, tic, i):
         self.queue.join()
         toc = time.perf_counter()
@@ -64,10 +65,8 @@ class ColorProcess:
         try:
         # get the image data
             filename = mediaItem['filename']
-            imagebinary = self.session.get(mediaItem['baseUrl']+'=d').content
-            image = Image(content = imagebinary)
-            with open(f'{self.IFR}/{self.userId}/{filename}', mode='wb') as handler:
-                handler.write(imagebinary)
+            with open(f'{self.IFR}/{self.userId}/{filename}', mode='') as handler:
+                image = Image(content = handler.read())
             objects = self.client.object_localization(image=image).localized_object_annotations
             result_array = color_detection(objects, f'{self.IFR}/{self.userId}/{filename}')
             temp = {}
@@ -76,14 +75,12 @@ class ColorProcess:
                 Photo.objects(photoId=mediaItem['id']).update(push__tag__zh_tw__color=temp)
                 Photo.objects(photoId=mediaItem['id']).update(push__tag__en__color=temp)
         except Exception as e:
-            if type(e)==AttributeError:
-                self.color_pipeline(mediaItem)
-            print(e)
+            print(f'Error from initial color api pipline{e}')
     def initial(self):
         tic = time.perf_counter()
         nPT = ''
         pool=ThreadPool(self.queue)
-        params = {'pageSize': 30}
+        params = {'pageSize': self.pageNum}
         i = 0
         try:
             if not os.path.isdir(f'{self.IFR}/{self.userId}'):
@@ -96,7 +93,7 @@ class ColorProcess:
                 mediaItems = photoRes.get('mediaItems', None)
                 if not mediaItems:
                     break
-                print(f'Handling {len(mediaItems)} items')
+                print(f'Handling {len(mediaItems)} color items')
                 for mediaItem in mediaItems:
                     mimeType, _ = mediaItem['mimeType'].split('/')
                     if mimeType == 'image':
@@ -107,14 +104,14 @@ class ColorProcess:
                 else:
                     nPT = photoRes['nextPageToken']
         except Exception as e:
-            print(e)
+            print(f'Error from initial color api {e}')
         Thread(target=self.afterall, args=(tic,i), daemon=True).start()
     def refresh(self):
         tic = time.perf_counter()
         User.objects(userId=self.userId).update(set__isFreshing=True, set__isSync=False)
         nPT = ''
         pool=ThreadPool(self.queue)
-        params = {'pageSize': 40}
+        params = {'pageSize': self.pageNum}
         i = 0
         try:
             if not os.path.isdir(f'{self.IFR}/{self.userId}'):

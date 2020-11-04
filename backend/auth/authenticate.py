@@ -22,6 +22,7 @@ from threading import Thread
 import logging
 from requests.adapters import HTTPAdapter
 from ontology.onto import get_location
+import os, traceback
 
 
 logging.basicConfig(filename=f'./log/{__name__}.log',level=logging.INFO, filemode='w+', format='%(name)s %(levelname)s %(asctime)s -> %(message)s')
@@ -68,16 +69,18 @@ class MainProcess:
         self.IFR = './static'
         self.session = session
         self.queue = queue.Queue()
-        self.session.mount('https://', HTTPAdapter(pool_connections=100, pool_maxsize=100, max_retries=10, pool_block=True))
+        self.session.mount('https://', HTTPAdapter(pool_maxsize=16, max_retries=10, pool_block=True))
         self.userId = userId
         self.client = ImageAnnotatorClient(credentials=service_account.Credentials.from_service_account_file('anster-1593361678608.json'))
-    
+        self.pageNum = int(os.getenv('PHOTO_THREAD_NUM'))
     def pipeline(self, mediaItem):
         # only download images
         try:
             # get the image data
             filename = mediaItem['filename']
             imagebinary = self.session.get(mediaItem['baseUrl']+'=d').content
+            with open(f'{self.IFR}/{self.userId}/{filename}', mode='wb') as handler:
+                handler.write(imagebinary)
             image = Image(content = imagebinary)
             response = self.client.label_detection(image=image)
             if response.error.message:
@@ -107,13 +110,11 @@ class MainProcess:
                     realTime, timezone=pytz.timezone(settings.TIME_ZONE)),
             )
             pho.save()
-            # if subscribed['color']:
-            #     Thread(target=color_pipeline, args=(image, self.IFR, userId, filename, self.client), daemon=True)
         except Exception as e:
-            if type(e)==AttributeError:
-                self.pipeline(mediaItem)
             logging.error(e)
-            print(e)
+            print(f'Error from initial vision api pipline {e}')
+            # print(traceback.format_exc())
+
             
     def afterall(self, tic, i):
         self.queue.join()
@@ -132,7 +133,7 @@ class MainProcess:
         nPT = ''
         pool=ThreadPool(self.queue)
         # subscribed = {'color':True}
-        params = {'pageSize': 30}
+        params = {'pageSize': self.pageNum}
         i = 0
         try:
             if not os.path.isdir(f'{self.IFR}/{self.userId}'):
@@ -157,7 +158,7 @@ class MainProcess:
                     nPT = photoRes['nextPageToken']
         except Exception as e:
             logging.error(e)
-            print(e)
+            print(f'Error from initial vision api {e}')
         Thread(target=self.afterall, args=(tic,i), daemon=True).start()
 
     def refresh(self):
@@ -165,7 +166,7 @@ class MainProcess:
         User.objects(userId=self.userId).update(set__isFreshing=True, set__isSync=False)
         nPT = ''
         pool=ThreadPool(self.queue)
-        params = {'pageSize': 40}
+        params = {'pageSize': self.pageNum}
         i = 0
         try:
             if not os.path.isdir(f'{self.IFR}/{self.userId}'):

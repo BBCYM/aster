@@ -14,18 +14,21 @@ class ATag(EmbeddedDocument):
 class PeopleTag(EmbeddedDocument):
     count = fields.IntField(default=0)
     ontology = fields.ListField()
+    celebrity = fields.ListField()
 
 class BasicStructure(EmbeddedDocument) :
     main_tag = fields.EmbeddedDocumentListField(ATag)
     color = fields.ListField()
     people = fields.EmbeddedDocumentField(PeopleTag, default=PeopleTag())
-    emotion_tag = fields.StringField(default="")
-    custom_tag = fields.EmbeddedDocumentListField(Custom_tag)
     location = fields.ListField()
+    deduction = fields.ListField()
 
 class Tag(EmbeddedDocument):
     zh_tw = fields.EmbeddedDocumentField(BasicStructure)
     en = fields.EmbeddedDocumentField(BasicStructure)
+    cust_location_onto = fields.ListField()
+    emotion_tag = fields.StringField(default="")
+    custom_tag = fields.EmbeddedDocumentListField(Custom_tag)
     
 
 class GeoData(EmbeddedDocument):

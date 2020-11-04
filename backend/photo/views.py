@@ -40,60 +40,6 @@ class PhotoView(APIView):
         else:
             return Response({'message': 'No such photo'}, status=status.HTTP_400_BAD_REQUEST)
 
-    def post(self, request):
-        """
-        (測試用)
-        產生一筆假資料
-
-        Args:
-            None
-
-        Returns:
-            None
-
-        """
-        photo = Photo(photoId='12345', userId='abc', tag={
-            'main_tag': 'dog',
-            'emotion_tag': 'cute',
-            'custom_tag': [
-                {
-                    'tag': 'custom1',
-                    'is_deleted': False
-                },
-                {
-                    'tag': 'custom2',
-                    'is_deleted': False
-                }
-            ],
-            'top3_tag': [
-                {
-                    'tag': 'cat1',
-                    'precision': '99'
-                },
-                {
-                    'tag': 'cat2',
-                    'precision': '88'
-                }
-            ],
-            'all_tag': [
-                {
-                    'tag': 'cat1',
-                    'precision': '99'
-                },
-                {
-                    'tag': 'cat2',
-                    'precision': '88'
-                },
-                {
-                    'tag': 'cat3',
-                    'precision': '898'
-                }
-            ]},
-            location='TPE', createTime=datetime.utcnow())
-        photo.save()
-
-        return Response(simpleMessage('POST/PhotoView'), status=status.HTTP_201_CREATED)
-
     def delete(self, request, photoId=None):
         """
         刪除照片
@@ -180,10 +126,7 @@ class TagView(APIView):
         if photoId:
             try:
                 photo = Photo.objects(photoId=photoId).get()
-                if lancode == 'zh-tw':
-                    array_field = photo.tag.zh_tw.custom_tag
-                else:
-                    array_field = photo.tag.en.custom_tag
+                array_field = photo.tag.custom_tag
                 custom_tag_array = []
                 for single_tag in array_field:
                     if single_tag.is_deleted == False:
@@ -214,13 +157,7 @@ class TagView(APIView):
             tag = Custom_tag(tag=custom_tag)
             
             try:
-                if lancode == 'zh-tw':
-                    update_rows = Photo.objects(photoId__exact=photoId).update(
-                    add_to_set__tag__zh_tw__custom_tag=tag)
-                else:
-                    update_rows = Photo.objects(photoId__exact=photoId).update(
-                    add_to_set__tag__en__custom_tag=tag)
-                
+                update_rows = Photo.objects(photoId__exact=photoId).update(add_to_set__tag__custom_tag=tag)
                 return Response({}, status=status.HTTP_200_OK)
             except Exception as e:
                 print('error: ', e)
@@ -245,14 +182,8 @@ class TagView(APIView):
         if photoId:
             try:
                 custom_tag = request.query_params.get("custom_tag", None)
-                if lancode == 'zh-tw':
-                    photo = Photo.objects(photoId=photoId, tag__zh_tw__custom_tag__match={
-                            'tag': custom_tag, 'is_deleted': False}).first()
-                    photos = photo.tag.zh_tw.custom_tag
-                else:
-                    photo = Photo.objects(photoId=photoId, tag__en__custom_tag__match={
-                            'tag': custom_tag, 'is_deleted': False}).first()
-                    photos = photo.tag.en.custom_tag
+                photo = Photo.objects(photoId=photoId, tag__custom_tag__match={'tag': custom_tag, 'is_deleted': False}).first()
+                photos = photo.tag.custom_tag
                 for single_tag in photos:
                     if single_tag.tag == custom_tag:
                         single_tag.is_deleted = True

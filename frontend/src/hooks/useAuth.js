@@ -204,14 +204,17 @@ export function useAuth() {
 			let flag =false
 			do {
 				if (pageNum) {
-					params['after'] = pageNum
+					params.after = pageNum
 				}
 				try {
 					let r = await CameraRoll.getPhotos(params)
 					var rmap = r.edges.filter((v)=>{
-						return v.node.location ?  true: false
+						if (v.node.location){
+							return true
+						} else {
+							return false
+						}
 					}).map((v)=>{
-						console.log(new Date(v.node.timestamp*1000))
 						return {
 							'filename':v.node.image.filename,
 							'location':v.node.location,
