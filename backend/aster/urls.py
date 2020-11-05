@@ -17,10 +17,10 @@ from django.contrib import admin
 from django.urls import path, include
 from auth.views import AuthView, UserView
 from bot.views import BotView
-from line.views import callback
+# from line.views import callback
 from photo.views import PhotoView, EmotionView, TagView, PhotoListView
 from album.views import AlbumView, AlbumPDView, AlbumTagView, AlbumPhotoView
-from liff.views import LiffView , TempLineView
+# from liff.views import LiffView , TempLineView
 from ontology.view import LocationOntoView, ColorOntoView, PeopleOntoView
 
 photo_patterns = [
@@ -38,7 +38,7 @@ ontology_patterns = [
 
 urlpatterns = [
     # done
-    path('', TempLineView.as_view()),
+    # path('', TempLineView.as_view()),
     path('auth/<str:userId>', AuthView.as_view()),
     path('user/<str:userId>', UserView.as_view()),
     path('bot/<str:userId>', BotView.as_view()),

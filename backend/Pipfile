@@ -30,6 +30,8 @@ matplotlib = "*"
 webcolors = "*"
 pillow = "*"
 boto3 = "*"
+tensorflow = "*"
+blinker = "*"
 
 [requires]
 python_version = "3.7"

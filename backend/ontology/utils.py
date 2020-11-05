@@ -65,7 +65,7 @@ class ColorProcess:
         try:
         # get the image data
             filename = mediaItem['filename']
-            with open(f'{self.IFR}/{self.userId}/{filename}', mode='') as handler:
+            with open(f'{self.IFR}/{self.userId}/{filename}', mode='rb') as handler:
                 image = Image(content = handler.read())
             objects = self.client.object_localization(image=image).localized_object_annotations
             result_array = color_detection(objects, f'{self.IFR}/{self.userId}/{filename}')
