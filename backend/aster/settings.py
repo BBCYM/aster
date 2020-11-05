@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'album',
     'ontology',
     'color_detection',
-    'line',
+    # 'line',
     "django.contrib.staticfiles"
 ]
 
