@@ -63,12 +63,8 @@ class BotView(views.APIView):
                 gkeyArray = list(gkeyArray)
                 for i in gkeyArray:
                     try:
-                        if lancode == 'zh-tw':
-                            custom = Photo.objects(Q(userId=userid) & Q(tag__zh_tw__custom_tag__is_deleted=False) & Q(tag__zh_tw__custom_tag__tag=i))
-                            # print('custom:',custom)
-                        else:
-                            custom = Photo.objects(Q(userId=userid) & Q(tag__en__custom_tag__is_deleted=False) & Q(tag__en__custom_tag__tag=i))
-                            # print('custom:',custom)
+                        custom = Photo.objects(Q(userId=userid) & Q(tag__custom_tag__is_deleted=False) & Q(tag__custom_tag__tag=i))
+                        # print('custom:',custom)
                         for j in custom:
                             tag = []
                             photoid = j.photoId
@@ -118,11 +114,13 @@ class BotView(views.APIView):
             vision = []
             location = []
             vision_origin = []
-            color = []
+            color_obj = []
+            # color = []
             if intent == "AskColorEntity":
-                # print("okkkkkkk")
-                vision = parameters.fields['visionAPI_1000'].list_value
-                color = parameters.fields['color'].list_value
+                # vision = parameters.fields['visionAPI_1000'].list_value
+                # color = parameters.fields['color'].list_value
+                color_obj = parameters.fields['color_obj'].list_value
+                # print("color_obj:",color_obj)
             else:
                 emotion = parameters.fields['emotion'].list_value
                 date = parameters.fields['date'].list_value
@@ -150,11 +148,19 @@ class BotView(views.APIView):
             def getpid(key,orkey):
                 try:
                     # print('key',key)
-                    if lancode == 'zh-tw':
-                        emo = Photo.objects(Q(userId=userid) & Q(tag__zh_tw__emotion_tag=key))
-                        # # print('emotion:',emo)
-                        addpid(emo, key, orkey)
+                    emo = Photo.objects(Q(userId=userid) & Q(tag__emotion_tag=key))
+                    # print('emotion:',emo)
+                    addpid(emo, key, orkey)
+                    
+                    custom = Photo.objects(Q(userId=userid) & Q(tag__custom_tag__is_deleted=False) & Q(tag__custom_tag__tag=key))
+                    # print('custom:',custom)
+                    addpid(custom, key, orkey)
 
+                    cust_location_onto = Photo.objects(Q(userId=userid) & Q(tag__cust_location_onto__tag=key))
+                    # print('cust_location_onto:',cust_location_onto)
+                    addpid(cust_location_onto, key, orkey)
+                    
+                    if lancode == 'zh-tw':
                         main = Photo.objects(Q(userId=userid) & Q(tag__zh_tw__main_tag__tag=key))
                         # print('main:',main)
                         addpid(main, key, orkey)
@@ -163,30 +169,22 @@ class BotView(views.APIView):
                         # print('color:',color)
                         addpid(color, key, orkey)
 
-                        # colobj = Photo.objects(Q(userId=userid) & Q(tag__zh_tw__color__obj=key))
-                        # # print('colobj:',colobj)
-                        # addpid(colobj, key, orkey)
-
                         peopleon = Photo.objects(Q(userId=userid) & Q(tag__zh_tw__people__ontology=key))
                         # print('peopleon:',peopleon)
                         addpid(peopleon, key, orkey)
 
-                        # peopleceb = Photo.objects(Q(userId=userid) & Q(tag__zh_tw__people__celebrity=key))
-                        # # print('peopleceb:',peopleceb)
-                        # addpid(peopleceb, key, orkey)
-
-                        custom = Photo.objects(Q(userId=userid) & Q(tag__zh_tw__custom_tag__is_deleted=False) & Q(tag__zh_tw__custom_tag__tag=key))
-                        # print('custom:',custom)
-                        addpid(custom, key, orkey)
+                        peopleceb = Photo.objects(Q(userId=userid) & Q(tag__zh_tw__people__celebrity=key))
+                        # print('peopleceb:',peopleceb)
+                        addpid(peopleceb, key, orkey)
 
                         location = Photo.objects(Q(userId=userid) & Q(tag__zh_tw__location=key))
                         # print('location:',location)
                         addpid(location, key, orkey)
-                    else:
-                        emo = Photo.objects(Q(userId=userid) & Q(tag__en__emotion_tag=key))
-                        # # print('emotion:',emo)
-                        addpid(emo, key, orkey)
 
+                        deduction = Photo.objects(Q(userId=userid) & Q(tag__zh_tw__deduction=key))
+                        # print('deduction:',deduction)
+                        addpid(deduction, key, orkey)
+                    else:
                         main = Photo.objects(Q(userId=userid) & Q(tag__en__main_tag__tag=key))
                         # print('main:',main)
                         addpid(main, key, orkey)
@@ -195,25 +193,21 @@ class BotView(views.APIView):
                         # print('color:',color)
                         addpid(color, key, orkey)
 
-                        # colobj = Photo.objects(Q(userId=userid) & Q(tag__en__color__obj=key))
-                        # # print('colobj:',colobj)
-                        # addpid(colobj, key, orkey)
-
                         peopleon = Photo.objects(Q(userId=userid) & Q(tag__en__people__ontology=key))
                         # print('peopleon:',peopleon)
                         addpid(peopleon, key, orkey)
 
-                        # peopleceb = Photo.objects(Q(userId=userid) & Q(tag__en__people__celebrity=key))
-                        # # print('peopleceb:',peopleceb)
-                        # addpid(peopleceb, key, orkey)
-
-                        custom = Photo.objects(Q(userId=userid) & Q(tag__en__custom_tag__is_deleted=False) & Q(tag__en__custom_tag__tag=key))
-                        # print('custom:',custom)
-                        addpid(custom, key, orkey)
+                        peopleceb = Photo.objects(Q(userId=userid) & Q(tag__en__people__celebrity=key))
+                        # print('peopleceb:',peopleceb)
+                        addpid(peopleceb, key, orkey)
 
                         location = Photo.objects(Q(userId=userid) & Q(tag__en__location=key))
                         # print('location:',location)
                         addpid(location, key, orkey)
+
+                        deduction = Photo.objects(Q(userId=userid) & Q(tag__en__deduction=key))
+                        # print('deduction:',deduction)
+                        addpid(deduction, key, orkey)
 
 
                     album = Album.objects(Q(userId=userid) & Q(albumTag__isDeleted=False) & Q(albumTag__tag=key))
@@ -289,12 +283,13 @@ class BotView(views.APIView):
                     for i in range(len(vikeyArray)):
                         getpid(vikeyArray[i],originArray[i])
             
-            if len(color) is not 0:
-                colkeyArray = map(lambda k: k.string_value,color.values)
-                colkeyArray = OrderedSet(colkeyArray)
-                colkeyArray = list(colkeyArray)
-                for i in range(len(colkeyArray)):
-                    getpid(colkeyArray[i],"null")
+            if len(color_obj) is not 0:
+                colobkeyArray = map(lambda k: k.string_value,color_obj.values)
+                colobkeyArray = OrderedSet(colobkeyArray)
+                colobkeyArray = list(colobkeyArray)
+                # print("colobkeyArray:",colobkeyArray)
+                for i in range(len(colobkeyArray)):
+                    getpid(colobkeyArray[i],"null")
 
             if len(location) is not 0:
                 admin_areakey = location.values[0].struct_value.fields['admin-area'].string_value
