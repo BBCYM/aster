@@ -9,6 +9,7 @@ from .models import Photo, Tag, Custom_tag
 from django.core.handlers.wsgi import WSGIRequest
 from .utils import getEmotionString, EmotionStringtoI
 from utils.utils import is_valid_objectId
+from ontology.onto import get_location
 
 get_fields = ('photoId', 'isDeleted', 'createTime')
 
@@ -158,6 +159,12 @@ class TagView(APIView):
             
             try:
                 update_rows = Photo.objects(photoId__exact=photoId).update(add_to_set__tag__custom_tag=tag)
+                p = Photo.objects(photoId__exact=photoId).get()
+                loconto = get_location(tag)
+                if loconto:
+                    for i in loconto:
+                        p.cust_location_onto.append(i)
+                    p.save()
                 return Response({}, status=status.HTTP_200_OK)
             except Exception as e:
                 print('error: ', e)
@@ -178,7 +185,7 @@ class TagView(APIView):
             剩下的tag 
 
         """
-        lancode = request.headers.get('Language-Code',None)
+        # lancode = request.headers.get('Language-Code',None)
         if photoId:
             try:
                 custom_tag = request.query_params.get("custom_tag", None)
@@ -188,6 +195,10 @@ class TagView(APIView):
                     if single_tag.tag == custom_tag:
                         single_tag.is_deleted = True
                 photo.save()
+                loconto = get_location(custom_tag)
+                if loconto:
+                    for i in loconto:
+                        Photo.objects(photoId=photoId).update(pull_all__tag__cust_location_onto=loconto)
                 return Response({}, status=status.HTTP_200_OK)
             except Exception as e:
                 print(e)
