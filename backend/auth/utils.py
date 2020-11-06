@@ -5,6 +5,7 @@ import inspect
 from threading import Thread
 import queue
 import time
+import traceback
 def getLabelDescription(data):
     temp = str(data.description).encode('utf-8')
     result = str(temp, 'utf-8')
@@ -13,16 +14,28 @@ def getLabelDescription(data):
 
 
 def toSingleMan(data):
-    translator = Translator()
-    result = translator.translate(data, dest='zh-tw')
-    return str(result.text)
+    try:
+        translator = Translator()
+        result = translator.translate(data, dest='zh-tw')
+        
+        if result and result.text:
+            print(result.text)
+            return str(result.text)
+        else:
+            print('A SingleMan None')
+            return None
+    except Exception as e:
+        print(f'Error from toSingleMan {e}')
+        # print(traceback.format_exc())
+
 def toMandarin(data):
     try:
         time.sleep(0.3)
         translator = Translator()
         return list(map(lambda l: l.text, translator.translate(data, dest='zh-tw')))
     except Exception as e:
-        print(e)
+        print(f'Error from to Mandarin {e}')
+        print(traceback.format_exc())
      
 
 def stringify(data: dict):

@@ -54,6 +54,7 @@ class BotView(views.APIView):
                 return response.Response("InvalidArgument",status=status.HTTP_400_BAD_REQUEST)
         
         def get_url_cus(res_cus):
+            print("general_intent")
             parameters = res_cus.query_result.parameters
             general_object_any = parameters.fields['general_object_any'].list_value
             pid_tag = []

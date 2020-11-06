@@ -25,8 +25,8 @@ class BasicStructure(EmbeddedDocument) :
     deduction = fields.ListField()
 
 class Tag(EmbeddedDocument):
-    zh_tw = fields.EmbeddedDocumentField(BasicStructure)
-    en = fields.EmbeddedDocumentField(BasicStructure)
+    zh_tw = fields.EmbeddedDocumentField(BasicStructure, default=BasicStructure())
+    en = fields.EmbeddedDocumentField(BasicStructure, default=BasicStructure())
     cust_location_onto = fields.ListField()
     custom_tag = fields.EmbeddedDocumentListField(Custom_tag)
     

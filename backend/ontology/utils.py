@@ -70,7 +70,7 @@ class ColorProcess:
             objects = self.client.object_localization(image=image).localized_object_annotations
             result_array = color_detection(objects, f'{self.IFR}/{self.userId}/{filename}')
             for o, r in zip(objects, result_array):
-                temp = [str(k) + toSingleMan(o.name) for k in r]
+                temp = [str(k) + toSingleMan(o.name) for k in r if toSingleMan != None]
                 Photo.objects(photoId=mediaItem['id']).update(push_all__tag__zh_tw__color=temp)
                 temp = [str(k) + ' ' + o.name for k in r]
                 Photo.objects(photoId=mediaItem['id']).update(push_all__tag__en__color=temp)
