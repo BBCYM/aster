@@ -37,8 +37,10 @@ class GeoCoding:
             if reports:
                 try:
                     toSave = self.reverse_geocoding(lat, lng, 'zh_TW', self.api_key)
+                    print(lat, lng, toSave)
                     results = reports.update(set__gps=tempgeo,push_all__tag__zh_tw__location=toSave)
                     toSave = self.reverse_geocoding(lat, lng, 'en', self.api_key)
+                    print(lat,lng, toSave)
                     results = reports.update(set__gps=tempgeo,push_all__tag__en__location=toSave)
                 except Exception as e:
                     print(e)

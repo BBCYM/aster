@@ -1,1 +1,1 @@
-pipenv run python manage.py runserver localhost:3000
+python3 manage.py runserver localhost:3000

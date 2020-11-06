@@ -24,7 +24,7 @@ from requests.adapters import HTTPAdapter
 from ontology.onto import get_location
 import os, traceback
 from ontology.utils import ColorProcess
-from ontology.people_utils import PeopleOntology
+#from ontology.people_utils import PeopleOntology
 from .utils import ThreadPool
 logging.basicConfig(filename=f'./log/{__name__}.log',level=logging.INFO, filemode='w+', format='%(name)s %(levelname)s %(asctime)s -> %(message)s')
 
@@ -108,8 +108,8 @@ class MainProcess:
         # color_process = ColorProcess(session=self.session, userId=self.userId)
         # Thread(target=color_process.initial,daemon=True).start()
         #People
-        people_ontology = PeopleOntology(session=self.session, userId=self.userId)
-        Thread(target=people_ontology.initial,daemon=True).start()
+        # people_ontology = PeopleOntology(session=self.session, userId=self.userId)
+        # Thread(target=people_ontology.initial,daemon=True).start()
     def initial(self):
         tic = time.perf_counter()
         User.objects(userId=self.userId).update(set__isFreshing=True, set__isSync=False)
