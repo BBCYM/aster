@@ -19,6 +19,7 @@ ordered-set
 matplotlib 
 webcolors 
 pillow 
-boto3  
+boto3 
+tensorflow 
 blinker 
 num2words 

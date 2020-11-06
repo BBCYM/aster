@@ -13,9 +13,10 @@ import json
 class LocationOntoView(APIView):
     def post(self, request:WSGIRequest, userId=None):
         locdata = request.data['locdata']
+        # print(locdata)
         geo = GeoCoding()
         Thread(target=geo.update_location,args=(locdata, userId),daemon=True).start()
-        stamp = datetime.datetime.now()
+        # stamp = datetime.datetime.now()
         return Response(True, status=status.HTTP_200_OK)
 
 class ColorOntoView(APIView):
