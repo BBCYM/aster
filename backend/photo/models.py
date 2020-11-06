@@ -6,6 +6,9 @@ class Custom_tag(EmbeddedDocument):
     tag = fields.StringField()
     is_deleted = fields.BooleanField(default=False)
 
+class ColorModel(EmbeddedDocument):
+    obj = fields.StringField()
+    color = fields.ListField()
 
 class ATag(EmbeddedDocument):
     tag = fields.StringField()
@@ -18,7 +21,7 @@ class PeopleTag(EmbeddedDocument):
 
 class BasicStructure(EmbeddedDocument) :
     main_tag = fields.EmbeddedDocumentListField(ATag)
-    color = fields.ListField()
+    color = fields.EmbeddedDocumentListField(ColorModel)
     people = fields.EmbeddedDocumentField(PeopleTag, default=PeopleTag())
     location = fields.ListField()
     emotion_tag = fields.StringField(default="")

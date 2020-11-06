@@ -20,6 +20,7 @@ import json
 import boto3
 import tensorflow as tf
 import traceback
+from ontology.utils import ColorProcess
 from num2words import num2words
 
 def read_class_names(class_file_name):
@@ -118,6 +119,9 @@ class PeopleOntology:
             set__people_onto__lastSync=make_aware(datetime.datetime.utcnow(),
                                     timezone=pytz.timezone(settings.TIME_ZONE))
         )
+        # color
+        color_process = ColorProcess(session=self.session, userId=self.userId)
+        Thread(target=color_process.initial,daemon=True).start()
     def people_pipline(self, mediaItem):
         try:
         # get the image data

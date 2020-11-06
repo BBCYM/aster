@@ -23,9 +23,6 @@ import logging
 from requests.adapters import HTTPAdapter
 from ontology.onto import get_location
 import os, traceback
-from ontology.utils import ColorProcess
-from ontology.people_utils import PeopleOntology
-from .utils import ThreadPool
 logging.basicConfig(filename=f'./log/{__name__}.log',level=logging.INFO, filemode='w+', format='%(name)s %(levelname)s %(asctime)s -> %(message)s')
 
 def checkisSync(session,userId):
@@ -105,9 +102,6 @@ class MainProcess:
             set__lastSync=make_aware(datetime.datetime.utcnow(),
                                     timezone=pytz.timezone(settings.TIME_ZONE))
         )
-        # # color
-        # color_process = ColorProcess(session=self.session, userId=self.userId)
-        # Thread(target=color_process.initial,daemon=True).start()
         #People
         people_ontology = PeopleOntology(session=self.session, userId=self.userId)
         Thread(target=people_ontology.initial,daemon=True).start()

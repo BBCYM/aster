@@ -1,7 +1,7 @@
 import requests
 import os
 from mongoengine.queryset.visitor import Q
-from photo.models import Photo, GeoData
+from photo.models import Photo, GeoData, ColorModel
 import datetime
 from color_detection.color_detect import color_detection
 from requests.adapters import HTTPAdapter
@@ -74,10 +74,12 @@ class ColorProcess:
             objects = self.client.object_localization(image=image).localized_object_annotations
             result_array = color_detection(objects, f'{self.IFR}/{self.userId}/{filename}')
             for o, r in zip(objects, result_array):
-                temp = [str(k) + toSingleMan(o.name) for k in r if toSingleMan != None]
-                Photo.objects(photoId=mediaItem['id']).update(push_all__tag__zh_tw__color=temp)
-                temp = [str(k) + ' ' + o.name for k in r]
-                Photo.objects(photoId=mediaItem['id']).update(push_all__tag__en__color=temp)
+                tempName = toSingleMan(o.name)
+                name = tempName if tempName else o.name
+                cm = ColorModel(obj=name, color=r)
+                Photo.objects(photoId=mediaItem['id']).update(push__tag__zh_tw__color=cm)
+                cm = ColorModel(obj=o.name, color=r)
+                Photo.objects(photoId=mediaItem['id']).update(push_all__tag__en__color=cm)
         except Exception as e:
             print(f'Error from initial color api pipline{e}')
     def initial(self):
