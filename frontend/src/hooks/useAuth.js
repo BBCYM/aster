@@ -221,7 +221,6 @@ export function useAuth() {
 							'timestamp':v.node.timestamp
 						}
 					})
-					console.log(rmap)
 					axios.post(`${url}/ontology/${user.id}/location`, {
 						locdata:rmap
 					}, {
