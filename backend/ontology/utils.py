@@ -17,6 +17,7 @@ import pytz
 from django.utils.timezone import make_aware
 from google.auth.transport.requests import Request, AuthorizedSession
 import traceback
+from ontology.people_utils import PeopleOntology
 class GeoCoding:
     def __init__(self):
         self.api_key = os.getenv('GEOCODING_KEY')
@@ -67,6 +68,8 @@ class ColorProcess:
             set__color_onto__lastSync=make_aware(datetime.datetime.utcnow(),
                                     timezone=pytz.timezone(settings.TIME_ZONE))
         )
+        people_ontology = PeopleOntology(session=self.session, userId=self.userId)
+        Thread(target=people_ontology.initial,daemon=True).start()
     def color_pipline(self, mediaItem, serial):
         try:
         # get the image data

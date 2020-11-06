@@ -120,8 +120,8 @@ class PeopleOntology:
                                     timezone=pytz.timezone(settings.TIME_ZONE))
         )
         # color
-        color_process = ColorProcess(session=self.session, userId=self.userId)
-        Thread(target=color_process.initial,daemon=True).start()
+        # color_process = ColorProcess(session=self.session, userId=self.userId)
+        # Thread(target=color_process.initial,daemon=True).start()
     def people_pipline(self, mediaItem, serial):
         try:
         # get the image data
