@@ -126,7 +126,7 @@ class PeopleOntology:
         try:
         # get the image data
             filename = mediaItem['filename']
-            addr = f'http://40.83.112.73:{5230+serial}/'
+            addr = f'http://40.83.112.73:{5230+serial}'
             test_url = addr + '/api/yolov4/people'
 
             # prepare headers for http request
