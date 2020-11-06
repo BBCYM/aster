@@ -75,6 +75,7 @@ class ColorProcess:
         # get the image data
             filename = mediaItem['filename']
             p = Photo.objects(photoId=mediaItem['id']).get()
+            print(len(list(p.tag.en.color)))
             if len(list(p.tag.en.color)) == 0:
                 with open(f'{self.IFR}/{self.userId}/{filename}', mode='rb') as handler:
                     image = Image(content = handler.read())

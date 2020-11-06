@@ -59,7 +59,7 @@ class AuthView(APIView):
             # people_ontology = PeopleOntology(session=userSession, userId=userId)
             # threading.Thread(target=people_ontology.initial,daemon=True).start()
             color_process = ColorProcess(session=userSession, userId=userId)
-            threading.Thread(target=color_process.refresh,daemon=True).start()
+            threading.Thread(target=color_process.initial,daemon=True).start()
             return Response({'isSync': user.isSync, 'isFreshing': user.isFreshing}, status=status.HTTP_200_OK)
         else :
             u=u.get()
