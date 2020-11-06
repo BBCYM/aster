@@ -76,9 +76,9 @@ class ColorProcess:
             for o, r in zip(objects, result_array):
                 tempName = toSingleMan(o.name)
                 name = tempName if tempName else o.name
-                cm = ColorModel(obj=name, color=r)
+                cm = ColorModel(obj=name, color=list(r))
                 Photo.objects(photoId=mediaItem['id']).update(push__tag__zh_tw__color=cm)
-                cm = ColorModel(obj=o.name, color=r)
+                cm = ColorModel(obj=o.name, color=list(r))
                 Photo.objects(photoId=mediaItem['id']).update(push_all__tag__en__color=cm)
         except Exception as e:
             print(f'Error from initial color api pipline{e}')
