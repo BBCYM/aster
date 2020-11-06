@@ -18,7 +18,6 @@ def toSingleMan(data):
         result = translator.translate(data, dest='zh-tw')
         
         if result and result.text:
-            print(result.text)
             return str(result.text)
         else:
             print('A SingleMan None')
@@ -29,12 +28,10 @@ def toSingleMan(data):
 
 def toMandarin(data):
     try:
-        time.sleep(0.3)
         translator = Translator()
         return list(map(lambda l: l.text, translator.translate(data, dest='zh-tw')))
     except Exception as e:
         print(f'Error from to Mandarin {e}')
-        print(traceback.format_exc())
      
 
 def stringify(data: dict):
@@ -75,7 +72,7 @@ class Worker():
 
 class ThreadPool:
     def __init__(self, QueueManager:queue.Queue()):
-        self.maxCore = 16
+        self.maxCore = 8
         self.tasks = QueueManager
         self.daemon = True
         self.work()

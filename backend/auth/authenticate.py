@@ -21,10 +21,9 @@ import queue
 from threading import Thread
 import logging
 from requests.adapters import HTTPAdapter
-from ontology.onto import get_location
 import os, traceback
-from ontology.utils import ColorProcess
 from ontology.people_utils import PeopleOntology
+from ontology.utils import ColorProcess
 from .utils import ThreadPool
 logging.basicConfig(filename=f'./log/{__name__}.log',level=logging.INFO, filemode='w+', format='%(name)s %(levelname)s %(asctime)s -> %(message)s')
 
@@ -45,7 +44,7 @@ class MainProcess:
         self.IFR = './static'
         self.session = session
         self.queue = queue.Queue()
-        self.session.mount('https://', HTTPAdapter(pool_maxsize=16, max_retries=10, pool_block=True))
+        self.session.mount('https://', HTTPAdapter(pool_maxsize=8, max_retries=10, pool_block=True))
         self.userId = userId
         self.client = ImageAnnotatorClient(credentials=service_account.Credentials.from_service_account_file('anster-1593361678608.json'))
         self.pageNum = int(os.getenv('PHOTO_THREAD_NUM'))
@@ -64,14 +63,12 @@ class MainProcess:
             labels = response.label_annotations
             ltemp = list(map(getLabelDescription, labels))
             mLabels = toMandarin(ltemp)
-            # print(mLabels)
-            # logging.info(ltemp)
             t = Tag()
             bs = BasicStructure()
             for el, l in zip(ltemp, labels):
                 bs.main_tag.append(ATag(tag=el, precision=l.score))
             t.en = bs
-            if len(mLabels) > 0:
+            if mLabels and len(mLabels) > 0:
                 bs = BasicStructure()
                 for ml, l in zip(mLabels, labels):
                     bs.main_tag.append(ATag(tag=ml, precision=l.score))
@@ -105,19 +102,18 @@ class MainProcess:
             set__lastSync=make_aware(datetime.datetime.utcnow(),
                                     timezone=pytz.timezone(settings.TIME_ZONE))
         )
-        # # color
-        # color_process = ColorProcess(session=self.session, userId=self.userId)
-        # Thread(target=color_process.initial,daemon=True).start()
-        #People
+        # People
         people_ontology = PeopleOntology(session=self.session, userId=self.userId)
         Thread(target=people_ontology.initial,daemon=True).start()
+        # color_process = ColorProcess(session=self.session, userId=self.userId)
+        # Thread(target=color_process.initial,daemon=True).start()
     def initial(self):
         tic = time.perf_counter()
         User.objects(userId=self.userId).update(set__isFreshing=True, set__isSync=False)
         nPT = ''
         pool=ThreadPool(self.queue)
         # subscribed = {'color':True}
-        params = {'pageSize': self.pageNum}
+        params = {'pageSize': 1}
         i = 0
         try:
             if not os.path.isdir(f'{self.IFR}/{self.userId}'):

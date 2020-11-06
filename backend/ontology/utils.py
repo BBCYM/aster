@@ -1,7 +1,7 @@
 import requests
 import os
 from mongoengine.queryset.visitor import Q
-from photo.models import Photo, GeoData
+from photo.models import Photo, GeoData, ColorModel
 import datetime
 from color_detection.color_detect import color_detection
 from requests.adapters import HTTPAdapter
@@ -16,6 +16,7 @@ from aster import settings
 import pytz
 from django.utils.timezone import make_aware
 from google.auth.transport.requests import Request, AuthorizedSession
+import traceback
 class GeoCoding:
     def __init__(self):
         self.api_key = os.getenv('GEOCODING_KEY')
@@ -52,7 +53,7 @@ class ColorProcess:
         self.IFR = './static'
         self.session = session
         self.queue = queue.Queue()
-        self.session.mount('https://', HTTPAdapter(pool_maxsize=16, max_retries=10, pool_block=True))
+        self.session.mount('https://', HTTPAdapter(pool_maxsize=8, max_retries=10, pool_block=True))
         self.userId = userId
         self.client = ImageAnnotatorClient(credentials=service_account.Credentials.from_service_account_file('anster-1593361678608.json'))
         self.pageNum = int(os.getenv('PHOTO_THREAD_NUM'))
@@ -74,12 +75,19 @@ class ColorProcess:
             objects = self.client.object_localization(image=image).localized_object_annotations
             result_array = color_detection(objects, f'{self.IFR}/{self.userId}/{filename}')
             for o, r in zip(objects, result_array):
-                temp = [str(k) + toSingleMan(o.name) for k in r if toSingleMan != None]
-                Photo.objects(photoId=mediaItem['id']).update(push_all__tag__zh_tw__color=temp)
-                temp = [str(k) + ' ' + o.name for k in r]
-                Photo.objects(photoId=mediaItem['id']).update(push_all__tag__en__color=temp)
+                tempName = toSingleMan(o.name)
+                name = tempName if tempName else o.name
+                cm = ColorModel(obj=name)
+                for i in r:
+                    cm.color.append(i)
+                Photo.objects(photoId=mediaItem['id']).update(push__tag__zh_tw__color=cm)
+                cm = ColorModel(obj=o.name)
+                for i in r:
+                    cm.color.append(i)
+                Photo.objects(photoId=mediaItem['id']).update(push__tag__en__color=cm)
         except Exception as e:
-            print(f'Error from initial color api pipline{e}')
+            print(f'Error from initial color api pipline {e}')
+            print(traceback.format_exc())
     def initial(self):
         tic = time.perf_counter()
         nPT = ''
