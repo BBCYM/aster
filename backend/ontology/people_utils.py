@@ -127,7 +127,7 @@ class PeopleOntology:
         # get the image data
             filename = mediaItem['filename']
             p = Photo.objects(photoId=mediaItem['id']).get()
-            if p.tag.en.people.ontology and len(p.tag.en.people.ontology) == 0:
+            if p.tag.en.people.ontology.length == 0:
                 addr = f'http://40.83.112.73:{5230+serial}'
                 test_url = addr + '/api/yolov4/people'
 
@@ -145,14 +145,17 @@ class PeopleOntology:
                 for r in result['detection']:
                     at = ATag(tag=r[0],precision=float(r[1])/100)
                     p.tag.en.main_tag.append(at)
+                    
                 pt = PeopleTag(count = int(result['people']['count']))
                 for o in result['people']['ontology']:
                     pt.ontology.append(o)
                 p.tag.zh_tw.people = pt
+
                 pt = PeopleTag(count = result['people']['count'])
                 for o in result['people']['ontology_en']:
                     pt.ontology.append(o)
                 p.tag.en.people = pt
+
                 p.save()
             # image = Image.open(f'{self.IFR}/{self.userId}/{filename}')
             # image = np.asarray(image.resize((self.input_size, self.input_size)))

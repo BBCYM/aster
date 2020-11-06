@@ -6,6 +6,52 @@ from threading import Thread
 import queue
 import time
 import traceback
+import http.client
+import urllib.request
+import urllib.parse
+import urllib.error
+import base64
+import cv2
+import os
+
+class AzureTag:
+    def __init__(self):
+        self.headers = {
+            # Request headers
+            'Content-Type': 'application/octet-stream',
+            'Ocp-Apim-Subscription-Key': os.getenv('AZURE_VISION'),
+        }
+        self.params = urllib.parse.urlencode({
+            # Request parameters
+            'language': 'en',
+        })
+
+    def tagging(self, file_path):
+        try:
+            img = cv2.imread(file_path)
+            _, img_encoded = cv2.imencode('.jpg', img)
+            body = img_encoded.tobytes()
+
+            return_array = []
+            # azure describe / tag / object
+            conn = http.client.HTTPSConnection(
+                'eastasia.api.cognitive.microsoft.com')
+            conn.request("POST", "/vision/v3.0/tag?%s" %
+                         self.params, body, self.headers)
+            response = conn.getresponse()
+
+            data = response.read().decode('utf-8')
+            data = json.loads(data)['tags']
+            for i in data:
+                return_array.append(i['name'])
+            print("resposne data: ", return_array)
+            conn.close()
+            return return_array
+
+        except Exception as e:
+            print("[Errno {0}] {1}".format(e.errno, e.strerror))
+            return []
+
 def getLabelDescription(data):
     temp = str(data.description).encode('utf-8')
     result = str(temp, 'utf-8')

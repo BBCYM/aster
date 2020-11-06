@@ -71,21 +71,23 @@ class ColorProcess:
         try:
         # get the image data
             filename = mediaItem['filename']
-            with open(f'{self.IFR}/{self.userId}/{filename}', mode='rb') as handler:
-                image = Image(content = handler.read())
-            objects = self.client.object_localization(image=image).localized_object_annotations
-            result_array = color_detection(objects, f'{self.IFR}/{self.userId}/{filename}')
-            for o, r in zip(objects, result_array):
-                tempName = toSingleMan(o.name)
-                name = tempName if tempName else o.name
-                cm = ColorModel(obj=name)
-                for i in r:
-                    cm.color.append(i)
-                Photo.objects(photoId=mediaItem['id']).update(push__tag__zh_tw__color=cm)
-                cm = ColorModel(obj=o.name)
-                for i in r:
-                    cm.color.append(i)
-                Photo.objects(photoId=mediaItem['id']).update(push__tag__en__color=cm)
+            p = Photo.objects(photoId=mediaItem['id']).get()
+            if p.tag.en.color.length == 0:
+                with open(f'{self.IFR}/{self.userId}/{filename}', mode='rb') as handler:
+                    image = Image(content = handler.read())
+                objects = self.client.object_localization(image=image).localized_object_annotations
+                result_array = color_detection(objects, f'{self.IFR}/{self.userId}/{filename}')
+                for o, r in zip(objects, result_array):
+                    tempName = toSingleMan(o.name)
+                    name = tempName if tempName else o.name
+                    cm = ColorModel(obj=name)
+                    for i in r:
+                        cm.color.append(i)
+                    Photo.objects(photoId=mediaItem['id']).update(push__tag__zh_tw__color=cm)
+                    cm = ColorModel(obj=o.name)
+                    for i in r:
+                        cm.color.append(i)
+                    Photo.objects(photoId=mediaItem['id']).update(push__tag__en__color=cm)
         except Exception as e:
             print(f'Error from initial color api pipline {e}')
             print(traceback.format_exc())
