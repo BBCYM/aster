@@ -102,18 +102,18 @@ class MainProcess:
             set__lastSync=make_aware(datetime.datetime.utcnow(),
                                     timezone=pytz.timezone(settings.TIME_ZONE))
         )
-        #People
-        # people_ontology = PeopleOntology(session=self.session, userId=self.userId)
-        # Thread(target=people_ontology.initial,daemon=True).start()
-        color_process = ColorProcess(session=self.session, userId=self.userId)
-        Thread(target=color_process.initial,daemon=True).start()
+        # People
+        people_ontology = PeopleOntology(session=self.session, userId=self.userId)
+        Thread(target=people_ontology.initial,daemon=True).start()
+        # color_process = ColorProcess(session=self.session, userId=self.userId)
+        # Thread(target=color_process.initial,daemon=True).start()
     def initial(self):
         tic = time.perf_counter()
         User.objects(userId=self.userId).update(set__isFreshing=True, set__isSync=False)
         nPT = ''
         pool=ThreadPool(self.queue)
         # subscribed = {'color':True}
-        params = {'pageSize': self.pageNum}
+        params = {'pageSize': 1}
         i = 0
         try:
             if not os.path.isdir(f'{self.IFR}/{self.userId}'):

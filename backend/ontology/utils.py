@@ -16,6 +16,7 @@ from aster import settings
 import pytz
 from django.utils.timezone import make_aware
 from google.auth.transport.requests import Request, AuthorizedSession
+import traceback
 class GeoCoding:
     def __init__(self):
         self.api_key = os.getenv('GEOCODING_KEY')
@@ -76,12 +77,17 @@ class ColorProcess:
             for o, r in zip(objects, result_array):
                 tempName = toSingleMan(o.name)
                 name = tempName if tempName else o.name
-                cm = ColorModel(obj=name, color=list(r))
+                cm = ColorModel(obj=name)
+                for i in r:
+                    cm.color.append(i)
                 Photo.objects(photoId=mediaItem['id']).update(push__tag__zh_tw__color=cm)
-                cm = ColorModel(obj=o.name, color=list(r))
-                Photo.objects(photoId=mediaItem['id']).update(push_all__tag__en__color=cm)
+                cm = ColorModel(obj=o.name)
+                for i in r:
+                    cm.color.append(i)
+                Photo.objects(photoId=mediaItem['id']).update(push__tag__en__color=cm)
         except Exception as e:
-            print(f'Error from initial color api pipline{e}')
+            print(f'Error from initial color api pipline {e}')
+            print(traceback.format_exc())
     def initial(self):
         tic = time.perf_counter()
         nPT = ''
