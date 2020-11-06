@@ -51,12 +51,12 @@ class AuthView(APIView):
         # check if first time login
         if not u:
             userSession, user = checkUserToSession(userId, request)
-            process = MainProcess(session=userSession, userId=userId)
-            threading.Thread(target=process.initial,daemon=True).start()
+            # process = MainProcess(session=userSession, userId=userId)
+            # threading.Thread(target=process.initial,daemon=True).start()
             
-            # #People
-            # people_ontology = PeopleOntology(session=userSession, userId=userId)
-            # threading.Thread(target=people_ontology.initial,daemon=True).start()
+            #People
+            people_ontology = PeopleOntology(session=userSession, userId=userId)
+            threading.Thread(target=people_ontology.initial,daemon=True).start()
             return Response({'isSync': user.isSync, 'isFreshing': user.isFreshing}, status=status.HTTP_200_OK)
         else :
             u=u.get()
