@@ -9,7 +9,6 @@ import traceback
 def getLabelDescription(data):
     temp = str(data.description).encode('utf-8')
     result = str(temp, 'utf-8')
-    print(result)
     return result
 
 

@@ -34,9 +34,9 @@ class UserView(APIView):
             threading.Thread(target=process.refresh,daemon=True).start()
             
             # color
-            if user.color_onto.subscribed:
-                color_process = ColorProcess(session=userSession, userId=userId)
-                threading.Thread(target=color_process.refresh,daemon=True).start()
+            # if user.color_onto.subscribed:
+            #     color_process = ColorProcess(session=userSession, userId=userId)
+            #     threading.Thread(target=color_process.refresh,daemon=True).start()
             return Response({'isFreshing': True,'isSync': False}, status=status.HTTP_200_OK)
         else:
             return Response({'isSync': True,'isFreshing': False}, status=status.HTTP_200_OK)

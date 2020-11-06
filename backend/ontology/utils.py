@@ -33,13 +33,17 @@ class GeoCoding:
             lat, lng = l['location']['latitude'], l['location']['longitude']
             tempgeo = GeoData(latitude=lat,longitude=lng)
             temptime = datetime.datetime.fromtimestamp(l['timestamp'],tz=datetime.timezone.utc).replace(microsecond=0)
-            reports = Photo.objects(Q(userId=userId) & Q(filename=l['filename']) & Q(createTime = temptime))
+            reports = Photo.objects(Q(userId=userId) & Q(filename = l['filename']) & Q(createTime = temptime))
+            print(reports)
             if reports:
                 try:
                     toSave = self.reverse_geocoding(lat, lng, 'zh_TW', self.api_key)
-                    results = reports.update(set__gps=tempgeo,push_all__tag__zh_tw__location=toSave)
+                    for t in toSave:
+                        results = reports.update(set__gps=tempgeo,add_to_set__tag__zh_tw__location=t)
                     toSave = self.reverse_geocoding(lat, lng, 'en', self.api_key)
-                    results = reports.update(set__gps=tempgeo,push_all__tag__en__location=toSave)
+                    for t in toSave:
+                        results = reports.update(set__gps=tempgeo,add_to_set__tag__en__location=t)
+                    print(results)
                 except Exception as e:
                     print(e)
 
