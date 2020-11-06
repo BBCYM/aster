@@ -36,8 +36,8 @@ class GeoCoding:
             temptime = datetime.datetime.fromtimestamp(l['timestamp'],tz=datetime.timezone.utc).replace(microsecond=0)
             # reports = Photo.objects(Q(userId=userId) & Q(filename = l['filename']) & Q(createTime = temptime))
             reports = Photo.objects(Q(userId=userId) & Q(createTime = temptime))
-            print(reports)
             if reports:
+                print(reports)
                 try:
                     toSave = self.reverse_geocoding(lat, lng, 'zh_TW', self.api_key)
                     for t in toSave:
