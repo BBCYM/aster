@@ -127,7 +127,7 @@ class PeopleOntology:
         # get the image data
             filename = mediaItem['filename']
             p = Photo.objects(photoId=mediaItem['id']).get()
-            if p.tag.en.people.ontology.length == 0:
+            if len(list(p.tag.en.people.ontology)) == 0:
                 addr = f'http://40.83.112.73:{5230+serial}'
                 test_url = addr + '/api/yolov4/people'
 

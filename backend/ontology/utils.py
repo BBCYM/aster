@@ -72,7 +72,7 @@ class ColorProcess:
         # get the image data
             filename = mediaItem['filename']
             p = Photo.objects(photoId=mediaItem['id']).get()
-            if p.tag.en.color.length == 0:
+            if len(list(p.tag.en.color)) == 0:
                 with open(f'{self.IFR}/{self.userId}/{filename}', mode='rb') as handler:
                     image = Image(content = handler.read())
                 objects = self.client.object_localization(image=image).localized_object_annotations
