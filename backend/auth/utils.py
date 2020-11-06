@@ -72,7 +72,7 @@ class Worker():
 
 class ThreadPool:
     def __init__(self, QueueManager:queue.Queue()):
-        self.maxCore = 16
+        self.maxCore = 8
         self.tasks = QueueManager
         self.daemon = True
         self.work()

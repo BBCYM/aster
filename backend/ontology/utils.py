@@ -52,7 +52,7 @@ class ColorProcess:
         self.IFR = './static'
         self.session = session
         self.queue = queue.Queue()
-        self.session.mount('https://', HTTPAdapter(pool_maxsize=16, max_retries=10, pool_block=True))
+        self.session.mount('https://', HTTPAdapter(pool_maxsize=8, max_retries=10, pool_block=True))
         self.userId = userId
         self.client = ImageAnnotatorClient(credentials=service_account.Credentials.from_service_account_file('anster-1593361678608.json'))
         self.pageNum = int(os.getenv('PHOTO_THREAD_NUM'))
