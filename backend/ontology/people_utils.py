@@ -135,26 +135,26 @@ class PeopleOntology:
             result = ep.main(body)
             result = json.loads(result["Body"].read().decode("utf-8"))
             
-            value = tf.convert_to_tensor(result['predictions'], dtype=tf.float32)
-            boxes = value[:, :, 0:4]
-            pred_conf = value[:, :, 4:]
-            boxes, scores, classes, valid_detections = tf.image.combined_non_max_suppression(
-                boxes=tf.reshape(boxes, (tf.shape(boxes)[0], -1, 1, 4)),
-                scores=tf.reshape(
-                    pred_conf, (tf.shape(pred_conf)[0], -1, tf.shape(pred_conf)[-1])),
-                max_output_size_per_class=50,
-                max_total_size=50,
-                iou_threshold=0.45,
-                score_threshold=0.25
-            )
-            pred_bbox = [boxes.numpy(), scores.numpy(), classes.numpy(), valid_detections.numpy()]
-            image_result, people_num, people_onto, people_onto_en = draw_bbox(pred_bbox)
-            pt_zh = PeopleTag(count=people_num, ontology=people_onto)
-            pt_en = PeopleTag(count=people_num, ontology=people_onto_en)
-            p = Photo.objects(photoId=mediaItem['id']).get()
-            p.tag.zh_tw.people = pt_zh
-            p.tag.en.people = pt_en
-            p.save()
+            # value = tf.convert_to_tensor(result['predictions'], dtype=tf.float32)
+            # boxes = value[:, :, 0:4]
+            # pred_conf = value[:, :, 4:]
+            # boxes, scores, classes, valid_detections = tf.image.combined_non_max_suppression(
+            #     boxes=tf.reshape(boxes, (tf.shape(boxes)[0], -1, 1, 4)),
+            #     scores=tf.reshape(
+            #         pred_conf, (tf.shape(pred_conf)[0], -1, tf.shape(pred_conf)[-1])),
+            #     max_output_size_per_class=50,
+            #     max_total_size=50,
+            #     iou_threshold=0.45,
+            #     score_threshold=0.25
+            # )
+            # pred_bbox = [boxes.numpy(), scores.numpy(), classes.numpy(), valid_detections.numpy()]
+            # image_result, people_num, people_onto, people_onto_en = draw_bbox(pred_bbox)
+            # pt_zh = PeopleTag(count=people_num, ontology=people_onto)
+            # pt_en = PeopleTag(count=people_num, ontology=people_onto_en)
+            # p = Photo.objects(photoId=mediaItem['id']).get()
+            # p.tag.zh_tw.people = pt_zh
+            # p.tag.en.people = pt_en
+            # p.save()
         except Exception as e:
             print(f'Error from initial people api pipline {e}')
             print(traceback.format_exc())
