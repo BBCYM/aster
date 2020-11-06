@@ -34,7 +34,8 @@ class GeoCoding:
             lat, lng = l['location']['latitude'], l['location']['longitude']
             tempgeo = GeoData(latitude=lat,longitude=lng)
             temptime = datetime.datetime.fromtimestamp(l['timestamp'],tz=datetime.timezone.utc).replace(microsecond=0)
-            reports = Photo.objects(Q(userId=userId) & Q(filename = l['filename']) & Q(createTime = temptime))
+            # reports = Photo.objects(Q(userId=userId) & Q(filename = l['filename']) & Q(createTime = temptime))
+            reports = Photo.objects(Q(userId=userId) & Q(createTime = temptime))
             print(reports)
             if reports:
                 try:

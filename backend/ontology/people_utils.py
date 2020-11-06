@@ -126,33 +126,34 @@ class PeopleOntology:
         try:
         # get the image data
             filename = mediaItem['filename']
-            addr = f'http://40.83.112.73:{5230+serial}'
-            test_url = addr + '/api/yolov4/people'
-
-            # prepare headers for http request
-            content_type = 'image/jpeg'
-            headers = {'content-type': content_type}
-
-            img = cv2.imread(f'{self.IFR}/{self.userId}/{filename}')
-            # encode image as jpeg
-            _, img_encoded = cv2.imencode('.jpg', img)
-            # send http request with image and receive response
-            response = requests.post(test_url, data=img_encoded.tobytes(), headers=headers)
-            # decode response
-            result = json.loads(response.text)
             p = Photo.objects(photoId=mediaItem['id']).get()
-            for r in result['detection']:
-                at = ATag(tag=r[0],precision=float(r[1])/100)
-                p.tag.en.main_tag.append(at)
-            pt = PeopleTag(count = int(result['people']['count']))
-            for o in result['people']['ontology']:
-                pt.ontology.append(o)
-            p.tag.zh_tw.people = pt
-            pt = PeopleTag(count = result['people']['count'])
-            for o in result['people']['ontology_en']:
-                pt.ontology.append(o)
-            p.tag.en.people = pt
-            p.save()
+            if p.tag.en.people.ontology and len(p.tag.en.people.ontology) == 0:
+                addr = f'http://40.83.112.73:{5230+serial}'
+                test_url = addr + '/api/yolov4/people'
+
+                # prepare headers for http request
+                content_type = 'image/jpeg'
+                headers = {'content-type': content_type}
+
+                img = cv2.imread(f'{self.IFR}/{self.userId}/{filename}')
+                # encode image as jpeg
+                _, img_encoded = cv2.imencode('.jpg', img)
+                # send http request with image and receive response
+                response = requests.post(test_url, data=img_encoded.tobytes(), headers=headers)
+                # decode response
+                result = json.loads(response.text)
+                for r in result['detection']:
+                    at = ATag(tag=r[0],precision=float(r[1])/100)
+                    p.tag.en.main_tag.append(at)
+                pt = PeopleTag(count = int(result['people']['count']))
+                for o in result['people']['ontology']:
+                    pt.ontology.append(o)
+                p.tag.zh_tw.people = pt
+                pt = PeopleTag(count = result['people']['count'])
+                for o in result['people']['ontology_en']:
+                    pt.ontology.append(o)
+                p.tag.en.people = pt
+                p.save()
             # image = Image.open(f'{self.IFR}/{self.userId}/{filename}')
             # image = np.asarray(image.resize((self.input_size, self.input_size)))
             # image = image / 255.
