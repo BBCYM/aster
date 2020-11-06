@@ -54,7 +54,6 @@ class BotView(views.APIView):
                 return response.Response("InvalidArgument",status=status.HTTP_400_BAD_REQUEST)
         
         def get_url_cus(res_cus):
-            print("general_intent")
             parameters = res_cus.query_result.parameters
             general_object_any = parameters.fields['general_object_any'].list_value
             pid_tag = []
@@ -105,8 +104,6 @@ class BotView(views.APIView):
                 return response.Response("InvalidArgument",status=status.HTTP_400_BAD_REQUEST)
 
         def get_url(res):
-            print("測試用:", res.query_result.intent.display_name)
-            intent = res.query_result.intent.display_name
             parameters = res.query_result.parameters
             # print("parameters:",parameters)
             emotion = []
@@ -115,20 +112,17 @@ class BotView(views.APIView):
             vision = []
             location = []
             vision_origin = []
-            color_obj = []
-            # color = []
-            if intent == "AskColorEntity":
-                # vision = parameters.fields['visionAPI_1000'].list_value
-                # color = parameters.fields['color'].list_value
-                color_obj = parameters.fields['color_obj'].list_value
-                # print("color_obj:",color_obj)
-            else:
-                emotion = parameters.fields['emotion'].list_value
-                date = parameters.fields['date'].list_value
-                dateperiod = parameters.fields['date-period'].list_value
-                vision = parameters.fields['visionAPI_1000'].list_value
-                location = parameters.fields['location'].list_value
-                vision_origin = parameters.fields['visionAPI_1000_original'].list_value
+            name = []
+            people = []
+
+            emotion = parameters.fields['emotion'].list_value
+            date = parameters.fields['date'].list_value
+            dateperiod = parameters.fields['date-period'].list_value
+            vision = parameters.fields['visionAPI_1000'].list_value
+            location = parameters.fields['location'].list_value
+            vision_origin = parameters.fields['visionAPI_1000_original'].list_value
+            name = parameters.fields['name'].list_value
+            people = parameters.fields['people'].list_value
 
             pid = []
             pid_tag = []
@@ -166,9 +160,13 @@ class BotView(views.APIView):
                         # print('emotion:',emo)
                         addpid(emo, key, orkey)
 
-                        color = Photo.objects(Q(userId=userid) & Q(tag__zh_tw__color=key))
+                        color = Photo.objects(Q(userId=userid) & Q(tag__zh_tw__color__color=key))
                         # print('color:',color)
                         addpid(color, key, orkey)
+
+                        colobj = Photo.objects(Q(userId=userid) & Q(tag__zh_tw__color__obj=key))
+                        # print('colobj:',colobj)
+                        addpid(colobj, key, orkey)
 
                         peopleon = Photo.objects(Q(userId=userid) & Q(tag__zh_tw__people__ontology=key))
                         # print('peopleon:',peopleon)
@@ -194,9 +192,13 @@ class BotView(views.APIView):
                         # print('emotion:',emo)
                         addpid(emo, key, orkey)
 
-                        color = Photo.objects(Q(userId=userid) & Q(tag__en__color=key))
+                        color = Photo.objects(Q(userId=userid) & Q(tag__en__color__color=key))
                         # print('color:',color)
                         addpid(color, key, orkey)
+
+                        colobj = Photo.objects(Q(userId=userid) & Q(tag__en__color__obj=key))
+                        # print('colobj:',colobj)
+                        addpid(colobj, key, orkey)
 
                         peopleon = Photo.objects(Q(userId=userid) & Q(tag__en__people__ontology=key))
                         # print('peopleon:',peopleon)
@@ -244,12 +246,9 @@ class BotView(views.APIView):
                 datekey = datetime.strptime(datekey, "%Y-%m-%dT%H:%M:%S+08:00")
                 datekey= datetime.strftime(datekey,"%Y-%m-%d")
                 today = datetime.strptime(datekey, "%Y-%m-%d")
-                # print('today',today)
                 tomorrow = today + timedelta(days=1)
                 tomorrow = datetime.strftime(tomorrow, "%Y-%m-%d")
-                # print('tomorrow',tomorrow)
                 date = Photo.objects(Q(userId=userid) & Q(createTime__lt=tomorrow) & Q(createTime__gt=datekey))
-                # print('date:',date)
                 addpid(date, datekey, "null")
             
             # 抓時間區間(ex:今年,上禮拜)
@@ -268,33 +267,26 @@ class BotView(views.APIView):
                 addpid(dateperiod, periodkey, "null")
 
             if len(vision) is not 0:
-                if intent == "AskColorEntity":
-                    # print("okkkkkkk")
-                    vikeyArray = map(lambda k: k.string_value,vision.values)
-                    vikeyArray = OrderedSet(vikeyArray)
-                    vikeyArray = list(vikeyArray)
-                    for i in range(len(vikeyArray)):
-                        getpid(vikeyArray[i],"null")
-                else:
-                    vikeyArray = map(lambda k: k.string_value,vision.values)
-                    # vikeyArray = set(vikeyArray)
-                    vikeyArray = OrderedSet(vikeyArray)
-                    vikeyArray = list(vikeyArray)
-                    originArray = map(lambda k: k.string_value,vision_origin.values)
-                    originArray = OrderedSet(originArray)
-                    originArray = list(originArray)
-                    # print("vikeyArray:",vikeyArray)
-                    # print("originArray:",originArray)
-                    for i in range(len(vikeyArray)):
-                        getpid(vikeyArray[i],originArray[i])
+                vikeyArray = map(lambda k: k.string_value,vision.values)
+                vikeyArray = OrderedSet(vikeyArray)
+                vikeyArray = list(vikeyArray)
+                originArray = map(lambda k: k.string_value,vision_origin.values)
+                originArray = OrderedSet(originArray)
+                originArray = list(originArray)
+                for i in range(len(vikeyArray)):
+                    getpid(vikeyArray[i],originArray[i])
             
-            if len(color_obj) is not 0:
-                colobkeyArray = map(lambda k: k.string_value,color_obj.values)
-                colobkeyArray = OrderedSet(colobkeyArray)
-                colobkeyArray = list(colobkeyArray)
-                # print("colobkeyArray:",colobkeyArray)
-                for i in range(len(colobkeyArray)):
-                    getpid(colobkeyArray[i],"null")
+            if len(name) is not 0:
+                for i in range(len(name)):
+                    namekey = name.values[i].struct_value.fields['name'].string_value
+                    getpid(namekey,"null")
+            
+            if len(people) is not 0:
+                peoArray = map(lambda k: k.string_value,people.values)
+                peoArray = OrderedSet(peoArray)
+                peoArray = list(peoArray)
+                for i in range(len(peoArray)):
+                    getpid(peoArray[i],"null")
 
             if len(location) is not 0:
                 admin_areakey = location.values[0].struct_value.fields['admin-area'].string_value
