@@ -75,7 +75,7 @@ class EmotionView(APIView):
             try:
                 temp = Photo.objects(
                     photoId=photoId, isDeleted=False).scalar('tag').get()
-                k = EmotionStringtoI(temp.emotion_tag)
+                k = EmotionStringtoI(temp.zh_tw.emotion_tag)
                 res = {'emotion': k}
                 return Response(res, status=status.HTTP_200_OK)
             except Exception as e:
@@ -97,11 +97,13 @@ class EmotionView(APIView):
 
         """
         emotion_tag = request.data["emotion_tag"]
-        eTag = getEmotionString(int(emotion_tag))
+        eTag, eTagen = getEmotionString(int(emotion_tag))
         if photoId:
             try:
-                update_rows = Photo.objects(
-                    photoId=photoId).update(tag__emotion_tag=eTag)
+                Photo.objects(
+                    photoId=photoId).update(tag__zh_tw__emotion_tag=eTag)
+                Photo.objects(
+                    photoId=photoId).update(tag__en__emotion_tag=eTagen)
                 return Response({}, status=status.HTTP_200_OK)
             except Exception as e:
                 print(e)

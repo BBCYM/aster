@@ -9,7 +9,7 @@ import queue
 from google.cloud.vision import ImageAnnotatorClient, Image
 import time
 from google.oauth2 import service_account
-from auth.authenticate import ThreadPool
+from auth.utils import ThreadPool, toMandarin, toSingleMan
 from auth.models import User
 from threading import Thread
 from aster import settings
@@ -69,11 +69,11 @@ class ColorProcess:
                 image = Image(content = handler.read())
             objects = self.client.object_localization(image=image).localized_object_annotations
             result_array = color_detection(objects, f'{self.IFR}/{self.userId}/{filename}')
-            temp = {}
             for o, r in zip(objects, result_array):
-                temp[o.name] = list(r) 
-                Photo.objects(photoId=mediaItem['id']).update(push__tag__zh_tw__color=temp)
-                Photo.objects(photoId=mediaItem['id']).update(push__tag__en__color=temp)
+                temp = [str(k) + toSingleMan(o.name) for k in r if toSingleMan != None]
+                Photo.objects(photoId=mediaItem['id']).update(push_all__tag__zh_tw__color=temp)
+                temp = [str(k) + ' ' + o.name for k in r]
+                Photo.objects(photoId=mediaItem['id']).update(push_all__tag__en__color=temp)
         except Exception as e:
             print(f'Error from initial color api pipline{e}')
     def initial(self):

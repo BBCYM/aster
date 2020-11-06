@@ -21,13 +21,13 @@ class BasicStructure(EmbeddedDocument) :
     color = fields.ListField()
     people = fields.EmbeddedDocumentField(PeopleTag, default=PeopleTag())
     location = fields.ListField()
+    emotion_tag = fields.StringField(default="")
     deduction = fields.ListField()
 
 class Tag(EmbeddedDocument):
-    zh_tw = fields.EmbeddedDocumentField(BasicStructure)
-    en = fields.EmbeddedDocumentField(BasicStructure)
+    zh_tw = fields.EmbeddedDocumentField(BasicStructure, default=BasicStructure())
+    en = fields.EmbeddedDocumentField(BasicStructure, default=BasicStructure())
     cust_location_onto = fields.ListField()
-    emotion_tag = fields.StringField(default="")
     custom_tag = fields.EmbeddedDocumentListField(Custom_tag)
     
 

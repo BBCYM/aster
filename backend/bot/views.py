@@ -54,6 +54,7 @@ class BotView(views.APIView):
                 return response.Response("InvalidArgument",status=status.HTTP_400_BAD_REQUEST)
         
         def get_url_cus(res_cus):
+            print("general_intent")
             parameters = res_cus.query_result.parameters
             general_object_any = parameters.fields['general_object_any'].list_value
             pid_tag = []
@@ -148,10 +149,6 @@ class BotView(views.APIView):
             def getpid(key,orkey):
                 try:
                     # print('key',key)
-                    emo = Photo.objects(Q(userId=userid) & Q(tag__emotion_tag=key))
-                    # print('emotion:',emo)
-                    addpid(emo, key, orkey)
-                    
                     custom = Photo.objects(Q(userId=userid) & Q(tag__custom_tag__is_deleted=False) & Q(tag__custom_tag__tag=key))
                     # print('custom:',custom)
                     addpid(custom, key, orkey)
@@ -164,6 +161,10 @@ class BotView(views.APIView):
                         main = Photo.objects(Q(userId=userid) & Q(tag__zh_tw__main_tag__tag=key))
                         # print('main:',main)
                         addpid(main, key, orkey)
+
+                        emo = Photo.objects(Q(userId=userid) & Q(tag__zh_tw__emotion_tag=key))
+                        # print('emotion:',emo)
+                        addpid(emo, key, orkey)
 
                         color = Photo.objects(Q(userId=userid) & Q(tag__zh_tw__color=key))
                         # print('color:',color)
@@ -188,6 +189,10 @@ class BotView(views.APIView):
                         main = Photo.objects(Q(userId=userid) & Q(tag__en__main_tag__tag=key))
                         # print('main:',main)
                         addpid(main, key, orkey)
+
+                        emo = Photo.objects(Q(userId=userid) & Q(tag__en__emotion_tag=key))
+                        # print('emotion:',emo)
+                        addpid(emo, key, orkey)
 
                         color = Photo.objects(Q(userId=userid) & Q(tag__en__color=key))
                         # print('color:',color)

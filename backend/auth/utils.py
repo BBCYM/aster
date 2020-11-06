@@ -2,18 +2,40 @@ import json
 from googletrans import Translator
 import random
 import inspect
-
+from threading import Thread
+import queue
+import time
+import traceback
 def getLabelDescription(data):
-    return data.description
+    temp = str(data.description).encode('utf-8')
+    result = str(temp, 'utf-8')
+    print(result)
+    return result
 
+
+def toSingleMan(data):
+    try:
+        translator = Translator()
+        result = translator.translate(data, dest='zh-tw')
+        
+        if result and result.text:
+            print(result.text)
+            return str(result.text)
+        else:
+            print('A SingleMan None')
+            return None
+    except Exception as e:
+        print(f'Error from toSingleMan {e}')
+        # print(traceback.format_exc())
 
 def toMandarin(data):
     try:
+        time.sleep(0.3)
         translator = Translator()
         return list(map(lambda l: l.text, translator.translate(data, dest='zh-tw')))
     except Exception as e:
-        if type(e)==AttributeError:
-            return toMandarin(data)
+        print(f'Error from to Mandarin {e}')
+        print(traceback.format_exc())
      
 
 def stringify(data: dict):
@@ -39,3 +61,29 @@ def get_class_that_defined_method(meth):
         if isinstance(cls, type):
             return cls
     return None  # not required since None would have been implicitly returned anyway
+
+
+class Worker():
+    def __init__(self, tasks:queue.Queue):
+        self.tasks = tasks
+        self.go()
+
+    def go(self):
+        while True:
+            func, args, kwargs = self.tasks.get()
+            func(*args, **kwargs)
+            self.tasks.task_done()
+
+class ThreadPool:
+    def __init__(self, QueueManager:queue.Queue()):
+        self.maxCore = 16
+        self.tasks = QueueManager
+        self.daemon = True
+        self.work()
+
+    def add_task(self, func, *args, **kargs):
+        self.tasks.put((func, args, kargs))
+
+    def work(self):
+        for _ in range(self.maxCore):
+            Thread(target=Worker, args=(self.tasks,), daemon=self.daemon).start()

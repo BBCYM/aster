@@ -23,8 +23,9 @@ import logging
 from requests.adapters import HTTPAdapter
 from ontology.onto import get_location
 import os, traceback
-
-
+from ontology.utils import ColorProcess
+from ontology.people_utils import PeopleOntology
+from .utils import ThreadPool
 logging.basicConfig(filename=f'./log/{__name__}.log',level=logging.INFO, filemode='w+', format='%(name)s %(levelname)s %(asctime)s -> %(message)s')
 
 def checkisSync(session,userId):
@@ -38,31 +39,6 @@ def checkisSync(session,userId):
             print('some pic is missing')
             return False
     return True
-class Worker():
-    def __init__(self, tasks:queue.Queue):
-        self.tasks = tasks
-        self.go()
-
-    def go(self):
-        while True:
-            func, args, kwargs = self.tasks.get()
-            func(*args, **kwargs)
-            self.tasks.task_done()
-
-class ThreadPool:
-    def __init__(self, QueueManager:queue.Queue()):
-        self.maxCore = 16
-        self.tasks = QueueManager
-        self.daemon = True
-        self.work()
-
-    def add_task(self, func, *args, **kargs):
-        self.tasks.put((func, args, kargs))
-
-    def work(self):
-        for _ in range(self.maxCore):
-            Thread(target=Worker, args=(self.tasks,), daemon=self.daemon).start()
-
 
 class MainProcess:
     def __init__(self, session:AuthorizedSession, userId):
@@ -87,17 +63,18 @@ class MainProcess:
                 raise Exception(response.error.message)
             labels = response.label_annotations
             ltemp = list(map(getLabelDescription, labels))
-            mLabels = toMandarin(ltemp)
+            # mLabels = toMandarin(ltemp)
+            # print(mLabels)
             logging.info(ltemp)
             t = Tag()
             bs = BasicStructure()
             for el, l in zip(ltemp, labels):
                 bs.main_tag.append(ATag(tag=el, precision=l.score))
-            t.en = bs
-            bs = BasicStructure()
-            for ml, l in zip(mLabels, labels):
-                bs.main_tag.append(ATag(tag=ml, precision=l.score))
-            t.zh_tw = bs
+            # t.en = bs
+            # bs = BasicStructure()
+            # for ml, l in zip(mLabels, labels):
+                # bs.main_tag.append(ATag(tag=ml, precision=l.score))
+            # t.zh_tw = bs
             tempcreationTime = mediaItem['mediaMetadata']['creationTime']
             sliceTime = tempcreationTime.split('Z')[0].split('.')[0] if '.' in tempcreationTime else tempcreationTime.split('Z')[0]
             realTime = datetime.datetime.strptime(sliceTime, "%Y-%m-%dT%H:%M:%S")   
@@ -113,7 +90,7 @@ class MainProcess:
         except Exception as e:
             logging.error(e)
             print(f'Error from initial vision api pipline {e}')
-            # print(traceback.format_exc())
+            print(traceback.format_exc())
 
             
     def afterall(self, tic, i):
@@ -127,6 +104,9 @@ class MainProcess:
             set__lastSync=make_aware(datetime.datetime.utcnow(),
                                     timezone=pytz.timezone(settings.TIME_ZONE))
         )
+        # color
+        color_process = ColorProcess(session=self.session, userId=self.userId)
+        Thread(target=color_process.initial,daemon=True).start()
     def initial(self):
         tic = time.perf_counter()
         User.objects(userId=self.userId).update(set__isFreshing=True, set__isSync=False)

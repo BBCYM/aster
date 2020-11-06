@@ -8,8 +8,7 @@ from .authenticate import checkUserToSession, checkisSync, MainProcess
 import threading
 import queue
 import json
-from ontology.utils import ColorProcess
-from ontology.people_utils import PeopleOntology
+
 
 
 class UserView(APIView):
@@ -51,9 +50,7 @@ class AuthView(APIView):
             userSession, user = checkUserToSession(userId, request)
             process = MainProcess(session=userSession, userId=userId)
             threading.Thread(target=process.initial,daemon=True).start()
-            # color
-            color_process = ColorProcess(session=userSession, userId=userId)
-            threading.Thread(target=color_process.initial,daemon=True).start()
+            
             # #People
             # people_ontology = PeopleOntology(session=userSession, userId=userId)
             # threading.Thread(target=people_ontology.initial,daemon=True).start()

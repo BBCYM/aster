@@ -7,7 +7,7 @@ from requests.adapters import HTTPAdapter
 import queue
 import time
 from google.oauth2 import service_account
-from auth.authenticate import ThreadPool
+from auth.utils import ThreadPool
 from auth.models import User
 from threading import Thread
 from aster import settings
