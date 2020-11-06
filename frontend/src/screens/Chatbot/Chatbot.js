@@ -13,7 +13,7 @@ export default function RoomScreen({navigation}) {
 	const { auth, state } = React.useContext(AuthContext)
 	if (state.language == 'zh-tw') {
 		console.log("state.language",state.language);
-		strtxt1 = '請問你想甚麼樣的照片?'
+		strtxt1 = '請問你想要甚麼樣的照片?'
 		strtxt2 = '你好😊 我是Aster'
 	}
 	else{
