@@ -20,7 +20,7 @@ import json
 import boto3
 # import tensorflow as tf
 import traceback
-from ontology.utils import ColorProcess
+# from ontology.utils import ColorProcess
 from num2words import num2words
 import cv2
 # def read_class_names(class_file_name):

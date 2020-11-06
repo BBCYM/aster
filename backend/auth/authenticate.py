@@ -22,8 +22,8 @@ from threading import Thread
 import logging
 from requests.adapters import HTTPAdapter
 import os, traceback
-from ontology.people_utils import PeopleOntology
-from ontology.utils import ColorProcess
+# from ontology.people_utils import PeopleOntology
+# from ontology.utils import ColorProcess
 from .utils import ThreadPool
 logging.basicConfig(filename=f'./log/{__name__}.log',level=logging.INFO, filemode='w+', format='%(name)s %(levelname)s %(asctime)s -> %(message)s')
 
