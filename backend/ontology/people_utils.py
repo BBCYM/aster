@@ -119,9 +119,9 @@ class PeopleOntology:
             set__people_onto__lastSync=make_aware(datetime.datetime.utcnow(),
                                     timezone=pytz.timezone(settings.TIME_ZONE))
         )
-        # # color
-        # color_process = ColorProcess(session=self.session, userId=self.userId)
-        # Thread(target=color_process.initial,daemon=True).start()
+        # color
+        color_process = ColorProcess(session=self.session, userId=self.userId)
+        Thread(target=color_process.initial,daemon=True).start()
     def people_pipline(self, mediaItem, serial):
         try:
         # get the image data
