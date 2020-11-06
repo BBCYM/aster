@@ -61,14 +61,12 @@ class MainProcess:
             labels = response.label_annotations
             ltemp = list(map(getLabelDescription, labels))
             mLabels = toMandarin(ltemp)
-            # print(mLabels)
-            # logging.info(ltemp)
             t = Tag()
             bs = BasicStructure()
             for el, l in zip(ltemp, labels):
                 bs.main_tag.append(ATag(tag=el, precision=l.score))
             t.en = bs
-            if len(mLabels) > 0:
+            if mLabels and len(mLabels) > 0:
                 bs = BasicStructure()
                 for ml, l in zip(mLabels, labels):
                     bs.main_tag.append(ATag(tag=ml, precision=l.score))
