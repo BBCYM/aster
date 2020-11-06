@@ -1,7 +1,7 @@
 import requests
 import os
 from mongoengine.queryset.visitor import Q
-from photo.models import Photo
+from photo.models import Photo, PeopleTag
 import datetime
 from requests.adapters import HTTPAdapter
 import queue
@@ -20,6 +20,66 @@ import json
 import boto3
 import tensorboard as tf
 import traceback
+from num2words import num2words
+
+def read_class_names(class_file_name):
+    names = {}
+    with open(class_file_name, 'r') as data:
+        for ID, name in enumerate(data):
+            names[ID] = name.strip('\n')
+    return names
+def draw_bbox(bboxes, classes=read_class_names('./coco.names')):
+    num_classes = len(classes)
+    out_boxes, out_scores, out_classes, num_boxes = bboxes
+    people = 0
+    image_result = []
+    for i in range(num_boxes[0]):
+        if int(out_classes[0][i]) < 0 or int(out_classes[0][i]) > num_classes: continue
+        score = out_scores[0][i] #need
+        class_ind = int(out_classes[0][i]) # need
+        if classes[class_ind] == "person":
+            people = people + 1
+            continue
+            if float(score) < 60:
+                continue
+            image_result.append({'obj':classes[class_ind],'score':score})
+    people_onto = [str(people)+"個人", str(people)+"人"]
+    people_onto_en = [f'{people} person' if people == 1 else f'{people} people' ]
+    ch_code = ""
+    if people == 0:
+        ch_code = "零"
+        people_onto.append("沒人")
+        people_onto.append("no people")
+    elif people == 1:
+        ch_code = "一"
+        people_onto.append("獨照")
+    elif people == 2:
+        ch_code = "二"
+        people_onto.append("兩人")
+    elif people == 3:
+        ch_code = "三"
+    elif people == 4:
+        ch_code = "四"
+    elif people == 5:
+        ch_code = "五"
+    elif people == 6:
+        ch_code = "六"
+    elif people == 7:
+        ch_code = "七"
+    elif people == 8:
+        ch_code = "八"
+    elif people == 9:
+        ch_code = "九"
+    elif people == 10:
+        ch_code = "十"
+    if people <= 10:
+        people_onto.append(ch_code+"個人")
+        people_onto.append(ch_code+"人")
+    if people>2:
+        people_onto.append("人群")
+        people_onto_en.extend(['many people','a group of people'])
+    people_onto_en.append(f'{num2words(people)} person' if people == 1 else f'{num2words(people)} people')
+    return image_result, people, people_onto, people_onto_en
 class Endpoint:
     def __init__(self):
         self.end_point = 'bbcym-aster-yolov4-endpoint'
@@ -70,12 +130,10 @@ class PeopleOntology:
             ep = Endpoint()
             result = ep.main(body)
             result = json.loads(result["Body"].read().decode("utf-8"))
-            for key, value in result.items():
-                boxes = value[:, :, 0:4]
-                print(boxes)
-                pred_conf = value[:, :, 4:]
-                print(pred_conf)
-
+            
+            value = tf.convert_to_tensor(result['predictions'], dtype=tf.float32)
+            boxes = value[:, :, 0:4]
+            pred_conf = value[:, :, 4:]
             boxes, scores, classes, valid_detections = tf.image.combined_non_max_suppression(
                 boxes=tf.reshape(boxes, (tf.shape(boxes)[0], -1, 1, 4)),
                 scores=tf.reshape(
@@ -85,20 +143,14 @@ class PeopleOntology:
                 iou_threshold=0.45,
                 score_threshold=0.25
             )
-            classesDict = {0: 'person', 1: 'bicycle', 2: 'car', 3: 'motorbike', 4: 'aeroplane', 5: 'bus', 6: 'train', 7: 'truck', 8: 'boat', 9: 'traffic light', 10: 'fire hydrant', 11: 'stop sign', 12: 'parking meter', 13: 'bench', 14: 'bird', 15: 'cat', 16: 'dog', 17: 'horse', 18: 'sheep', 19: 'cow', 20: 'elephant', 21: 'bear', 22: 'zebra', 23: 'giraffe', 24: 'backpack', 25: 'umbrella', 26: 'handbag', 27: 'tie', 28: 'suitcase', 29: 'frisbee', 30: 'skis', 31: 'snowboard', 32: 'sports ball', 33: 'kite', 34: 'baseball bat', 35: 'baseball glove', 36: 'skateboard', 37: 'surfboard', 38: 'tennis racket', 39: 'bottle', 40: 'wine glass', 41: 'cup', 42: 'fork', 43: 'knife', 44: 'spoon', 45: 'bowl', 46: 'banana', 47: 'apple', 48: 'sandwich', 49: 'orange', 50: 'broccoli', 51: 'carrot', 52: 'hot dog', 53: 'pizza', 54: 'donut', 55: 'cake', 56: 'chair', 57: 'sofa', 58: 'potted plant', 59: 'bed', 60: 'dining table', 61: 'toilet', 62: 'tvmonitor', 63: 'laptop', 64: 'mouse', 65: 'remote', 66: 'keyboard', 67: 'cell phone', 68: 'microwave', 69: 'oven', 70: 'toaster', 71: 'sink', 72: 'refrigerator', 73: 'book', 74: 'clock', 75: 'vase', 76: 'scissors', 77: 'teddy bear', 78: 'hair drier', 79: 'toothbrush'}
-            num_classes = len(classesDict)
-            out_scores = scores.numpy()
-            out_classes = classes.numpy()
-            num_boxes = valid_detections.numpy()
-            result = []
-            for i in range(num_boxes[0]):
-                if int(out_classes[0][i]) < 0 or int(out_classes[0][i]) > num_classes: continue
-                score = out_scores[0][i] # 要
-                class_ind = int(out_classes[0][i]) #要
-                temp={}
-                temp[classes[class_ind]] = score
-                result.append(temp)
-            print(result)
+            pred_bbox = [boxes.numpy(), scores.numpy(), classes.numpy(), valid_detections.numpy()]
+            image_result, people_num, people_onto, people_onto_en = draw_bbox(pred_bbox)
+            pt_zh = PeopleTag(count=people_num, ontology=people_onto)
+            pt_en = PeopleTag(count=people_num, ontology=people_onto_en)
+            p = Photo.objects(photoId=mediaItem['id']).get()
+            p.tag.zh_tw.people = pt_zh
+            p.tag.en.people = pt_en
+            p.save()
         except Exception as e:
             print(f'Error from initial people api pipline{e}')
             print(traceback.format_exc())
@@ -164,3 +216,4 @@ class PeopleOntology:
         except Exception as e:
             print(e)
         Thread(target=self.afterall, args=(tic,i), daemon=True).start()
+
