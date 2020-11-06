@@ -23,6 +23,7 @@ import logging
 from requests.adapters import HTTPAdapter
 from ontology.onto import get_location
 import os, traceback
+from ontology.people_utils import PeopleOntology
 logging.basicConfig(filename=f'./log/{__name__}.log',level=logging.INFO, filemode='w+', format='%(name)s %(levelname)s %(asctime)s -> %(message)s')
 
 def checkisSync(session,userId):
