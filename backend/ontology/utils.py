@@ -66,7 +66,7 @@ class ColorProcess:
             set__color_onto__lastSync=make_aware(datetime.datetime.utcnow(),
                                     timezone=pytz.timezone(settings.TIME_ZONE))
         )
-    def color_pipline(self, mediaItem):
+    def color_pipline(self, mediaItem, serial):
         try:
         # get the image data
             filename = mediaItem['filename']

@@ -60,19 +60,21 @@ def get_class_that_defined_method(meth):
 
 
 class Worker():
-    def __init__(self, tasks:queue.Queue):
+    def __init__(self, tasks:queue.Queue, serial):
         self.tasks = tasks
+        self.serial = serial
         self.go()
 
     def go(self):
         while True:
             func, args, kwargs = self.tasks.get()
+            kwargs['serial'] = self.serial
             func(*args, **kwargs)
             self.tasks.task_done()
 
 class ThreadPool:
     def __init__(self, QueueManager:queue.Queue()):
-        self.maxCore = 8
+        self.maxCore = 4
         self.tasks = QueueManager
         self.daemon = True
         self.work()
@@ -81,5 +83,5 @@ class ThreadPool:
         self.tasks.put((func, args, kargs))
 
     def work(self):
-        for _ in range(self.maxCore):
-            Thread(target=Worker, args=(self.tasks,), daemon=self.daemon).start()
+        for i in range(self.maxCore):
+            Thread(target=Worker, args=(self.tasks,i),daemon=self.daemon).start()

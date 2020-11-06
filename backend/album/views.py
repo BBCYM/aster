@@ -72,7 +72,6 @@ class AlbumPDView(APIView):
         try:
             update_rows = Album.objects(_id=albumId).update(
                 albumName=albumName)
-            print(f'Album/View: AlbumView.put, db:{update_rows} rows')
         except Exception as e:
             print(e)
             return Response("AlbumViewError", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -97,7 +96,6 @@ class AlbumPDView(APIView):
             for tag in album.albumTag:
                 tag.isDeleted = True
             album.save()
-            print("Album Deleted")
         except Exception as e:
             print(e)
             return Response("AlbumViewError", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -166,9 +164,6 @@ class AlbumTagView(APIView):
         try:
             update_rows = Album.objects(_id=albumId).update(
                 add_to_set__albumTag=tag)
-
-            print(f'Album/View: TagView.post, db:{update_rows} rows')
-
         except Exception as e:
             print('error: ', e)
             return Response(simpleMessage("Post/AlbumTagView: error"), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -190,8 +185,6 @@ class AlbumTagView(APIView):
 
         try:
             result = Album.objects(_id=albumId, albumTag__match={'tag': album_tag, 'isDeleted': False}).update_one(set__albumTag__S__isDeleted=True)
-            print(result)
-
         except Exception as e:
             print(e)
             return Response(simpleMessage("DELETE/AlbumTagView: error"), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -285,9 +278,6 @@ class AlbumPhotoView(APIView):
         try:
             update_rows = Album.objects(_id=albumId).update(
                 add_to_set__albumPhoto=photoId)
-
-            print(f'Album/View: AlbumPhotoView.post, db:{update_rows} rows')
-
         except Exception as e:
             print('error: ', e)
             return Response(simpleMessage("Post/AlbumPhotoView: error"), status=status.HTTP_500_INTERNAL_SERVER_ERROR)

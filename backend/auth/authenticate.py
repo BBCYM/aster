@@ -48,7 +48,7 @@ class MainProcess:
         self.userId = userId
         self.client = ImageAnnotatorClient(credentials=service_account.Credentials.from_service_account_file('anster-1593361678608.json'))
         self.pageNum = int(os.getenv('PHOTO_THREAD_NUM'))
-    def pipeline(self, mediaItem):
+    def pipeline(self, mediaItem, serial):
         # only download images
         try:
             # get the image data
@@ -113,7 +113,7 @@ class MainProcess:
         nPT = ''
         pool=ThreadPool(self.queue)
         # subscribed = {'color':True}
-        params = {'pageSize': 1}
+        params = {'pageSize': self.pageNum}
         i = 0
         try:
             if not os.path.isdir(f'{self.IFR}/{self.userId}'):

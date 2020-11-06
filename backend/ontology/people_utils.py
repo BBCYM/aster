@@ -122,11 +122,11 @@ class PeopleOntology:
         # # color
         # color_process = ColorProcess(session=self.session, userId=self.userId)
         # Thread(target=color_process.initial,daemon=True).start()
-    def people_pipline(self, mediaItem):
+    def people_pipline(self, mediaItem, serial):
         try:
         # get the image data
             filename = mediaItem['filename']
-            addr = 'http://40.83.112.73:5239/'
+            addr = f'http://40.83.112.73:{5230+serial}/'
             test_url = addr + '/api/yolov4/people'
 
             # prepare headers for http request
@@ -140,10 +140,13 @@ class PeopleOntology:
             response = requests.post(test_url, data=img_encoded.tobytes(), headers=headers)
             # decode response
             result = json.loads(response.text)
+            p = Photo.objects(photoId=mediaItem['id']).get()
+            for r in result['detection']:
+                at = ATag(tag=r[0],precision=float(r[1])/100)
+                p.tag.en.main_tag.append(at)
             pt = PeopleTag(count = int(result['people']['count']))
             for o in result['people']['ontology']:
                 pt.ontology.append(o)
-            p = Photo.objects(photoId=mediaItem['id']).get()
             p.tag.zh_tw.people = pt
             pt = PeopleTag(count = result['people']['count'])
             for o in result['people']['ontology_en']:
@@ -186,7 +189,7 @@ class PeopleOntology:
         tic = time.perf_counter()
         nPT = ''
         pool=ThreadPool(self.queue)
-        params = {'pageSize': 1}
+        params = {'pageSize': self.pageNum}
         i = 0
         try:
             if not os.path.isdir(f'{self.IFR}/{self.userId}'):
