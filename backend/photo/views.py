@@ -10,7 +10,7 @@ from django.core.handlers.wsgi import WSGIRequest
 from .utils import getEmotionString, EmotionStringtoI
 from utils.utils import is_valid_objectId
 from ontology.onto import get_location
-
+import traceback
 get_fields = ('photoId', 'isDeleted', 'createTime')
 
 
@@ -101,9 +101,9 @@ class EmotionView(APIView):
         if photoId:
             try:
                 Photo.objects(
-                    photoId=photoId).update(tag__zh_tw__emotion_tag=eTag)
+                    photoId=photoId).update(set__tag__zh_tw__emotion_tag=eTag)
                 Photo.objects(
-                    photoId=photoId).update(tag__en__emotion_tag=eTagen)
+                    photoId=photoId).update(set__tag__en__emotion_tag=eTagen)
                 return Response({}, status=status.HTTP_200_OK)
             except Exception as e:
                 print(e)

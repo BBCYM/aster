@@ -1,7 +1,7 @@
 import requests
 import os
 from mongoengine.queryset.visitor import Q
-from photo.models import Photo, PeopleTag
+from photo.models import Photo, PeopleTag, ATag
 import datetime
 from requests.adapters import HTTPAdapter
 import queue
@@ -18,7 +18,7 @@ from PIL import Image
 import numpy as np
 import json
 import boto3
-import tensorboard as tf
+import tensorflow as tf
 import traceback
 from num2words import num2words
 
@@ -42,7 +42,7 @@ def draw_bbox(bboxes, classes=read_class_names('./coco.names')):
             continue
             if float(score) < 60:
                 continue
-            image_result.append({'obj':classes[class_ind],'score':score})
+            image_result.append(ATag(tag=classes[class_ind], precision=float(score)))
     people_onto = [str(people)+"個人", str(people)+"人"]
     people_onto_en = [f'{people} person' if people == 1 else f'{people} people' ]
     ch_code = ""
@@ -152,7 +152,7 @@ class PeopleOntology:
             p.tag.en.people = pt_en
             p.save()
         except Exception as e:
-            print(f'Error from initial people api pipline{e}')
+            print(f'Error from initial people api pipline {e}')
             print(traceback.format_exc())
     def initial(self):
         tic = time.perf_counter()

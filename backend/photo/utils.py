@@ -1,8 +1,9 @@
 def getEmotionString(k):
+    print(k)
     emotion = ['讚','喜歡','開心','驚訝','難過','憤怒']
     emotion_en = ['thumbs-up','like','happy','surprise','sad','angry']
     if k==-1:
-        return ''
+        return '', ''
     else:
         return emotion[k], emotion_en[k]
 

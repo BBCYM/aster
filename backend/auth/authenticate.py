@@ -70,7 +70,7 @@ class MainProcess:
             bs = BasicStructure()
             for el, l in zip(ltemp, labels):
                 bs.main_tag.append(ATag(tag=el, precision=l.score))
-            # t.en = bs
+            t.en = bs
             # bs = BasicStructure()
             # for ml, l in zip(mLabels, labels):
                 # bs.main_tag.append(ATag(tag=ml, precision=l.score))
@@ -104,9 +104,12 @@ class MainProcess:
             set__lastSync=make_aware(datetime.datetime.utcnow(),
                                     timezone=pytz.timezone(settings.TIME_ZONE))
         )
-        # color
-        color_process = ColorProcess(session=self.session, userId=self.userId)
-        Thread(target=color_process.initial,daemon=True).start()
+        # # color
+        # color_process = ColorProcess(session=self.session, userId=self.userId)
+        # Thread(target=color_process.initial,daemon=True).start()
+        #People
+        people_ontology = PeopleOntology(session=self.session, userId=self.userId)
+        Thread(target=people_ontology.initial,daemon=True).start()
     def initial(self):
         tic = time.perf_counter()
         User.objects(userId=self.userId).update(set__isFreshing=True, set__isSync=False)
