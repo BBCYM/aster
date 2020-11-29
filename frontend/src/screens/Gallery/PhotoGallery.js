@@ -65,70 +65,57 @@ export default function GalleryScreen(that) {
 			headers:auth.headers(state.language)
 		})
 		let deletedPid = temp.data['photos'].map((v)=>{return v[0]})
-		const isLoaded = await AsyncStorage.getItem('GalleryLoaded')
-		if (isLoaded === 'false') {
-			console.log('Loading photo')
-			const accessToken = await auth.getAccessToken()
-			let pageToken = ''
-			let i = 0
-			do {
-				var params = {
-					pageSize: 100
-				}
-				if (pageToken) {
-					params.pageToken = pageToken
-				}
-				try {
-					let res = await Axios.get('https://photoslibrary.googleapis.com/v1/mediaItems', {
-						params: params,
-						headers: {
-							'Authorization': `Bearer ${accessToken}`,
-							'Content-type': 'application/json'
-						}
-					})
-					pageToken = res.data['nextPageToken']
-					let mediaItems = res.data['mediaItems']
-					let fSource = status.fastSource
-					let mSource = status.modalSource
-					for (const item of mediaItems) {
-						if (deletedPid.includes(item['id'])){
-							continue
-						}
-						var width = 400
-						var height = 400
-						var img = {
-							id: i++,
-							imgId: item['id'],
-							src: `${item['baseUrl']}=w${width}-h${height}`,
-							headers: { Authorization: `Bearer ${accessToken}` }
-						}
-						fSource.push(img)
-						mSource.push({
-							url: item['baseUrl'],
-						})
+		console.log('Loading photo')
+		const accessToken = await auth.getAccessToken()
+		let pageToken = ''
+		let i = 0
+		do {
+			var params = {
+				pageSize: 100
+			}
+			if (pageToken) {
+				params.pageToken = pageToken
+			}
+			try {
+				let res = await Axios.get('https://photoslibrary.googleapis.com/v1/mediaItems', {
+					params: params,
+					headers: {
+						'Authorization': `Bearer ${accessToken}`,
+						'Content-type': 'application/json'
 					}
-					setStatus({ fastSource: fSource, modalSource: mSource })
-				} catch (err) {
-					console.log('error')
-					console.log(err.message)
+				})
+				pageToken = res.data['nextPageToken']
+				let mediaItems = res.data['mediaItems']
+				let fSource = status.fastSource
+				let mSource = status.modalSource
+				for (const item of mediaItems) {
+					if (deletedPid.includes(item['id'])){
+						continue
+					}
+					var width = 400
+					var height = 400
+					var img = {
+						id: i++,
+						imgId: item['id'],
+						src: `${item['baseUrl']}=w${width}-h${height}`,
+						headers: { Authorization: `Bearer ${accessToken}` }
+					}
+					fSource.push(img)
+					mSource.push({
+						url: item['baseUrl'],
+					})
 				}
-			} while (pageToken)
-		}
-		callback(isLoaded)
+				setStatus({ fastSource: fSource, modalSource: mSource })
+			} catch (err) {
+				console.log('error')
+				console.log(err.message)
+			}
+		} while (pageToken)
+		callback()
 	}
 	React.useEffect(() => {
-		fetchImageSource(async (isLoaded) => {
-			console.log('isLoaded',isLoaded)
-			if (isLoaded === 'false') {
-				// first time
-				let fSource = ['fSource', JSON.stringify(status.fastSource)]
-				let mSource = ['mSource', JSON.stringify(status.modalSource)]
-				let GalleryLoaded = ['GalleryLoaded', 'true']
-				AsyncStorage.multiSet([fSource, mSource, GalleryLoaded])
-			} else {
-				let temp = await AsyncStorage.multiGet(['fSource', 'mSource'])
-				setStatus({ fastSource: JSON.parse(temp[0][1]), modalSource: JSON.parse(temp[1][1]) })
-			}
+		fetchImageSource(async () => {
+
 			auth.checkNetwork(state,(verified)=>{
 				if (verified){
 					setStatus({isLoading:false})

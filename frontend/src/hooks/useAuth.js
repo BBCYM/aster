@@ -73,7 +73,6 @@ export function useAuth() {
 			})
 			if (user) {
 				console.log(user)
-				AsyncStorage.setItem('GalleryLoaded', 'false')
 				let _isIndb = await axios.get(`${url}/user/${user.id}`, {
 					headers: headers
 				})
@@ -101,7 +100,7 @@ export function useAuth() {
 				await GoogleSignin.hasPlayServices()
 				userInfo = await GoogleSignin.signIn()
 			}, () => {
-				AsyncStorage.multiSet([['GalleryLoaded', 'false'], ['lancode', 'zh-tw'],['useWifi','true']])
+				AsyncStorage.multiSet([['lancode', 'zh-tw'],['useWifi','true']])
 				axios.post(`${url}/auth/${userInfo.user.id}`, {
 					scopes: userInfo.scopes,
 					serverAuthCode: userInfo.serverAuthCode

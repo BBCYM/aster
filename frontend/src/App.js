@@ -1,12 +1,12 @@
 import * as React from 'react'
 import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
-import { AuthStackNavigator } from './navigators/AuthStackNavigators'
 import { PagesTabNavigator } from './navigators/PagesTabNavigator'
 import { AuthContext } from './contexts/AuthContext'
 import { SplashScreen } from './screens/Auth/Splash'
 import { useAuth } from './hooks/useAuth'
 import { ThemeProvider } from 'react-native-elements'
+import {SigninScreen} from './screens/Auth/Signin'
 import {setCustomText} from 'react-native-global-props'
 
 console.disableYellowBox = true
@@ -43,7 +43,7 @@ export default function App() {
 
 								) : (
 									console.log('need auth'),
-									<MainStack.Screen name='Auth' component={AuthStackNavigator} />
+									<MainStack.Screen name='Auth' component={SigninScreen} />
 								)
 							)
 						}
