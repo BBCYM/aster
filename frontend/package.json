@@ -23,7 +23,7 @@
     "@react-navigation/stack": "^5.6.2",
     "axios": "^0.19.2",
     "buffer": "^5.6.0",
-    "lodash": "^4.17.20",
+    "lodash": "^4.17.21",
     "object-hash": "^2.0.3",
     "react": "16.11.0",
     "react-native": "0.62.2",
